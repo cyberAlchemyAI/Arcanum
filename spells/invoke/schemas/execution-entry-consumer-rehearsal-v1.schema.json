@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/execution-entry-consumer-rehearsal/1-0-0",
+  "title": "InvokeExecutionEntryConsumerRehearsalV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source_ref", "wpra_config_ref", "unit_id", "stages", "closure_result", "request_eligibility_result", "request_eligibility_blockers", "owner_acceptance_status", "selection_admission_authority", "joined_driver_digest", "effects", "authority_effect", "receipt_digest"],
+  "properties": {
+    "schema_version": {"const": "invoke.execution-entry-consumer-rehearsal.v1"},
+    "source_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "wpra_config_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "unit_id": {"type": "string", "minLength": 1},
+    "stages": {
+      "type": "array",
+      "minItems": 15,
+      "maxItems": 15,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "wpra"}, "consumer_identity": {"const": "work-pack-readiness-audit.v2"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "implementation-readiness"}, "consumer_identity": {"const": "implementation-readiness.execution-contracts.v1"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "context-builder"}, "consumer_identity": {"const": "context-builder.native-machine-view.v1"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "mutation-admission"}, "consumer_identity": {"const": "task-session.mutation-admission.v1"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "governance-prepare"}, "consumer_identity": {"const": "task-session.live-execution-entry-preparation.v1"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "accepted-stream-driver-request"}, "consumer_identity": {"const": "invoke.accepted-stream-driver-bridge.v1"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "accepted-stream-driver"}, "consumer_identity": {"const": "task-session-until-blocker.accepted-stream-driver.v1"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "accepted-stream-driver-join"}, "consumer_identity": {"const": "invoke.accepted-stream-driver-join.v1"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "child-precloseout"}, "consumer_identity": {"const": "task-session.closeout-preflight.v2"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "invoke-owner-closeout"}, "consumer_identity": {"const": "invoke.owner-closeout-schema-frontier.v2"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "child-final-terminal"}, "consumer_identity": {"const": "task-session.final-terminal.v2"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "child-continuity"}, "consumer_identity": {"const": "task-session.continuity.v2"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "successor-pair"}, "consumer_identity": {"const": "task-session-until-blocker.successor-pair.v1"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "reducer-transition"}, "consumer_identity": {"const": "task-session-until-blocker.reducer-transition.v1"}}}]},
+        {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage_id": {"const": "stream-completion"}, "consumer_identity": {"const": "task-session-until-blocker.stream-completion.v1"}}}]}
+      ],
+      "items": false
+    },
+    "closure_result": {"const": "pass"},
+    "request_eligibility_result": {"enum": ["pass", "block"]},
+    "request_eligibility_blockers": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "owner_acceptance_status": {"enum": ["pending", "present"]},
+    "selection_admission_authority": {"const": "absent"},
+    "joined_driver_digest": {"$ref": "#/$defs/sha256"},
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository_writes", "external_effects", "selection", "admission_token", "execution"],
+      "properties": {
+        "repository_writes": {"const": 0},
+        "external_effects": {"const": false},
+        "selection": {"const": false},
+        "admission_token": {"const": false},
+        "execution": {"const": false}
+      }
+    },
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"$ref": "#/$defs/sha256"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"request_eligibility_result": {"const": "pass"}}, "required": ["request_eligibility_result"]},
+      "then": {"properties": {"request_eligibility_blockers": {"maxItems": 0}}},
+      "else": {"properties": {"request_eligibility_blockers": {"minItems": 1}}}
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "relativePath": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|[\\/])\\.\\.(?:[\\/]|$))[^\\u0000]+$"},
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage_id", "consumer_identity", "consumer_refs", "result", "projection_digest"],
+      "properties": {
+        "stage_id": {"type": "string", "minLength": 1},
+        "consumer_identity": {"type": "string", "minLength": 1},
+        "consumer_refs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/exactArtifactRef"}},
+        "result": {"const": "pass"},
+        "projection_digest": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

@@ -1,0 +1,264 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "const": "https://arcanum.dev/schemas/invoke/design-input-boundary-approval/v1"
+        },
+        "approval_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+        },
+        "approval_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+        },
+        "approved_by": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+        },
+        "authority_effect": {
+            "const": "none"
+        },
+        "boundary_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+        },
+        "discovery_rules": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "include_globs": {
+                                "allOf": [
+                                    {
+                                        "prefixItems": [
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "minItems": 1,
+                                        "uniqueItems": true
+                                    }
+                                ]
+                            },
+                            "input_class": {
+                                "enum": [
+                                    "define-artifact",
+                                    "current-design",
+                                    "current-implementation",
+                                    "interface-contract",
+                                    "state-workflow",
+                                    "data-store",
+                                    "queue-writer",
+                                    "deployment-topology",
+                                    "authority-policy",
+                                    "security-policy",
+                                    "privacy-policy",
+                                    "compatibility-policy",
+                                    "quality-constraint",
+                                    "observability-contract",
+                                    "architecture-pattern",
+                                    "research-evidence",
+                                    "ux-evidence",
+                                    "owner-decision",
+                                    "other"
+                                ]
+                            },
+                            "root_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "rule_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            }
+                        },
+                        "required": [
+                            "include_globs",
+                            "input_class",
+                            "root_id",
+                            "rule_id"
+                        ]
+                    },
+                    "minItems": 1
+                }
+            ]
+        },
+        "observation_epoch": {
+            "type": "string",
+            "pattern": ".*\\S.*"
+        },
+        "permitted_exclusions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "evidence_ref": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "path": {
+                                "type": "string"
+                            },
+                            "sha256": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$"
+                            },
+                            "size": {
+                                "allOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "path",
+                            "sha256",
+                            "size"
+                        ]
+                    },
+                    "path": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "evidence_ref",
+                    "path"
+                ]
+            }
+        },
+        "required_input_classes": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "enum": [
+                            "define-artifact",
+                            "current-design",
+                            "current-implementation",
+                            "interface-contract",
+                            "state-workflow",
+                            "data-store",
+                            "queue-writer",
+                            "deployment-topology",
+                            "authority-policy",
+                            "security-policy",
+                            "privacy-policy",
+                            "compatibility-policy",
+                            "quality-constraint",
+                            "observability-contract",
+                            "architecture-pattern",
+                            "research-evidence",
+                            "ux-evidence",
+                            "owner-decision",
+                            "other"
+                        ]
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        },
+        "roots": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "path": {
+                                "type": "string"
+                            },
+                            "root_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "sha256": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$"
+                            },
+                            "size": {
+                                "allOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "path",
+                            "root_id",
+                            "sha256",
+                            "size"
+                        ]
+                    },
+                    "minItems": 1
+                }
+            ]
+        },
+        "schema_version": {
+            "const": "invoke.design-input-boundary-approval.v1"
+        },
+        "target_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+        },
+        "target_visibility": {
+            "enum": [
+                "public",
+                "private"
+            ]
+        }
+    },
+    "required": [
+        "$schema",
+        "approval_digest",
+        "approval_id",
+        "approved_by",
+        "authority_effect",
+        "boundary_digest",
+        "discovery_rules",
+        "observation_epoch",
+        "permitted_exclusions",
+        "required_input_classes",
+        "roots",
+        "schema_version",
+        "target_id",
+        "target_visibility"
+    ]
+}

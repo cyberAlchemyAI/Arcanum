@@ -1,0 +1,487 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/distill/technique-spec/2-0-0",
+  "title": "Distill v2 TechniqueSpec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "technique_id",
+    "display_name",
+    "type",
+    "phases",
+    "hooks",
+    "activation",
+    "allowed_inputs",
+    "emits",
+    "emitted_field_constraints",
+    "failure_responses"
+  ],
+  "properties": {
+    "schema_version": {"const": "distill.technique_spec.v2"},
+    "technique_id": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+    },
+    "display_name": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+    },
+    "type": {
+      "enum": ["gate", "lens", "classifier", "mode_mechanic", "check", "closeout"]
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["setup", "concept_mapping", "proposal", "balance", "closure", "pitch_off", "final_synthesis", "handoff"]
+      }
+    },
+    "hooks": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["after_intent_confirmation", "before_layer_split", "after_proposer_pass", "after_balancer_pass", "before_accept_split", "before_pitch_off", "before_verdict", "after_verdict"]
+      }
+    },
+    "activation": {"$ref": "#/$defs/activation"},
+    "allowed_inputs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/state_field_reference"}
+    },
+    "emits": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/unique_canonical_identifier_array"
+    },
+    "emitted_field_constraints": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 32,
+      "propertyNames": {
+        "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+      },
+      "additionalProperties": {"$ref": "#/$defs/emitted_descriptor_level_2"}
+    },
+    "failure_responses": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/failure_response"},
+      "allOf": [
+        {
+          "contains": {"properties": {"decision": {"const": "pass"}}, "required": ["decision"]},
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {"properties": {"decision": {"const": "flag"}}, "required": ["decision"]},
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {"properties": {"decision": {"const": "block"}}, "required": ["decision"]},
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "activation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["operator"],
+          "properties": {"operator": {"const": "always"}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["operator", "predicates"],
+          "properties": {
+            "operator": {"enum": ["any", "all"]},
+            "predicates": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "uniqueItems": true,
+              "items": {"$ref": "#/$defs/activation_predicate"}
+            }
+          }
+        }
+      ]
+    },
+    "activation_predicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["predicate_id", "input", "comparison"],
+      "properties": {
+        "predicate_id": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "input": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/state_field_reference"
+        },
+        "comparison": {
+          "enum": ["exists", "not_exists", "equals", "not_equals", "includes", "greater_than_or_equal", "less_than_or_equal"]
+        },
+        "value": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/structured_value_level_1"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"comparison": {"enum": ["exists", "not_exists"]}},
+            "required": ["comparison"]
+          },
+          "then": {"not": {"required": ["value"]}},
+          "else": {"required": ["value"]}
+        }
+      ]
+    },
+    "emitted_descriptor_level_0": {
+      "oneOf": [
+        {"$ref": "#/$defs/scalar_descriptor"},
+        {"$ref": "#/$defs/enum_descriptor"}
+      ]
+    },
+    "emitted_descriptor_level_1": {
+      "oneOf": [
+        {"$ref": "#/$defs/scalar_descriptor"},
+        {"$ref": "#/$defs/enum_descriptor"},
+        {"$ref": "#/$defs/list_descriptor_level_0"},
+        {"$ref": "#/$defs/record_descriptor_level_0"},
+        {"$ref": "#/$defs/union_descriptor_level_0"}
+      ]
+    },
+    "emitted_descriptor_level_2": {
+      "oneOf": [
+        {"$ref": "#/$defs/scalar_descriptor"},
+        {"$ref": "#/$defs/enum_descriptor"},
+        {"$ref": "#/$defs/list_descriptor_level_1"},
+        {"$ref": "#/$defs/record_descriptor_level_1"},
+        {"$ref": "#/$defs/union_descriptor_level_1"}
+      ]
+    },
+    "scalar_descriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value_kind", "scalar_type"],
+      "properties": {
+        "value_kind": {"const": "scalar"},
+        "scalar_type": {"enum": ["string", "boolean", "integer", "number", "null"]},
+        "schema_ref": {
+          "enum": [
+            "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier",
+            "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string",
+            "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/sha256",
+            "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/positive_integer",
+            "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_negative_integer"
+          ]
+        },
+        "minimum": {"type": "number"},
+        "maximum": {"type": "number"},
+        "min_length": {"type": "integer", "minimum": 0},
+        "max_length": {"type": "integer", "minimum": 1}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"scalar_type": {"const": "string"}},
+            "required": ["scalar_type"]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {"required": ["minimum"]},
+                {"required": ["maximum"]}
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"scalar_type": {"enum": ["integer", "number"]}},
+            "required": ["scalar_type"]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {"required": ["min_length"]},
+                {"required": ["max_length"]}
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"scalar_type": {"enum": ["boolean", "null"]}},
+            "required": ["scalar_type"]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {"required": ["schema_ref"]},
+                {"required": ["minimum"]},
+                {"required": ["maximum"]},
+                {"required": ["min_length"]},
+                {"required": ["max_length"]}
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "schema_ref": {
+                "enum": [
+                  "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier",
+                  "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string",
+                  "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/sha256"
+                ]
+              }
+            },
+            "required": ["schema_ref"]
+          },
+          "then": {"properties": {"scalar_type": {"const": "string"}}}
+        },
+        {
+          "if": {
+            "properties": {
+              "schema_ref": {
+                "enum": [
+                  "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/positive_integer",
+                  "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_negative_integer"
+                ]
+              }
+            },
+            "required": ["schema_ref"]
+          },
+          "then": {"properties": {"scalar_type": {"const": "integer"}}}
+        }
+      ]
+    },
+    "enum_descriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value_kind", "values"],
+      "properties": {
+        "value_kind": {"const": "enum"},
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "oneOf": [
+              {"type": "string"},
+              {"type": "number"},
+              {"type": "boolean"},
+              {"type": "null"}
+            ]
+          }
+        }
+      }
+    },
+    "list_descriptor_level_0": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value_kind", "minimum_items", "maximum_items", "unique_items", "items"],
+      "properties": {
+        "value_kind": {"const": "list"},
+        "minimum_items": {"type": "integer", "minimum": 0, "maximum": 32},
+        "maximum_items": {"type": "integer", "minimum": 1, "maximum": 32},
+        "unique_items": {"type": "boolean"},
+        "items": {"$ref": "#/$defs/emitted_descriptor_level_0"}
+      }
+    },
+    "list_descriptor_level_1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value_kind", "minimum_items", "maximum_items", "unique_items", "items"],
+      "properties": {
+        "value_kind": {"const": "list"},
+        "minimum_items": {"type": "integer", "minimum": 0, "maximum": 32},
+        "maximum_items": {"type": "integer", "minimum": 1, "maximum": 32},
+        "unique_items": {"type": "boolean"},
+        "items": {"$ref": "#/$defs/emitted_descriptor_level_1"}
+      }
+    },
+    "record_descriptor_level_0": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value_kind", "fields", "required_fields", "additional_fields"],
+      "properties": {
+        "value_kind": {"const": "record"},
+        "fields": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 32,
+          "propertyNames": {
+            "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+          },
+          "additionalProperties": {"$ref": "#/$defs/emitted_descriptor_level_0"}
+        },
+        "required_fields": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/unique_canonical_identifier_array"
+        },
+        "additional_fields": {"const": false}
+      }
+    },
+    "record_descriptor_level_1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value_kind", "fields", "required_fields", "additional_fields"],
+      "properties": {
+        "value_kind": {"const": "record"},
+        "fields": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 32,
+          "propertyNames": {
+            "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+          },
+          "additionalProperties": {"$ref": "#/$defs/emitted_descriptor_level_1"}
+        },
+        "required_fields": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/unique_canonical_identifier_array"
+        },
+        "additional_fields": {"const": false}
+      }
+    },
+    "union_variant_level_0": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tag", "descriptor"],
+      "properties": {
+        "tag": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "descriptor": {"$ref": "#/$defs/emitted_descriptor_level_0"}
+      }
+    },
+    "union_variant_level_1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tag", "descriptor"],
+      "properties": {
+        "tag": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "descriptor": {"$ref": "#/$defs/emitted_descriptor_level_1"}
+      }
+    },
+    "union_descriptor_level_0": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value_kind", "discriminator", "variants"],
+      "properties": {
+        "value_kind": {"const": "union"},
+        "discriminator": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "variants": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/union_variant_level_0"}
+        }
+      }
+    },
+    "union_descriptor_level_1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value_kind", "discriminator", "variants"],
+      "properties": {
+        "value_kind": {"const": "union"},
+        "discriminator": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "variants": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/union_variant_level_1"}
+        }
+      }
+    },
+    "failure_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "condition", "responses", "readiness_effect"],
+      "properties": {
+        "decision": {"enum": ["pass", "flag", "block"]},
+        "condition": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+        },
+        "responses": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/failure_action"}
+        },
+        "readiness_effect": {
+          "enum": ["unchanged", "downgraded_to_flag", "downgraded_to_block", "route"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"decision": {"const": "pass"}}, "required": ["decision"]},
+          "then": {"properties": {"readiness_effect": {"const": "unchanged"}}}
+        },
+        {
+          "if": {"properties": {"decision": {"const": "flag"}}, "required": ["decision"]},
+          "then": {"properties": {"readiness_effect": {"const": "downgraded_to_flag"}}}
+        },
+        {
+          "if": {"properties": {"decision": {"const": "block"}}, "required": ["decision"]},
+          "then": {
+            "properties": {
+              "readiness_effect": {"enum": ["downgraded_to_block", "route"]}
+            }
+          }
+        }
+      ]
+    },
+    "failure_action": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action"],
+          "properties": {
+            "action": {
+              "enum": [
+                "revise_candidate",
+                "reject_candidate",
+                "merge_candidates",
+                "add_guardrail",
+                "defer_complexity",
+                "ask_human_gate",
+                "preserve_alternatives"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action", "route_target"],
+          "properties": {
+            "action": {"const": "route"},
+            "route_target": {
+              "enum": ["robot_talks", "decision_gate", "research", "deferred"]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

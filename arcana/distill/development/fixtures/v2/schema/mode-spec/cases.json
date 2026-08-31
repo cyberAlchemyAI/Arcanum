@@ -1,0 +1,123 @@
+{
+  "schema_version": "distill.schema_fixture_manifest.v2",
+  "manifest_id": "distill.mode_spec.schema_fixtures.v2",
+  "artifact": "mode_spec",
+  "schema_path": "arcana/distill/schemas/distill-mode-spec-v2.schema.json",
+  "schema_id": "https://arcanum.dev/schemas/distill/mode-spec/2-0-0",
+  "instance_schema_version": "distill.mode_spec.v2",
+  "positive_fixture": "valid-mode-spec.json",
+  "expected_case_count": 184,
+  "groups": [
+    {"id": "mode-positive", "kind": "canonical_positive"},
+    {"id": "mode-missing-required", "kind": "generated_missing_required", "expected_blocker": "E_REQUIRED_PROPERTY"},
+    {"id": "mode-unknown-field", "kind": "generated_unknown_field", "expected_blocker": "E_UNKNOWN_PROPERTY"},
+    {"id": "mode-wrong-type", "kind": "generated_wrong_type", "expected_blocker": "E_WRONG_TYPE"},
+    {"id": "mode-invalid-enum", "kind": "generated_invalid_enum_or_const", "expected_blocker": "E_ENUM_OR_CONST"},
+    {"id": "mode-common-ref-edges", "kind": "generated_common_ref_edges", "expected_blocker": "E_COMMON_REF_EDGE"},
+    {
+      "id": "mode-policy-mutations",
+      "kind": "generated_policy_mutations",
+      "mutations": [
+        {"id": "mode-missing-track-maximum", "operation": "remove", "pointer": "/tracks/maximum", "expected_blocker": "E_REQUIRED_PROPERTY"},
+        {"id": "mode-unbounded-round-maximum", "operation": "set", "pointer": "/rounds_per_track/maximum", "value": "unbounded", "expected_blocker": "E_WRONG_TYPE"},
+        {"id": "mode-zero-track-maximum", "operation": "set", "pointer": "/tracks/maximum", "value": 0, "expected_blocker": "E_MINIMUM"},
+        {"id": "mode-budget-order", "operation": "set", "pointer": "/rounds_per_track/default", "value": 4, "expected_blocker": "E_BOUNDED_COUNT_ORDER"},
+        {"id": "mode-closure-owned", "operation": "add", "pointer": "/closure_rule", "value": "mode_decides", "expected_blocker": "E_MODE_OWNS_CLOSURE"},
+        {"id": "mode-verdict-owner", "operation": "set", "pointer": "/closeout_policy/verdict_owner", "value": "mode", "expected_blocker": "E_MODE_OWNS_CLOSURE"},
+        {
+          "id": "mode-role-program-order",
+          "operation": "multi_set",
+          "changes": [
+            {"pointer": "/role_program/0/step", "value": 2},
+            {"pointer": "/role_program/1/step", "value": 1}
+          ],
+          "expected_blocker": "E_ROLE_PROGRAM_ORDER"
+        },
+        {
+          "id": "mode-role-program-missing-reconciliation",
+          "operation": "set",
+          "pointer": "/role_program",
+          "value": [
+            {
+              "step": 1,
+              "actor": "proposer",
+              "action": "propose",
+              "participation": "required",
+              "execution_paths": ["true_subagent", "role_simulation"],
+              "preserve_role_trace": true
+            },
+            {
+              "step": 2,
+              "actor": "balancer",
+              "action": "balance",
+              "participation": "required",
+              "execution_paths": ["true_subagent", "role_simulation"],
+              "preserve_role_trace": true
+            }
+          ],
+          "expected_blocker": "E_ROLE_PROGRAM_RECONCILIATION"
+        },
+        {
+          "id": "mode-technique-policy-duplicate",
+          "operation": "set",
+          "pointer": "/technique_policy/1/technique_id",
+          "value": "abstraction_level_guard",
+          "expected_blocker": "E_TECHNIQUE_POLICY_DUPLICATE"
+        },
+        {
+          "id": "mode-pitch-prohibited-payload",
+          "operation": "add",
+          "pointer": "/pitch_off_policy/technique_id",
+          "value": "set_based_tournament",
+          "expected_blocker": "E_REQUIRED_PROPERTY"
+        },
+        {
+          "id": "mode-pitch-conditional-missing-condition",
+          "operation": "set",
+          "pointer": "/pitch_off_policy",
+          "value": {
+            "status": "conditional",
+            "technique_id": "set_based_tournament",
+            "comparison_dimensions": ["context_fit"],
+            "preserve_options_when_no_winner": true
+          },
+          "expected_blocker": "E_REQUIRED_PROPERTY"
+        },
+        {
+          "id": "mode-periodic-gate-missing-interval",
+          "operation": "set",
+          "pointer": "/human_gates/0/trigger",
+          "value": "periodic",
+          "expected_blocker": "E_REQUIRED_PROPERTY"
+        },
+        {
+          "id": "mode-nonperiodic-gate-with-interval",
+          "operation": "add",
+          "pointer": "/human_gates/0/round_interval",
+          "value": 2,
+          "expected_blocker": "E_CONDITIONAL"
+        },
+        {
+          "id": "mode-human-gate-duplicate-id",
+          "operation": "set",
+          "pointer": "/human_gates",
+          "value": [
+            {
+              "gate_id": "shared_gate",
+              "trigger": "blocker_decision",
+              "blocking": true,
+              "route": "decision_gate"
+            },
+            {
+              "gate_id": "shared_gate",
+              "trigger": "contested_optimization",
+              "blocking": false,
+              "route": "deferred"
+            }
+          ],
+          "expected_blocker": "E_HUMAN_GATE_DUPLICATE"
+        }
+      ]
+    }
+  ]
+}

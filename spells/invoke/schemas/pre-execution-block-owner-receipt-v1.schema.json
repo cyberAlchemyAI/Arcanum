@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/pre-execution-block-owner-receipt/1-0-0",
+  "title": "InvokePreExecutionBlockOwnerReceiptV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "result",
+    "owner_capability",
+    "work_pack_id",
+    "task_id",
+    "swu_id",
+    "attempt_id",
+    "owner_acceptance_request_ref",
+    "owner_acceptance_response_ref",
+    "task_session_failure_receipt_ref",
+    "blocker_fingerprint",
+    "owner_closeout_claim",
+    "effect_summary",
+    "receipt_digest"
+  ],
+  "properties": {
+    "schema_version": {"const": "invoke.pre-execution-block-owner-receipt.v1"},
+    "result": {"const": "block"},
+    "owner_capability": {"const": "invoke"},
+    "work_pack_id": {"type": "string", "minLength": 1},
+    "task_id": {"type": "string", "minLength": 1},
+    "swu_id": {"type": "string", "minLength": 1},
+    "attempt_id": {"type": "string", "minLength": 1},
+    "owner_acceptance_request_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "owner_acceptance_response_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "task_session_failure_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "blocker_fingerprint": {"$ref": "#/$defs/sha256"},
+    "owner_closeout_claim": {"const": "unavailable-pre-execution"},
+    "effect_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_writes", "external_effects", "selection", "admission", "execution", "successor_executed"],
+      "properties": {
+        "material_writes": {"const": 0},
+        "external_effects": {"const": 0},
+        "selection": {"const": false},
+        "admission": {"const": false},
+        "execution": {"const": false},
+        "successor_executed": {"const": false}
+      }
+    },
+    "receipt_digest": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

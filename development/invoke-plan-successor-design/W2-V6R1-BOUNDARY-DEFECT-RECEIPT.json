@@ -1,0 +1,109 @@
+{
+  "schema_version": "invoke.plan-successor-design-governance-defect-receipt.v1",
+  "receipt_id": "plan-successor-design:w2-v6r1-boundary-defect",
+  "result": "pass",
+  "classification": "mechanical_evidence_only",
+  "failed_attempt_ref": {
+    "path": "arcanum/development/invoke-plan-successor-design/W2-V6R1-ATTEMPT.json",
+    "sha256": "018d6768e8894930e1f41951b2d513a9c8b277f0821edd6e71a0347ae419dee5",
+    "receipt_digest": "6ecad8a26c9bfba0bec3a4475e80f8012b4950b3ab0f9f2499d477600c9161ad",
+    "receipt_id": "design-w2-v2:bc8d9fade3cec40e9d4b95e0",
+    "result": "block"
+  },
+  "root_cause": {
+    "code": "POST_W1_EVIDENCE_REFERENCED_BY_W2_SOURCE",
+    "statement": "DESIGN-SOURCE-V6R1.json places the post-W1 Distill Balancer report in dispatch_trace.evidence_ref. The coherence validator permits exact source references only when W1 admitted them through the closure, closure receipt, W1 upstream bindings, or installed profile binding. The Distill report was created after W1 and is therefore correctly outside that set.",
+    "failing_locator": "DESIGN-SOURCE-V6R1.json#/dispatch_trace/evidence_ref",
+    "out_of_bound_ref": {
+      "path": "arcanum/development/invoke-plan-successor-design/DISTILL-BALANCER-BLOCK-V6.json",
+      "sha256": "02b6c721051785d691ecf081f6eeef7727e9aad49855114b86e34be06a3f588d",
+      "size": 2996
+    },
+    "validator_rule": "collect_exact_refs(source) must be a subset of W1-admitted exact references",
+    "validator_locator": "arcanum/spells/invoke/scripts/validate_design_coherence.py:485"
+  },
+  "affected_invariant": {
+    "invariant_id": "W2_SOURCE_EVIDENCE_MUST_BE_W1_ADMITTED",
+    "statement": "Every exact evidence reference carried by a Design W2 source must already be admitted by its exact W1 evidence boundary.",
+    "observed_effect": "Source validation and artifact projection passed, coherence validation blocked, and candidate-output closure was not evaluable.",
+    "semantic_architecture_affected": false,
+    "authority_boundary_affected": false
+  },
+  "minimal_repair": {
+    "route": "repair-design-source",
+    "steps": [
+      "Create a successor W2 authoring input; do not edit or overwrite V6R1.",
+      "Set dispatch_trace.evidence_ref to the exact V6 owner-decision reference already present in DESIGN-INPUT-CLOSURE-V6.json.",
+      "Regenerate the canonical successor source and all derived W2 candidate outputs into absent paths.",
+      "Keep DISTILL-BALANCER-BLOCK-V6.json as post-W1 review evidence outside the W2 source; bind it in the separate Distill validation package instead.",
+      "Resume once at W2 coherence validation only after the successor source passes the normal source check."
+    ],
+    "replacement_ref": {
+      "path": "arcanum/development/invoke-plan-successor-design/PLAN-SUCCESSOR-DESIGN-OWNER-DECISION-V6.json",
+      "sha256": "796d5bdea0aec33917fb60b68e2bcc4e0ba6a585fc4a50d96e275dec0f886cde",
+      "size": 2542
+    },
+    "why_this_is_minimal": "The three Distill-requested architecture repairs are already represented by the V6R1 source. Only its trace evidence reference crosses the accepted W1 boundary."
+  },
+  "changed_byte_inventory": {
+    "accepted_or_frozen_files_changed": [],
+    "required_successor_changes": [
+      "successor W2 authoring input field for dispatch_trace.evidence_ref",
+      "new canonical successor Design source and its derived source digest",
+      "new absent W2 candidate output directory and derived receipts"
+    ],
+    "forbidden_in_place_changes": [
+      "DESIGN-SOURCE-V6R1.json",
+      "W2-V6R1-ATTEMPT.json",
+      "DESIGN-INPUT-CLOSURE-V6.json",
+      "w1-v6",
+      "DISTILL-BALANCER-BLOCK-V6.json"
+    ]
+  },
+  "required_revalidation": [
+    "strict JSON and Design source schema validation for the successor authoring input and source",
+    "exact source-reference boundary validation against the unchanged W1 V6 closure",
+    "W2 artifact projection, coherence validation, and candidate-output closure",
+    "same-source same-destination two-run deterministic replay",
+    "Distill v1 Balancer review of the repaired successor candidate before W3",
+    "all previously required W2 focused checks for ownership split, per-consumer applicability, and conditional adapters"
+  ],
+  "renewed_owner_acceptance": {
+    "required": false,
+    "reason": "The accepted V6 input boundary, owner decision, material set, snapshot, and verification remain byte-identical. The failed W2 V6R1 candidate was never accepted or admitted."
+  },
+  "immutable_digest_impact": {
+    "owner_boundary_approval": {
+      "sha256": "80ee4c121b7eedbe2dee9f160b872b988680ae41916f7b3691de1c3e3dc516df",
+      "changed": false
+    },
+    "material_digest": {
+      "sha256": "f9108e2d96e9535b50ea9d9cfc2ef2bb6cb6092b052637c2191626664cd28a69",
+      "changed": false
+    },
+    "snapshot_digest": {
+      "sha256": "aeb7df93b1ae482ea94c972beda899af5cb95911bcc6a17534e9d192e47b4fc6",
+      "changed": false
+    },
+    "verification_digest": {
+      "sha256": "5c2d93154fff6f02e6d6dd77dc0ce2392cbc187d6941854a22c2a6245226f247",
+      "changed": false
+    },
+    "candidate_source_digest": {
+      "sha256": "bc8d9fade3cec40e9d4b95e071630ef61b7877f069b2acd0b26a5ea2f95be544",
+      "will_be_superseded": true
+    }
+  },
+  "permanent_regression_recommendation": {
+    "statement": "Move or duplicate the exact-reference subset check into the Design source check/authoring boundary so a post-W1 reference blocks before artifact projection. Add a fixture that substitutes a valid, existing, digest-correct post-W1 review receipt into dispatch_trace.evidence_ref and asserts BLOCK with a concrete repair route.",
+    "workflow_effect": "Future authors see the evidence-boundary defect before starting W2 production; the coherence check remains defense in depth."
+  },
+  "resume": {
+    "eligible_after_repair_review": true,
+    "continuation_point": "W2 successor source check and production",
+    "resume_limit": 1,
+    "w3_authorized": false
+  },
+  "claim_ceiling": "Diagnosis and repair routing only. This receipt does not pass W2, pass Distill, authorize W3, accept Plan Design, execute work, publish, or activate runtime packages.",
+  "authority_effect": "none"
+}

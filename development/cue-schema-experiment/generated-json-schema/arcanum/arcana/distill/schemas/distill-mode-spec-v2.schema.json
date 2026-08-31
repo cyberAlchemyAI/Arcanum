@@ -1,0 +1,322 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "closeout_policy": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "navigation_required": {
+                    "const": true
+                },
+                "required_techniques": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                },
+                "verdict_owner": {
+                    "const": "core_engine"
+                }
+            },
+            "required": [
+                "navigation_required",
+                "required_techniques",
+                "verdict_owner"
+            ]
+        },
+        "cycle_policy": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "maximum_repeated_structure": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                },
+                "maximum_stagnant_rounds": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "maximum_repeated_structure",
+                "maximum_stagnant_rounds"
+            ]
+        },
+        "display_name": {
+            "type": "string",
+            "minLength": 1
+        },
+        "human_gate_policy": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "trigger": {
+                    "enum": [
+                        "never",
+                        "no_justified_winner",
+                        "blocker_decision"
+                    ]
+                }
+            },
+            "required": [
+                "trigger"
+            ]
+        },
+        "mode_id": {
+            "type": "string"
+        },
+        "pitch_off_policy": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "behavior": {
+                    "enum": [
+                        "never",
+                        "multiple_viable_tracks"
+                    ]
+                },
+                "comparison_dimensions": {
+                    "type": "array",
+                    "items": {
+                        "enum": [
+                            "fit",
+                            "option_value",
+                            "risk",
+                            "cost",
+                            "assumptions",
+                            "elimination_conditions"
+                        ]
+                    },
+                    "uniqueItems": true
+                }
+            },
+            "required": [
+                "behavior",
+                "comparison_dimensions"
+            ]
+        },
+        "role_program": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "execution_paths": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "enum": [
+                                    "true_subagent",
+                                    "role_simulation"
+                                ]
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                },
+                "preserve_role_trace": {
+                    "const": true
+                },
+                "roles": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "enum": [
+                                    "proposer",
+                                    "balancer"
+                                ]
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "execution_paths",
+                "preserve_role_trace",
+                "roles"
+            ]
+        },
+        "rounds_per_track": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "default": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                },
+                "maximum": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                },
+                "minimum": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "default",
+                "maximum",
+                "minimum"
+            ]
+        },
+        "schema_version": {
+            "const": "distill.mode_spec.v2"
+        },
+        "technique_policy": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "always_required": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                },
+                "conditional_allowed": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true
+                },
+                "skipped_reason_required": {
+                    "const": true
+                }
+            },
+            "required": [
+                "always_required",
+                "conditional_allowed",
+                "skipped_reason_required"
+            ]
+        },
+        "tracks": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "default": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                },
+                "maximum": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                },
+                "minimum": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "default",
+                "maximum",
+                "minimum"
+            ]
+        }
+    },
+    "required": [
+        "closeout_policy",
+        "cycle_policy",
+        "display_name",
+        "human_gate_policy",
+        "mode_id",
+        "pitch_off_policy",
+        "role_program",
+        "rounds_per_track",
+        "schema_version",
+        "technique_policy",
+        "tracks"
+    ]
+}

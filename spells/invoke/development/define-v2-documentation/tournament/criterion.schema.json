@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/invoke/define-v2-documentation/criterion.schema.json",
+  "title": "Invoke Define v2 Documentation Tournament Criterion",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "criterion_id",
+    "criterion_version",
+    "state",
+    "freeze_policy",
+    "hypothesis",
+    "design",
+    "observable",
+    "outcome_rule",
+    "invalidation_conditions",
+    "discrimination",
+    "non_goals"
+  ],
+  "properties": {
+    "schema_version": {"const": "invoke.define-v2-documentation.criterion.v1"},
+    "criterion_id": {"type": "string", "minLength": 1},
+    "criterion_version": {"type": "integer", "minimum": 1},
+    "state": {
+      "type": "object",
+      "required": ["status", "freeze_owner", "run_status"],
+      "properties": {
+        "status": {"enum": ["proposed", "frozen", "retired"]},
+        "freeze_owner": {"type": "string", "minLength": 1},
+        "run_status": {"enum": ["not_started", "running", "complete", "invalid"]}
+      },
+      "additionalProperties": false
+    },
+    "freeze_policy": {
+      "type": "object",
+      "required": ["prefreeze_rule", "change_rule", "required_bindings"],
+      "properties": {
+        "prefreeze_rule": {"type": "string", "minLength": 1},
+        "change_rule": {"type": "string", "minLength": 1},
+        "required_bindings": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      },
+      "additionalProperties": false
+    },
+    "hypothesis": {"type": "string", "minLength": 1},
+    "design": {
+      "type": "object",
+      "required": [
+        "candidate_structures",
+        "case_count",
+        "trials_per_candidate",
+        "sources_per_trial",
+        "total_trials",
+        "total_source_records",
+        "candidate_aggregate_count",
+        "blind_map_policy"
+      ],
+      "properties": {
+        "candidate_structures": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "case_count": {"type": "integer", "minimum": 1},
+        "trials_per_candidate": {"type": "integer", "minimum": 1},
+        "sources_per_trial": {"type": "integer", "minimum": 1},
+        "total_trials": {"type": "integer", "minimum": 1},
+        "total_source_records": {"type": "integer", "minimum": 1},
+        "candidate_aggregate_count": {"type": "integer", "minimum": 1},
+        "blind_map_policy": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "observable": {
+      "type": "object",
+      "required": ["metrics", "compile_rule", "scorecard_rule"],
+      "properties": {
+        "metrics": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["metric_id", "label", "direction"],
+            "properties": {
+              "metric_id": {"type": "string", "minLength": 1},
+              "label": {"type": "string", "minLength": 1},
+              "direction": {"enum": ["more", "fewer"]}
+            },
+            "additionalProperties": false
+          }
+        },
+        "compile_rule": {"type": "string", "minLength": 1},
+        "scorecard_rule": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "outcome_rule": {
+      "type": "object",
+      "required": ["method", "metric_order", "invalidation_precedes_ranking", "survived", "falsified", "invalid"],
+      "properties": {
+        "method": {"const": "lexicographic"},
+        "metric_order": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "invalidation_precedes_ranking": {"const": true},
+        "survived": {"type": "string", "minLength": 1},
+        "falsified": {"type": "string", "minLength": 1},
+        "invalid": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "invalidation_conditions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "discrimination": {
+      "type": "object",
+      "required": ["SURVIVED", "FALSIFIED", "INVALID"],
+      "properties": {
+        "SURVIVED": {"type": "string", "minLength": 1},
+        "FALSIFIED": {"type": "string", "minLength": 1},
+        "INVALID": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "non_goals": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+  },
+  "additionalProperties": false
+}

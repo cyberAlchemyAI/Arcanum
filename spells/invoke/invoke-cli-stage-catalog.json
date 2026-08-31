@@ -1,7 +1,7 @@
 {
   "$schema": "https://arcanum.dev/schemas/invoke/cli-stage-catalog/v1",
   "schema_version": "invoke.cli-stage-catalog.v1",
-  "cli_version": "0.5.0",
+  "cli_version": "0.6.0",
   "modes": {
     "define": {
       "status": "active",
@@ -248,9 +248,44 @@
       }
     },
     "plan": {
-      "status": "unsupported",
+      "status": "active",
       "native_skill_route": ".agents/skills/invoke/SKILL.md",
-      "reason": "The deterministic Plan source contract is not yet exposed through this CLI; use the native Invoke skill."
+      "stages": {
+        "source": {
+          "operations": ["check", "author"],
+          "description": "Materialize the sole authored Plan v2 JSON source from complete planning decisions and exact admitted Design evidence.",
+          "next_stage": "bundle",
+          "request_schema": "plan-source-v2-authoring-request-v1.schema.json",
+          "output_schema": "plan-source-v2.schema.json",
+          "fixed_fields": [
+            {"pointer": "/$schema", "value": "https://arcanum.dev/schemas/invoke/plan-source/v2"},
+            {"pointer": "/schema_version", "value": "invoke.plan-source.v2"},
+            {"pointer": "/profile_id", "value": "invoke.generic-plan-baseline.v2"},
+            {"pointer": "/authority_effect", "value": "none"}
+          ],
+          "derived_ids": [{"pointer": "/source_id", "prefix": "plan-source:"}],
+          "derived_digests": [],
+          "runner": null
+        },
+        "bundle": {
+          "operations": ["produce"],
+          "description": "Compile one Plan v2 source into an atomic graph, generated views, and seven-consumer bundle.",
+          "next_stage": "admission", "request_schema": null, "output_schema": "plan-stage-receipt-v2.schema.json",
+          "fixed_fields": [], "derived_ids": [], "derived_digests": [], "runner": "compile_plan_bundle_v2.py"
+        },
+        "admission": {
+          "operations": ["admit"],
+          "description": "Independently replay and admit one exact Plan v2 bundle.",
+          "next_stage": "status", "request_schema": null, "output_schema": "plan-bundle-admission-receipt-v1.schema.json",
+          "fixed_fields": [], "derived_ids": [], "derived_digests": [], "runner": "validate_plan_bundle_admission.py"
+        },
+        "status": {
+          "operations": ["status"],
+          "description": "Resolve Plan capability axes from an exact stage and admission pair.",
+          "next_stage": null, "request_schema": "capability-status-request.schema.json", "output_schema": "capability-status-result.schema.json",
+          "fixed_fields": [], "derived_ids": [], "derived_digests": [], "runner": "capability_status_resolver.py"
+        }
+      }
     },
     "handoff": {
       "status": "unsupported",

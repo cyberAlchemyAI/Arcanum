@@ -192,6 +192,128 @@ def project_authority_ref(ref: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def intent_materialization_chain(
+    source: dict[str, Any],
+    context: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Replay the v2 obligation -> probe -> artifact chain.
+
+    v1 contexts intentionally return no completeness claim.  For v2, concept
+    obligations may terminate in either a candidate definition or an exact
+    authority binding; relationship and boundary obligations must terminate in
+    the corresponding candidate-definition fields.
+    """
+
+    if context.get("schema_version") != "invoke.define-semantic-context.v2":
+        return None
+
+    applications = {
+        item["probe_id"]: item for item in source["semantic_applications"]
+    }
+    definitions = {
+        item["id"]: item for item in source["definition_registry"]["definitions"]
+    }
+    bindings = {
+        item["binding_id"]: item
+        for item in source["definition_registry"]["authority_bindings"]
+    }
+    chain: list[dict[str, Any]] = []
+    for obligation in context["intent_coverage"]["obligations"]:
+        probe_ids = obligation["probe_ids"]
+        mapped = [applications.get(probe_id) for probe_id in probe_ids]
+        definition_ids = sorted(
+            {
+                definition_id
+                for application in mapped
+                if application is not None
+                for definition_id in application["definition_ids"]
+            }
+        )
+        binding_ids = sorted(
+            {
+                binding_id
+                for application in mapped
+                if application is not None
+                for binding_id in application["authority_binding_ids"]
+            }
+        )
+
+        if obligation["status"] == "out-of-scope":
+            status = "out-of-scope"
+        elif obligation["status"] != "covered" or not probe_ids or any(
+            application is None for application in mapped
+        ):
+            status = "missing"
+        elif obligation["kind"] == "concept":
+            status = (
+                "materialized"
+                if all(
+                    application["definition_ids"]
+                    or application["authority_binding_ids"]
+                    for application in mapped
+                    if application is not None
+                )
+                else "missing"
+            )
+        elif obligation["kind"] == "relationship":
+            relationship = obligation["relationship"]
+            subject = applications.get(relationship["subject_probe_id"])
+            object_ = applications.get(relationship["object_probe_id"])
+            object_definition_ids = (
+                [*object_["definition_ids"]]
+                + [
+                    bindings[binding_id]["definition_id"]
+                    for binding_id in object_["authority_binding_ids"]
+                    if binding_id in bindings
+                ]
+                if object_
+                else []
+            )
+            found = bool(subject and object_) and any(
+                relation == {"id": object_id, "type": relationship["type"]}
+                for subject_id in subject["definition_ids"]
+                for object_id in object_definition_ids
+                for relation in definitions.get(subject_id, {}).get("relations", [])
+            )
+            status = "materialized" if found else "missing"
+        else:
+            boundary = obligation["boundary"]
+            application = applications.get(boundary["probe_id"])
+            expected = normalize(boundary["match"])
+            found = bool(application) and any(
+                expected in normalize(value)
+                for definition_id in application["definition_ids"]
+                for value in definitions.get(definition_id, {})
+                .get("boundary", {})
+                .get(boundary["field"], [])
+            )
+            status = "materialized" if found else "missing"
+
+        chain.append(
+            {
+                "obligation_id": obligation["obligation_id"],
+                "kind": obligation["kind"],
+                "probe_ids": probe_ids,
+                "definition_ids": definition_ids,
+                "authority_binding_ids": binding_ids,
+                "status": status,
+            }
+        )
+
+    return {
+        "claim_ceiling": "enumerated-semantic-obligations",
+        "context_version": "invoke.define-semantic-context.v2",
+        "obligation_count": len(chain),
+        "mapped_count": sum(bool(item["probe_ids"]) for item in chain),
+        "materialized_count": sum(item["status"] == "materialized" for item in chain),
+        "out_of_scope_count": sum(item["status"] == "out-of-scope" for item in chain),
+        "missing_obligation_ids": [
+            item["obligation_id"] for item in chain if item["status"] == "missing"
+        ],
+        "chain": chain,
+    }
+
+
 def validate_projection(
     source: dict[str, Any],
     context: dict[str, Any],
@@ -222,6 +344,7 @@ def validate_projection(
     bindings = registry["authority_bindings"]
     definition_by_id = {item["id"]: item for item in definitions}
     binding_by_id = {item["binding_id"]: item for item in bindings}
+    bound_definition_ids = {item["definition_id"] for item in bindings}
     if len(definition_by_id) != len(definitions):
         raise CompileError("candidate definition IDs are not unique")
     if len(binding_by_id) != len(bindings):
@@ -255,9 +378,9 @@ def validate_projection(
         for relation in definition["relations"]:
             if relation["id"] == definition["id"]:
                 raise CompileError(f"candidate definition {definition['id']} has a self relation")
-            if relation["id"] not in definition_by_id:
+            if relation["id"] not in definition_by_id and relation["id"] not in bound_definition_ids:
                 raise CompileError(
-                    f"candidate definition {definition['id']} relates to an unknown candidate {relation['id']}"
+                    f"candidate definition {definition['id']} relates to an unknown candidate or authority binding {relation['id']}"
                 )
 
     for probe, result, application in zip(probes, results, applications, strict=True):
@@ -314,6 +437,13 @@ def validate_projection(
                 basis_kind = binding["authority_scope"]["kind"]
                 if SCOPE_RANK[target_kind] <= SCOPE_RANK[basis_kind]:
                     raise CompileError(f"specialization {probe['probe_id']} does not narrow authority scope")
+
+    materialization = intent_materialization_chain(source, context)
+    if materialization is not None and materialization["missing_obligation_ids"]:
+        raise CompileError(
+            "semantic intent obligations are not materialized: "
+            + ", ".join(materialization["missing_obligation_ids"])
+        )
 
 
 def validate_structural_schemas(
@@ -600,131 +730,49 @@ def validate_staged_outputs(
         raise CompileError("glossary Markdown does not equal a clean deterministic render")
 
 
-def output_appeared() -> CompileError:
-    return CompileError("output directory appeared during publication and was not overwritten")
-
-
-def publish_with_exclusive_lock(stage: Path, output_dir: Path) -> None:
-    """Serialize cooperating publishers when an exclusive rename flag is unavailable."""
-
-    lock = output_dir.parent / f".{output_dir.name}.publish-lock"
-    descriptor: int | None = None
-    try:
-        descriptor = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-        if output_dir.exists() or output_dir.is_symlink():
-            raise output_appeared()
-        try:
-            os.rename(stage, output_dir)
-        except OSError as exc:
-            if (
-                exc.errno in {errno.EEXIST, errno.ENOTEMPTY}
-                or output_dir.exists()
-                or output_dir.is_symlink()
-            ):
-                raise output_appeared() from exc
-            raise CompileError(f"fallback publication failed: {exc}") from exc
-    except FileExistsError as exc:
-        raise CompileError("another publisher owns the output publication lock") from exc
-    finally:
-        if descriptor is not None:
-            os.close(descriptor)
-            lock.unlink(missing_ok=True)
-
-
-def publish_linux_no_replace(stage: Path, output_dir: Path) -> None:
-    """Publish through Linux renameat2(RENAME_NOREPLACE)."""
+def publish_no_replace(stage: Path, output_dir: Path) -> None:
+    """Atomically rename one directory without replacing a competing target."""
 
     libc = ctypes.CDLL(None, use_errno=True)
     renameat2 = getattr(libc, "renameat2", None)
-    if renameat2 is None:
-        publish_with_exclusive_lock(stage, output_dir)
-        return
+    if renameat2 is None:  # pragma: no cover - fail closed on non-Linux hosts
+        raise CompileError("atomic no-replace directory publication is unavailable")
     renameat2.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
     renameat2.restype = ctypes.c_int
     result = renameat2(
-        -100,  # AT_FDCWD
+        -100,
         os.fsencode(stage),
-        -100,  # AT_FDCWD
+        -100,
         os.fsencode(output_dir),
-        1,  # RENAME_NOREPLACE
+        1,
     )
     if result == 0:
         return
     error = ctypes.get_errno()
-    if error in {errno.EEXIST, errno.ENOTEMPTY}:
-        raise output_appeared()
-    unsupported = {
-        errno.EINVAL,
-        errno.ENOSYS,
-        errno.EOPNOTSUPP,
-        getattr(errno, "ENOTSUP", errno.EOPNOTSUPP),
-    }
-    if error in unsupported:
-        publish_with_exclusive_lock(stage, output_dir)
-        return
+    if error == errno.EEXIST:
+        raise CompileError("output directory appeared during publication and was not overwritten")
+    if error in {errno.EINVAL, errno.ENOSYS, errno.EOPNOTSUPP}:
+        # Some WSL and older filesystems expose renameat2 but reject its
+        # no-replace flag. Serialize cooperating publishers with an exclusive
+        # sibling lock, then recheck the target immediately before a same-
+        # filesystem rename. Existing targets are never removed.
+        lock = output_dir.parent / f".{output_dir.name}.publish-lock"
+        descriptor: int | None = None
+        try:
+            descriptor = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            if output_dir.exists() or output_dir.is_symlink():
+                raise CompileError("output directory appeared during publication and was not overwritten")
+            os.rename(stage, output_dir)
+            return
+        except FileExistsError as exc:
+            raise CompileError("another publisher owns the output publication lock") from exc
+        except OSError as exc:
+            raise CompileError(f"fallback publication failed: {exc}") from exc
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
+                lock.unlink(missing_ok=True)
     raise CompileError(f"atomic no-replace publication failed: {os.strerror(error)}")
-
-
-def publish_macos_no_replace(stage: Path, output_dir: Path) -> None:
-    """Publish through macOS renamex_np(RENAME_EXCL)."""
-
-    libc = ctypes.CDLL(None, use_errno=True)
-    renamex_np = getattr(libc, "renamex_np", None)
-    if renamex_np is None:
-        publish_with_exclusive_lock(stage, output_dir)
-        return
-    renamex_np.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
-    renamex_np.restype = ctypes.c_int
-    result = renamex_np(
-        os.fsencode(stage),
-        os.fsencode(output_dir),
-        0x00000004,  # RENAME_EXCL
-    )
-    if result == 0:
-        return
-    error = ctypes.get_errno()
-    if error in {errno.EEXIST, errno.ENOTEMPTY}:
-        raise output_appeared()
-    unsupported = {
-        errno.EINVAL,
-        errno.ENOSYS,
-        errno.EOPNOTSUPP,
-        getattr(errno, "ENOTSUP", errno.EOPNOTSUPP),
-    }
-    if error in unsupported:
-        publish_with_exclusive_lock(stage, output_dir)
-        return
-    raise CompileError(f"atomic no-replace publication failed: {os.strerror(error)}")
-
-
-def publish_windows_no_replace(stage: Path, output_dir: Path) -> None:
-    """Publish through Windows' native fail-if-destination-exists rename."""
-
-    try:
-        os.rename(stage, output_dir)
-    except OSError as exc:
-        if (
-            isinstance(exc, FileExistsError)
-            or output_dir.exists()
-            or output_dir.is_symlink()
-        ):
-            raise output_appeared() from exc
-        raise CompileError(f"atomic no-replace publication failed: {exc}") from exc
-
-
-def publish_no_replace(stage: Path, output_dir: Path) -> None:
-    """Atomically publish one directory without replacing a competing target."""
-
-    if sys.platform.startswith("linux"):
-        publish_linux_no_replace(stage, output_dir)
-        return
-    if sys.platform == "darwin":
-        publish_macos_no_replace(stage, output_dir)
-        return
-    if sys.platform == "win32":
-        publish_windows_no_replace(stage, output_dir)
-        return
-    raise CompileError(f"atomic no-replace directory publication is unavailable on {sys.platform}")
 
 
 def compile_source(
@@ -833,7 +881,11 @@ def compile_source(
         },
         "closure validator",
     )
-    if closure["validator"]["identity"] != "invoke.validate-define-semantic-closure.v1":
+    supported_closure_identity = {
+        "invoke.define-semantic-context.v1": "invoke.validate-define-semantic-closure.v1",
+        "invoke.define-semantic-context.v2": "invoke.validate-define-semantic-closure.v2",
+    }.get(context.get("schema_version"))
+    if closure["validator"]["identity"] != supported_closure_identity:
         raise CompileError("closure validator identity is not supported")
     if validator_data != (SCRIPT_DIR / "validate_define_semantic_closure.py").read_bytes():
         raise CompileError("closure validator bytes differ from the installed replay implementation")

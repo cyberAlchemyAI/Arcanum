@@ -5,7 +5,6 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -70,10 +69,102 @@ class NativeDispatchDriverTests(unittest.TestCase):
             paths[action["action_id"]] = path
         return paths
 
-    def copy_receipts(self, root: Path) -> Path:
-        receipts = root / "receipts"
-        shutil.copytree(REDUCE / "pass", receipts)
+    def native_agent_id(self, action: dict[str, Any]) -> str:
+        return "/root/" + driver._spawn_request(action)["task_name"]
+
+    def fixture_receipts(self) -> dict[str, dict[str, Any]]:
+        receipts = {
+            value["action_id"]: value
+            for value in (
+                load_json(path) for path in sorted((REDUCE / "pass").glob("*.json"))
+            )
+        }
+        actions = {
+            action["action_id"]: action for action in self.run_plan["actions"]
+        }
+        for action_id, receipt in receipts.items():
+            receipt["agent_id"] = self.native_agent_id(actions[action_id])
         return receipts
+
+    def copy_receipts(self, root: Path) -> Path:
+        receipts_dir = root / "receipts"
+        for action_id, receipt in self.fixture_receipts().items():
+            write_json(receipts_dir / f"{action_id}.json", receipt)
+        return receipts_dir
+
+    def build_misbound_wait_stream(
+        self, root: Path
+    ) -> tuple[dict[str, Any], Path, Path, Path, str, str]:
+        action = self.run_plan["actions"][0]
+        action_path = self.persist_actions(root)[action["action_id"]]
+        request_path = root / "requests" / f"{action['action_id']}.json"
+        write_json(request_path, driver._spawn_request(action))
+        task_name = load_json(request_path)["task_name"]
+        prior_agent_id = "/root/" + task_name.replace("_spawn_0001", "_spawn-0001")
+        corrected_agent_id = "/root/" + task_name
+        records = [
+            {
+                "schema_version": "arcanum.native-dispatch-runner.run-event.v0.1",
+                "sequence": 1,
+                "event": "action_attempted",
+                "dispatch_id": action["dispatch_id"],
+                "run_id": action["run_id"],
+                "wave_id": action["wave_id"],
+                "action_id": action["action_id"],
+                "agent_id": None,
+                "operation": "collaboration.spawn_agent",
+                "depends_on_gate_id": None,
+            },
+            {
+                "schema_version": "arcanum.native-dispatch-runner.run-event.v0.1",
+                "sequence": 2,
+                "event": "host_spawn_returned",
+                "dispatch_id": action["dispatch_id"],
+                "run_id": action["run_id"],
+                "wave_id": action["wave_id"],
+                "action_id": action["action_id"],
+                "agent_id": prior_agent_id,
+                "operation": "collaboration.spawn_agent",
+            },
+            {
+                "schema_version": "arcanum.native-dispatch-runner.run-event.v0.1",
+                "sequence": 3,
+                "event": "agent_wait_registered",
+                "dispatch_id": action["dispatch_id"],
+                "run_id": action["run_id"],
+                "wave_id": action["wave_id"],
+                "action_id": action["action_id"],
+                "agent_id": prior_agent_id,
+                "operation": "logical-register",
+            },
+            {
+                "schema_version": "arcanum.native-dispatch-runner.run-event.v0.1",
+                "sequence": 4,
+                "event": "wait_attempted",
+                "dispatch_id": action["dispatch_id"],
+                "run_id": action["run_id"],
+                "wave_id": action["wave_id"],
+                "action_id": None,
+                "agent_id": None,
+                "operation": "collaboration.wait_agent",
+            },
+        ]
+        events = root / "events.jsonl"
+        events.write_text(
+            "".join(
+                json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n"
+                for record in records
+            ),
+            encoding="utf-8",
+        )
+        return (
+            action,
+            action_path,
+            request_path,
+            events,
+            prior_agent_id,
+            corrected_agent_id,
+        )
 
     def write_raw_results(self, root: Path) -> Path:
         raw_results = root / "raw-results"
@@ -91,12 +182,7 @@ class NativeDispatchDriverTests(unittest.TestCase):
     def build_pre_join_stream(self, root: Path) -> Path:
         events = root / "events.jsonl"
         action_paths = self.persist_actions(root)
-        receipts = {
-            value["action_id"]: value
-            for value in (
-                load_json(path) for path in sorted((REDUCE / "pass").glob("*.json"))
-            )
-        }
+        receipts = self.fixture_receipts()
         for action in self.run_plan["actions"]:
             action_id = action["action_id"]
             driver.prepare_spawn(
@@ -109,6 +195,7 @@ class NativeDispatchDriverTests(unittest.TestCase):
             driver.record_spawn(
                 action_paths[action_id],
                 self.run_plan_path,
+                root / "requests" / f"{action_id}.json",
                 events,
                 receipts[action_id]["agent_id"],
             )
@@ -163,12 +250,7 @@ class NativeDispatchDriverTests(unittest.TestCase):
     ) -> tuple[Path, dict[str, Path], dict[str, dict[str, Any]]]:
         events = root / "events.jsonl"
         action_paths = self.persist_actions(root)
-        receipts = {
-            value["action_id"]: value
-            for value in (
-                load_json(path) for path in sorted((REDUCE / "pass").glob("*.json"))
-            )
-        }
+        receipts = self.fixture_receipts()
         for action in self.run_plan["actions"]:
             action_id = action["action_id"]
             driver.prepare_spawn(
@@ -180,12 +262,17 @@ class NativeDispatchDriverTests(unittest.TestCase):
             )
             if action_id == failure_action_id:
                 driver.record_spawn(
-                    action_paths[action_id], self.run_plan_path, events, None
+                    action_paths[action_id],
+                    self.run_plan_path,
+                    root / "requests" / f"{action_id}.json",
+                    events,
+                    None,
                 )
                 break
             driver.record_spawn(
                 action_paths[action_id],
                 self.run_plan_path,
+                root / "requests" / f"{action_id}.json",
                 events,
                 receipts[action_id]["agent_id"],
             )
@@ -296,6 +383,172 @@ class NativeDispatchDriverTests(unittest.TestCase):
         self.assertNotIn(action["dispatch_id"], first["task_name"])
         self.assertNotIn(action["role"], first["task_name"])
 
+    def test_record_spawn_rejects_nonverbatim_native_agent_id_without_append(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            action = self.run_plan["actions"][0]
+            action_path = self.persist_actions(root)[action["action_id"]]
+            events = root / "events.jsonl"
+            request_path = root / "request.json"
+            request = driver.prepare_spawn(
+                action_path,
+                self.run_plan_path,
+                events,
+                request_path,
+                None,
+            )
+            before = events.read_bytes()
+            wrong_agent_id = (
+                "/root/" + request["task_name"].replace("_spawn_0001", "_spawn-0001")
+            )
+            with self.assertRaises(driver.DriverBlocked):
+                driver.record_spawn(
+                    action_path,
+                    self.run_plan_path,
+                    request_path,
+                    events,
+                    wrong_agent_id,
+                )
+            self.assertEqual(events.read_bytes(), before)
+
+            corrected_agent_id = "/root/" + request["task_name"]
+            event = driver.record_spawn(
+                action_path,
+                self.run_plan_path,
+                request_path,
+                events,
+                corrected_agent_id,
+            )
+            self.assertEqual(event["agent_id"], corrected_agent_id)
+            self.assertEqual(
+                [item["event"] for item in validator.load_events(events)],
+                ["action_attempted", "host_spawn_returned"],
+            )
+
+    def test_agent_binding_correction_preserves_history_and_updates_effective_binding(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (
+                action,
+                action_path,
+                request_path,
+                events,
+                prior_agent_id,
+                corrected_agent_id,
+            ) = self.build_misbound_wait_stream(root)
+            historical_prefix = events.read_bytes()
+            correction = driver.correct_agent_binding(
+                action_path,
+                self.run_plan_path,
+                request_path,
+                events,
+                prior_agent_id,
+                corrected_agent_id,
+                [2, 3],
+            )
+            self.assertEqual(correction["event"], "agent_binding_corrected")
+            self.assertEqual(correction["supersedes_sequences"], [2, 3])
+            self.assertTrue(events.read_bytes().startswith(historical_prefix))
+
+            base = {
+                "dispatch_id": action["dispatch_id"],
+                "run_id": action["run_id"],
+                "wave_id": action["wave_id"],
+                "action_id": action["action_id"],
+                "agent_id": corrected_agent_id,
+            }
+            driver.append_causal_records(
+                events,
+                [
+                    {
+                        **base,
+                        "event": "agent_terminal",
+                        "operation": "collaboration.list_agents",
+                    },
+                    {
+                        **base,
+                        "event": "agent_closed",
+                        "operation": "logical-close",
+                    },
+                    {
+                        **base,
+                        "event": "receipt_joined",
+                        "operation": "orchestrate.receipt-admission",
+                        "receipt_status": "pass",
+                    },
+                ],
+            )
+            receipt = validator.validate_events(
+                validator.load_events(events),
+                str(events),
+                require_complete=True,
+            )
+            self.assertTrue(receipt["valid"], receipt["errors"])
+
+            before_duplicate = events.read_bytes()
+            with self.assertRaises(driver.DriverBlocked):
+                driver.correct_agent_binding(
+                    action_path,
+                    self.run_plan_path,
+                    request_path,
+                    events,
+                    prior_agent_id,
+                    corrected_agent_id,
+                    [2, 3],
+                )
+            self.assertEqual(events.read_bytes(), before_duplicate)
+
+    def test_agent_binding_correction_rejects_wrong_sequences_and_terminal_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (
+                action,
+                action_path,
+                request_path,
+                events,
+                prior_agent_id,
+                corrected_agent_id,
+            ) = self.build_misbound_wait_stream(root)
+            before = events.read_bytes()
+            with self.assertRaises(driver.DriverBlocked):
+                driver.correct_agent_binding(
+                    action_path,
+                    self.run_plan_path,
+                    request_path,
+                    events,
+                    prior_agent_id,
+                    corrected_agent_id,
+                    [2, 4],
+                )
+            self.assertEqual(events.read_bytes(), before)
+
+            driver.append_causal_records(
+                events,
+                [
+                    {
+                        "event": "agent_terminal",
+                        "dispatch_id": action["dispatch_id"],
+                        "run_id": action["run_id"],
+                        "wave_id": action["wave_id"],
+                        "action_id": action["action_id"],
+                        "agent_id": prior_agent_id,
+                        "operation": "collaboration.list_agents",
+                    }
+                ],
+            )
+            before_terminal_correction = events.read_bytes()
+            with self.assertRaises(driver.DriverBlocked):
+                driver.correct_agent_binding(
+                    action_path,
+                    self.run_plan_path,
+                    request_path,
+                    events,
+                    prior_agent_id,
+                    corrected_agent_id,
+                    [2, 3],
+                )
+            self.assertEqual(events.read_bytes(), before_terminal_correction)
+
     def test_prepare_wait_registers_complete_wave_before_exposing_request(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -320,12 +573,7 @@ class NativeDispatchDriverTests(unittest.TestCase):
             root = Path(temp_dir)
             events = root / "events.jsonl"
             action_paths = self.persist_actions(root)
-            receipts = {
-                value["action_id"]: value
-                for value in (
-                    load_json(path) for path in sorted((REDUCE / "pass").glob("*.json"))
-                )
-            }
+            receipts = self.fixture_receipts()
             for action in self.run_plan["actions"]:
                 action_id = action["action_id"]
                 driver.prepare_spawn(
@@ -338,6 +586,7 @@ class NativeDispatchDriverTests(unittest.TestCase):
                 driver.record_spawn(
                     action_paths[action_id],
                     self.run_plan_path,
+                    root / "requests" / f"{action_id}.json",
                     events,
                     receipts[action_id]["agent_id"],
                 )
@@ -573,7 +822,13 @@ class NativeDispatchDriverTests(unittest.TestCase):
                 root / "requests" / "spawn-0004.json",
                 "g-checks",
             )
-            driver.record_spawn(action_path, run_plan_path, events, None)
+            driver.record_spawn(
+                action_path,
+                run_plan_path,
+                root / "requests" / "spawn-0004.json",
+                events,
+                None,
+            )
             (root / "residue.jsonl").write_text("", encoding="utf-8")
 
             closeout = driver.close_partial_wave(
@@ -1002,6 +1257,85 @@ class NativeDispatchDriverTests(unittest.TestCase):
                 "receipt_joined",
                 [event["event"] for event in validator.load_events(events)],
             )
+
+    def test_v02_normalized_domain_value_must_match_raw_task_result(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            dispatch = load_json(self.dispatch_path)
+            strategy = dispatch["subagent_strategy"]
+            strategy["execution_contract_version"] = driver.coordinator.STRICT_EXECUTION_CONTRACT
+            strategy["execution_waves"][1]["gate_after"] = "g-artifact-domain"
+            dispatch["gates"][0]["evaluation"] = {"mode": "receipt_status"}
+            dispatch["gates"].append({
+                "gate_id": "g-artifact-domain", "kind": "validation", "owner": "orchestrate",
+                "condition": "Preserve a typed final outcome.", "applies_after_wave": "artifact",
+                "requires_role_receipts": ["tmp/native-dispatch/receipts/artifact.json"],
+                "evaluation": {
+                    "mode": "domain_status", "source_role_id": "artifact-writer",
+                    "source_field": "domain_gate_status", "pass_values": ["valid"],
+                    "resolved_values": ["invalid"],
+                },
+                "on_fail": "block",
+            })
+            state, plan = driver.coordinator.compile_first_wave(dispatch, "run-v02-driver")
+            dispatch_path = root / "dispatch.json"
+            state_path = root / "state.json"
+            plan_path = root / "plan.json"
+            write_json(dispatch_path, dispatch)
+            write_json(state_path, state)
+            write_json(plan_path, plan)
+
+            events = root / "events.jsonl"
+            receipts_dir = root / "receipts"
+            raw_dir = root / "raw-results"
+            for action in plan["actions"]:
+                action_path = root / "actions" / f"{action['action_id']}.json"
+                request_path = root / "requests" / f"{action['action_id']}.json"
+                write_json(action_path, action)
+                driver.prepare_spawn(action_path, plan_path, events, request_path, None)
+                agent_id = self.native_agent_id(action)
+                driver.record_spawn(action_path, plan_path, request_path, events, agent_id)
+            driver.prepare_wait(plan_path, events, root / "requests/wait.json")
+            terminal_records = []
+            for action in plan["actions"]:
+                agent_id = self.native_agent_id(action)
+                base = {
+                    "dispatch_id": action["dispatch_id"], "run_id": action["run_id"],
+                    "wave_id": action["wave_id"], "action_id": action["action_id"],
+                    "agent_id": agent_id,
+                }
+                terminal_records.extend([
+                    {**base, "event": "agent_terminal", "operation": "collaboration.list_agents"},
+                    {**base, "event": "agent_closed", "operation": "logical-close"},
+                ])
+                receipt = {
+                    "schema_version": driver.coordinator.RECEIPT_SCHEMA_VERSION_V2,
+                    "action_id": action["action_id"], "dispatch_id": action["dispatch_id"],
+                    "run_id": action["run_id"], "wave_id": action["wave_id"],
+                    "step_id": action["step_id"], "role": action["role"],
+                    "capability_ref": action["capability_ref"], "agent_id": agent_id,
+                    "status": "pass", "artifacts": list(action["output_refs"]), "validation": "pass", "blockers": [],
+                    "started_at": "2026-08-27T00:00:00Z", "finished_at": "2026-08-27T00:00:01Z",
+                    "domain_gate": {"source_field": "domain_gate_status", "value": "normalized-value"},
+                }
+                write_json(receipts_dir / f"{action['action_id']}.json", receipt)
+                briefing = action["briefing_binding"]["briefing"]
+                semantics = briefing["status_semantics"]
+                raw = {
+                    field: ([] if field in {"findings", "artifacts"} else "pass")
+                    for field in briefing["receipt_shape"]["required_fields"]
+                }
+                raw[semantics["task_status_field"]] = semantics["task_complete_value"]
+                raw[semantics["domain_gate_status_field"]] = "raw-value"
+                write_json(raw_dir / f"{action['action_id']}.json", raw)
+            driver.append_causal_records(events, terminal_records)
+
+            output = root / "advance"
+            with self.assertRaises(driver.DriverBlocked) as raised:
+                driver.advance_wave(dispatch_path, state_path, plan_path, receipts_dir, raw_dir, events, output)
+            self.assertIn("normalized domain_gate does not match the raw result field and value", str(raised.exception))
+            self.assertFalse((output / "gate-decision.json").exists())
+            self.assertNotIn("receipt_joined", [event["event"] for event in validator.load_events(events)])
 
     def test_residue_is_separate_and_cannot_enter_causal_validation(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

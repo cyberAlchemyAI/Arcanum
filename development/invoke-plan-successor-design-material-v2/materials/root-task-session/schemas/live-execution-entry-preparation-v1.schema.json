@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/live-execution-entry-preparation/1-0-0",
+  "title": "TaskSessionLiveExecutionEntryPreparationV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "attempt_id",
+    "control_evidence_partition_ref",
+    "owner_acceptance_request_ref",
+    "owner_acceptance_response_ref",
+    "authority_write_ceiling_digest",
+    "owner_acceptance_validation",
+    "preparation_steps",
+    "governance_runner",
+    "run_dir",
+    "preparation_receipt_path",
+    "shadow_mode_supported"
+  ],
+  "properties": {
+    "schema_version": {"const": "task-session.live-execution-entry-preparation.v1"},
+    "attempt_id": {"$ref": "#/$defs/nonEmptyString"},
+    "control_evidence_partition_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "owner_acceptance_request_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "owner_acceptance_response_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "authority_write_ceiling_digest": {"$ref": "#/$defs/sha256"},
+    "owner_acceptance_validation": {"$ref": "#/$defs/structuredInvocation"},
+    "preparation_steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/preparationStep"}
+    },
+    "governance_runner": {"$ref": "#/$defs/governanceRunner"},
+    "run_dir": {"$ref": "#/$defs/path"},
+    "preparation_receipt_path": {"$ref": "#/$defs/path"},
+    "shadow_mode_supported": {"const": true}
+  },
+  "$defs": {
+    "nonEmptyString": {"type": "string", "minLength": 1, "pattern": "^[^\\u0000]+$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$))[^\\u0000]+$"},
+    "pathSet": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}},
+    "exactArtifactRef": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "size_bytes"],
+      "properties": {"path": {"$ref": "#/$defs/path"}, "sha256": {"$ref": "#/$defs/sha256"}, "size_bytes": {"type": "integer", "minimum": 0}}
+    },
+    "executableIdentity": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "size_bytes"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/sha256"}, "size_bytes": {"type": "integer", "minimum": 1}}
+    },
+    "structuredInvocation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["runner_ref", "executable_identity", "argv", "cwd", "input_closure_ref", "input_refs", "environment", "timeout_seconds", "max_output_bytes", "network_allowed", "external_effects_allowed"],
+      "properties": {
+        "runner_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "executable_identity": {"$ref": "#/$defs/executableIdentity"},
+        "argv": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonEmptyString"}},
+        "cwd": {"$ref": "#/$defs/path"},
+        "input_closure_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "input_refs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/exactArtifactRef"}},
+        "environment": {
+          "type": "object", "additionalProperties": false,
+          "properties": {"PYTHONDONTWRITEBYTECODE": {"const": "1"}, "TMPDIR": {"const": "/tmp"}}
+        },
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 600},
+        "max_output_bytes": {"type": "integer", "minimum": 1024, "maximum": 10485760},
+        "network_allowed": {"const": false},
+        "external_effects_allowed": {"const": false}
+      }
+    },
+    "preparationStep": {
+      "type": "object", "additionalProperties": false,
+      "required": ["step_id", "owner_capability", "invocation", "output_paths"],
+      "properties": {
+        "step_id": {"enum": ["readiness", "selection", "fast-entry", "context", "admission"]},
+        "owner_capability": {"$ref": "#/$defs/nonEmptyString"},
+        "invocation": {"$ref": "#/$defs/structuredInvocation"},
+        "output_paths": {"$ref": "#/$defs/pathSet"}
+      }
+    },
+    "governanceRunner": {
+      "type": "object", "additionalProperties": false,
+      "required": ["runner_ref", "executable_identity", "argv", "input_closure_ref", "input_refs", "environment", "timeout_seconds", "max_output_bytes", "network_allowed", "external_effects_allowed", "output_paths"],
+      "properties": {
+        "runner_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "executable_identity": {"$ref": "#/$defs/executableIdentity"},
+        "argv": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonEmptyString"}},
+        "input_closure_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "input_refs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/exactArtifactRef"}},
+        "environment": {"type": "object", "additionalProperties": false, "properties": {"PYTHONDONTWRITEBYTECODE": {"const": "1"}, "TMPDIR": {"const": "/tmp"}}},
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 600},
+        "max_output_bytes": {"type": "integer", "minimum": 1024, "maximum": 10485760},
+        "network_allowed": {"const": false},
+        "external_effects_allowed": {"const": false},
+        "output_paths": {"$ref": "#/$defs/pathSet"}
+      }
+    }
+  }
+}

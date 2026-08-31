@@ -1,0 +1,30 @@
+{
+  "schema_version": "arcanum.lifecycle-source-laboratory-design.v1",
+  "project_id": "lifecycle-source-laboratory",
+  "status": "design-complete",
+  "source_ref": "DEFINE.json",
+  "views": {
+    "system_context": "Invoke authors one machine source; the canonical compiler validates and projects it; WPRA audits it twice; generated human views remain non-authoritative; Task Session is a later consumer only.",
+    "container": ["fixture contract package", "disposable runner", "adversarial integration matrix"],
+    "component": ["fixture contract", "fixture contract validator", "isolated run coordinator", "receipt comparator", "negative-case driver"],
+    "runtime": "validate source -> stage projections -> WPRA run 1 -> WPRA run 2 -> compare -> atomically publish or erase stage",
+    "data": "machine source and exact evidence refs are inputs; WPRA config, reports, receipt, and Markdown are deterministic projections",
+    "deployment": "repository-local Python and JSON only; no service, network, package root, publication, or deployment"
+  },
+  "invariants": [
+    "models author machine sources only",
+    "human views never become authority sources",
+    "staged outputs are invisible until terminal two-run PASS",
+    "future post-produce outputs and validators may be absent",
+    "every effect and write remains repository-local and reversible"
+  ],
+  "selected_architecture": "single-source deterministic projection with transactional publication",
+  "alternatives_rejected": [
+    {"alternative": "hand-authored WPRA config", "reason": "permits source/projection drift"},
+    {"alternative": "human-first work pack", "reason": "requires model interpretation at consumer boundaries"},
+    {"alternative": "laboratory-specific workflow copies", "reason": "does not exercise installed canonical consumers"}
+  ],
+  "evidence_state": "design-validator-pass",
+  "validation_receipt_ref": "DESIGN-VALIDATION.json",
+  "authority_effect": "none"
+}

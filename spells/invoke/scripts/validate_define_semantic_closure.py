@@ -17,7 +17,7 @@ import re
 import sys
 import unicodedata
 from collections import Counter, defaultdict
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any, Iterable
 
 from jsonschema import Draft202012Validator
@@ -25,13 +25,29 @@ from jsonschema import Draft202012Validator
 
 SCHEMA_URI = "https://arcanum.dev/schemas/invoke/define-semantic-closure-receipt/v1"
 SCHEMA_VERSION = "invoke.define-semantic-closure-receipt.v1"
+V2_SCHEMA_URI = "https://arcanum.dev/schemas/invoke/define-semantic-closure-receipt/v2"
+V2_SCHEMA_VERSION = "invoke.define-semantic-closure-receipt.v2"
 VALIDATOR_ID = "invoke.validate-define-semantic-closure.v1"
+V2_VALIDATOR_ID = "invoke.validate-define-semantic-closure.v2"
 VALIDATOR_OWNER = "invoke-define-semantic-closure-validator"
 VALIDATOR_PATH = "arcanum/spells/invoke/scripts/validate_define_semantic_closure.py"
 CHECK_IDS = (
     "check:authority-resolution",
     "check:source-freshness",
     "check:probe-coverage",
+    "check:canonical-index-parity",
+    "check:normalized-collision",
+    "check:semantic-overlap",
+    "check:consumer-coverage",
+    "check:independent-owner",
+)
+V2_CHECK_IDS = (
+    "check:authority-resolution",
+    "check:source-freshness",
+    "check:intent-facet-assessment",
+    "check:intent-obligation-coverage",
+    "check:declared-probe-integrity",
+    "check:historical-evidence-disposition",
     "check:canonical-index-parity",
     "check:normalized-collision",
     "check:semantic-overlap",
@@ -85,46 +101,6 @@ def canonical_bytes(value: Any) -> bytes:
 
 def exact_ref(path: str, data: bytes) -> dict[str, Any]:
     return {"path": path, "sha256": sha256_bytes(data), "size": len(data)}
-
-
-def repository_path_key(value: str, *, case_insensitive: bool | None = None) -> str:
-    """Return a comparison-only key without changing serialized path spelling."""
-
-    normalized = PurePosixPath(value).as_posix()
-    if case_insensitive is None:
-        case_insensitive = sys.platform == "win32"
-    return normalized.casefold() if case_insensitive else normalized
-
-
-def canonical_repo_relative(
-    actual_relative: str,
-    trusted_root_bindings: Iterable[tuple[str, str]],
-    *,
-    case_insensitive: bool | None = None,
-) -> str:
-    """Reuse trusted root spelling for the longest matching path prefix."""
-
-    actual_parts = PurePosixPath(actual_relative).parts
-    best_prefix = 0
-    best_parts = actual_parts
-    for declared_root, resolved_root in trusted_root_bindings:
-        declared_parts = PurePosixPath(declared_root).parts
-        resolved_parts = PurePosixPath(resolved_root).parts
-        common = 0
-        for index, (actual, resolved) in enumerate(zip(actual_parts, resolved_parts)):
-            if index >= len(declared_parts) or (
-                repository_path_key(actual, case_insensitive=case_insensitive)
-                != repository_path_key(resolved, case_insensitive=case_insensitive)
-            ) or (
-                repository_path_key(declared_parts[index], case_insensitive=case_insensitive)
-                != repository_path_key(resolved, case_insensitive=case_insensitive)
-            ):
-                break
-            common += 1
-        if common > best_prefix:
-            best_prefix = common
-            best_parts = (*declared_parts[:common], *actual_parts[common:])
-    return PurePosixPath(*best_parts).as_posix()
 
 
 def normalize(value: str) -> str:
@@ -281,6 +257,9 @@ def iter_material_refs(context: dict[str, Any]) -> Iterable[tuple[str, dict[str,
     discovery = context["discovery"]
     if discovery["kind"] == "artifact":
         yield "discovery-source", discovery["ref"]
+    for source in context.get("intent_coverage", {}).get("evidence_sources", []):
+        role = "intent-consumer" if source["source_class"] == "consumer" else "intent-evidence"
+        yield role, source["source_ref"]
     for probe in context["concept_probes"]:
         for ref in probe["evidence_refs"]:
             yield "probe-evidence", ref
@@ -300,6 +279,45 @@ def iter_material_refs(context: dict[str, Any]) -> Iterable[tuple[str, dict[str,
         yield "consumer", consumer["source_ref"]
     for exclusion in context["exclusions"]:
         yield "exclusion-evidence", exclusion["evidence_ref"]
+
+
+def discovery_root_specs(context: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return one normalized registry/consumer root list for either context version."""
+
+    contract = context["discovery_contract"]
+    if context["schema_version"] == "invoke.define-semantic-context.v1":
+        return [
+            {
+                "root_id": item["root_id"],
+                "path": item["path"],
+                "registry_globs": item["registry_globs"],
+                "consumer_globs": item["consumer_globs"],
+                "visibility": item["visibility"],
+                "root_role": "combined",
+            }
+            for item in contract["roots"]
+        ]
+    return [
+        {
+            "root_id": item["root_id"],
+            "path": item["path"],
+            "registry_globs": item["globs"],
+            "consumer_globs": [],
+            "visibility": item["visibility"],
+            "root_role": "registry",
+        }
+        for item in contract["registry_roots"]
+    ] + [
+        {
+            "root_id": item["root_id"],
+            "path": item["path"],
+            "registry_globs": [],
+            "consumer_globs": item["globs"],
+            "visibility": item["visibility"],
+            "root_role": "consumer",
+        }
+        for item in contract["consumer_roots"]
+    ]
 
 
 def parse_definitions(data: bytes) -> tuple[dict[str, dict[str, Any]], str | None]:
@@ -415,12 +433,7 @@ def registry_entries(data: bytes, format_profile: str) -> list[dict[str, Any]]:
     return result
 
 
-def path_for_glob(
-    root: Path,
-    base: str,
-    pattern: str,
-    declared_paths: dict[str, str] | None = None,
-) -> list[str]:
+def path_for_glob(root: Path, base: str, pattern: str) -> list[str]:
     base_path = root / base
     try:
         resolved_base = base_path.resolve(strict=True)
@@ -438,11 +451,7 @@ def path_for_glob(
             resolved.relative_to(root)
         except ValueError as exc:
             raise ValueError(f"discovered path escapes repository: {candidate}") from exc
-        relative = candidate.relative_to(resolved_base)
-        discovered = PurePosixPath(base, *relative.parts).as_posix()
-        if declared_paths is not None:
-            discovered = declared_paths.get(repository_path_key(discovered), discovered)
-        paths.append(discovered)
+        paths.append(candidate.relative_to(root).as_posix())
     return sorted(set(paths))
 
 
@@ -501,6 +510,11 @@ def main(
     context_schema_rel = context_schema_path.relative_to(root).as_posix()
     receipt_schema_rel = receipt_schema_path.relative_to(root).as_posix()
     validator_data = Path(__file__).read_bytes()
+    is_v2 = context["schema_version"] == "invoke.define-semantic-context.v2"
+    receipt_schema_uri = V2_SCHEMA_URI if is_v2 else SCHEMA_URI
+    receipt_schema_version = V2_SCHEMA_VERSION if is_v2 else SCHEMA_VERSION
+    validator_id = V2_VALIDATOR_ID if is_v2 else VALIDATOR_ID
+    check_ids = V2_CHECK_IDS if is_v2 else CHECK_IDS
 
     blockers: list[dict[str, Any]] = []
     blocker_ids: set[str] = set()
@@ -527,7 +541,6 @@ def main(
 
     configured_discovery_roots: list[str] = []
     configured_public_roots: list[str] = []
-    trusted_root_bindings: list[tuple[str, str]] = []
     try:
         for configured, destination in (
             (args.discovery_root, configured_discovery_roots),
@@ -540,9 +553,7 @@ def main(
                 resolved.relative_to(root)
                 if not resolved.is_dir():
                     raise ValueError(f"configured root is not a directory: {relative}")
-                declared = Path(relative).as_posix()
-                destination.append(declared)
-                trusted_root_bindings.append((declared, resolved.relative_to(root).as_posix()))
+                destination.append(Path(relative).as_posix())
     except (OSError, ValueError) as exc:
         if _return_receipt:
             raise InvocationError(f"invalid trusted root configuration: {exc}") from exc
@@ -550,10 +561,6 @@ def main(
         return 2
     configured_discovery_roots = sorted(set(configured_discovery_roots))
     configured_public_roots = sorted(set(configured_public_roots))
-    trusted_root_bindings = sorted(set(trusted_root_bindings))
-    context_rel = canonical_repo_relative(context_rel, trusted_root_bindings)
-    context_schema_rel = canonical_repo_relative(context_schema_rel, trusted_root_bindings)
-    receipt_schema_rel = canonical_repo_relative(receipt_schema_rel, trusted_root_bindings)
     if context["target"]["visibility"] == "public" and not configured_public_roots:
         if _return_receipt:
             raise InvocationError("public contexts require at least one --public-root")
@@ -624,7 +631,8 @@ def main(
     discovery_blockers: list[str] = []
     excluded_selectors = {item["selector"]: item for item in context["exclusions"]}
     excluded_paths: set[str] = set()
-    declared_discovery_roots = sorted({item["path"] for item in context["discovery_contract"]["roots"]})
+    root_specs = discovery_root_specs(context)
+    declared_discovery_roots = sorted({item["path"] for item in root_specs})
     if declared_discovery_roots != configured_discovery_roots:
         discovery_blockers.append(block(
             "DISCOVERY_ROOT_CONFIGURATION_MISMATCH",
@@ -642,7 +650,7 @@ def main(
                     "invoke-owner",
                     "Choose a discovery root inside the trusted public boundary.",
                 ))
-    root_ids = [item["root_id"] for item in context["discovery_contract"]["roots"]]
+    root_ids = [item["root_id"] for item in root_specs]
     duplicate_root_ids = sorted(item for item, count in Counter(root_ids).items() if count > 1)
     if duplicate_root_ids:
         discovery_blockers.append(block(
@@ -651,12 +659,12 @@ def main(
             "semantic-context-author",
             "Assign one unique identity to every discovery root.",
         ))
-    root_paths = [item["path"] for item in context["discovery_contract"]["roots"]]
+    root_paths = [(item["root_role"], item["path"]) for item in root_specs]
     duplicate_root_paths = sorted(item for item, count in Counter(root_paths).items() if count > 1)
     if duplicate_root_paths:
         discovery_blockers.append(block(
             "DUPLICATE_DISCOVERY_ROOT_PATH",
-            f"Discovery root paths are not unique: {duplicate_root_paths}",
+            f"Discovery root role/path pairs are not unique: {duplicate_root_paths}",
             "semantic-context-author",
             "Declare each configured discovery root exactly once.",
         ))
@@ -683,7 +691,7 @@ def main(
     non_consumer_material = {context_rel} | {
         ref["path"]
         for role, ref in iter_material_refs(context)
-        if role != "consumer"
+        if role not in {"consumer", "intent-consumer"}
     }
     probe_labels = {
         normalize(label)
@@ -691,39 +699,20 @@ def main(
         for label in [probe["term"], *probe["aliases"]]
     }
     discovered_data: dict[str, bytes] = dict(observed_data)
-    declared_path_spellings = {
-        repository_path_key(path): path
-        for path in sorted(
-            {
-                context_rel,
-                context_schema_rel,
-                receipt_schema_rel,
-                *excluded_selectors,
-                *(ref["path"] for _role, ref in iter_material_refs(context)),
-            }
-        )
-    }
 
     def read_discovered(path: str) -> bytes:
         if path not in discovered_data:
             discovered_data[path] = repo_path(root, path).read_bytes()
         return discovered_data[path]
 
-    for item in context["discovery_contract"]["roots"]:
+    for item in root_specs:
         registry_paths: set[str] = set()
         consumer_paths: set[str] = set()
         try:
             for pattern in item["registry_globs"]:
-                registry_paths.update(
-                    path_for_glob(root, item["path"], pattern, declared_path_spellings)
-                )
+                registry_paths.update(path_for_glob(root, item["path"], pattern))
             for pattern in item["consumer_globs"]:
-                for path in path_for_glob(
-                    root,
-                    item["path"],
-                    pattern,
-                    declared_path_spellings,
-                ):
+                for path in path_for_glob(root, item["path"], pattern):
                     if path in non_consumer_material:
                         continue
                     try:
@@ -736,9 +725,12 @@ def main(
                             "Repair or exactly exclude the unreadable consumer candidate.",
                         ))
                         continue
-                    normalized_text = normalize(text)
-                    if any(contains_label(normalized_text, label) for label in probe_labels):
+                    if is_v2:
                         consumer_paths.add(path)
+                    else:
+                        normalized_text = normalize(text)
+                        if any(contains_label(normalized_text, label) for label in probe_labels):
+                            consumer_paths.add(path)
         except ValueError as exc:
             discovery_blockers.append(block(
                 "DISCOVERY_ENUMERATION_FAILURE",
@@ -935,6 +927,287 @@ def main(
             "Assign one unique identity to every claimed semantic match.",
         ))
 
+    intent_receipt: dict[str, Any] | None = None
+    intent_facet_blockers: list[str] = []
+    intent_coverage_blockers: list[str] = []
+    historical_disposition_blockers: list[str] = []
+    if is_v2:
+        intent = context["intent_coverage"]
+        source_results: dict[str, list[str]] = defaultdict(list)
+        facet_results: dict[str, list[str]] = defaultdict(list)
+        obligation_results: dict[str, list[str]] = defaultdict(list)
+
+        def attach(target: dict[str, list[str]], key: str, blocker_id: str) -> None:
+            target[key].append(blocker_id)
+
+        evidence_sources = intent["evidence_sources"]
+        source_ids = [item["source_id"] for item in evidence_sources]
+        known_source_ids = set(source_ids)
+        duplicate_source_ids = sorted(item for item, count in Counter(source_ids).items() if count > 1)
+        if duplicate_source_ids:
+            blocker_id = block(
+                "DUPLICATE_INTENT_EVIDENCE_SOURCE_ID",
+                f"Intent evidence source IDs are not unique: {duplicate_source_ids}",
+                context["assessed_by"],
+                "Assign one unique ID to every intent evidence source.",
+            )
+            intent_coverage_blockers.append(blocker_id)
+            for source_id in duplicate_source_ids:
+                attach(source_results, source_id, blocker_id)
+
+        for source in evidence_sources:
+            if source["source_class"] != "historical":
+                continue
+            valid_semantic = source["semantic_disposition"] in {
+                "retain-and-reassess",
+                "exclude-with-rationale",
+            }
+            valid_authority = source["authority_disposition"] in {"historical-only", "none"}
+            if not valid_semantic or not valid_authority:
+                blocker_id = block(
+                    "HISTORICAL_EVIDENCE_DISPOSITION_MISSING",
+                    (
+                        f"Historical evidence {source['source_id']} must separately retain-and-reassess or "
+                        "exclude meaning, and must mark authority historical-only or none."
+                    ),
+                    context["assessed_by"],
+                    "Classify historical meaning separately from historical authority.",
+                )
+                historical_disposition_blockers.append(blocker_id)
+                attach(source_results, source["source_id"], blocker_id)
+
+        obligations = intent["obligations"]
+        obligation_ids = [item["obligation_id"] for item in obligations]
+        known_obligation_ids = set(obligation_ids)
+        duplicate_obligation_ids = sorted(
+            item for item, count in Counter(obligation_ids).items() if count > 1
+        )
+        if duplicate_obligation_ids:
+            blocker_id = block(
+                "DUPLICATE_INTENT_OBLIGATION_ID",
+                f"Intent obligation IDs are not unique: {duplicate_obligation_ids}",
+                context["assessed_by"],
+                "Assign one unique ID to every semantic intent obligation.",
+            )
+            intent_coverage_blockers.append(blocker_id)
+            for obligation_id in duplicate_obligation_ids:
+                attach(obligation_results, obligation_id, blocker_id)
+
+        known_probe_ids = set(probe_ids)
+        expected_probe_obligations: dict[str, set[str]] = defaultdict(set)
+        for obligation in obligations:
+            obligation_id = obligation["obligation_id"]
+            unknown_sources = sorted(set(obligation["evidence_source_ids"]) - known_source_ids)
+            if unknown_sources:
+                blocker_id = block(
+                    "INTENT_OBLIGATION_EVIDENCE_UNKNOWN",
+                    f"Obligation {obligation_id} names unknown evidence sources: {unknown_sources}",
+                    context["assessed_by"],
+                    "Bind the obligation to declared exact intent evidence sources.",
+                )
+                intent_coverage_blockers.append(blocker_id)
+                attach(obligation_results, obligation_id, blocker_id)
+            unknown_probes = sorted(set(obligation["probe_ids"]) - known_probe_ids)
+            if unknown_probes:
+                blocker_id = block(
+                    "INTENT_OBLIGATION_PROBE_UNKNOWN",
+                    f"Obligation {obligation_id} names unknown probes: {unknown_probes}",
+                    context["assessed_by"],
+                    "Map the obligation only to declared concept probes.",
+                )
+                intent_coverage_blockers.append(blocker_id)
+                attach(obligation_results, obligation_id, blocker_id)
+            if obligation["status"] == "uncovered":
+                blocker_id = block(
+                    "INTENT_OBLIGATION_UNCOVERED",
+                    f"Obligation {obligation_id} remains uncovered.",
+                    context["assessed_by"],
+                    "Add an evidence-backed probe or explicitly route the obligation out of scope.",
+                )
+                intent_coverage_blockers.append(blocker_id)
+                attach(obligation_results, obligation_id, blocker_id)
+            elif obligation["status"] == "covered":
+                if not obligation["probe_ids"]:
+                    blocker_id = block(
+                        "INTENT_OBLIGATION_UNMAPPED",
+                        f"Covered obligation {obligation_id} maps to no probe.",
+                        context["assessed_by"],
+                        "Map every covered obligation to at least one declared probe.",
+                    )
+                    intent_coverage_blockers.append(blocker_id)
+                    attach(obligation_results, obligation_id, blocker_id)
+                for probe_id in obligation["probe_ids"]:
+                    expected_probe_obligations[probe_id].add(obligation_id)
+            elif obligation["probe_ids"]:
+                blocker_id = block(
+                    "OUT_OF_SCOPE_OBLIGATION_HAS_PROBE",
+                    f"Out-of-scope obligation {obligation_id} still maps to probes.",
+                    context["assessed_by"],
+                    "Remove the probe mapping or mark the obligation covered.",
+                )
+                intent_coverage_blockers.append(blocker_id)
+                attach(obligation_results, obligation_id, blocker_id)
+
+            if obligation["kind"] == "relationship" and obligation["relationship"] is not None:
+                relation_probes = {
+                    obligation["relationship"]["subject_probe_id"],
+                    obligation["relationship"]["object_probe_id"],
+                }
+                if not relation_probes.issubset(set(obligation["probe_ids"])):
+                    blocker_id = block(
+                        "INTENT_RELATIONSHIP_MAPPING_MISMATCH",
+                        f"Relationship obligation {obligation_id} does not map both endpoint probes.",
+                        context["assessed_by"],
+                        "Include both relationship endpoint probes in the obligation mapping.",
+                    )
+                    intent_coverage_blockers.append(blocker_id)
+                    attach(obligation_results, obligation_id, blocker_id)
+            if obligation["kind"] == "boundary" and obligation["boundary"] is not None:
+                boundary_probe = obligation["boundary"]["probe_id"]
+                if boundary_probe not in obligation["probe_ids"]:
+                    blocker_id = block(
+                        "INTENT_BOUNDARY_MAPPING_MISMATCH",
+                        f"Boundary obligation {obligation_id} does not map its subject probe.",
+                        context["assessed_by"],
+                        "Include the boundary subject probe in the obligation mapping.",
+                    )
+                    intent_coverage_blockers.append(blocker_id)
+                    attach(obligation_results, obligation_id, blocker_id)
+
+        required_facets = {
+            "subject",
+            "parts",
+            "relationships",
+            "evidence-state",
+            "validation-gates",
+            "execution-handoff",
+            "authority-boundary",
+        }
+        facets = intent["facets"]
+        facet_ids = [item["facet_id"] for item in facets]
+        if set(facet_ids) != required_facets or len(facet_ids) != len(required_facets):
+            blocker_id = block(
+                "INTENT_FACET_SET_INCOMPLETE",
+                f"Intent facets must assess exactly {sorted(required_facets)}; observed={sorted(facet_ids)}",
+                context["assessed_by"],
+                "Assess every required semantic-intent facet exactly once.",
+            )
+            intent_facet_blockers.append(blocker_id)
+            for facet_id in facet_ids:
+                attach(facet_results, facet_id, blocker_id)
+        for facet in facets:
+            facet_id = facet["facet_id"]
+            unknown_obligations = sorted(set(facet["obligation_ids"]) - known_obligation_ids)
+            unknown_sources = sorted(set(facet["evidence_source_ids"]) - known_source_ids)
+            if facet["status"] == "unassessed":
+                blocker_id = block(
+                    "INTENT_FACET_UNASSESSED",
+                    f"Intent facet {facet_id} is unassessed.",
+                    context["assessed_by"],
+                    "Represent the facet or mark it not-applicable with evidence and rationale.",
+                )
+                intent_facet_blockers.append(blocker_id)
+                attach(facet_results, facet_id, blocker_id)
+            if facet["status"] == "represented" and (
+                not facet["obligation_ids"] or not facet["evidence_source_ids"]
+            ):
+                blocker_id = block(
+                    "INTENT_FACET_REPRESENTATION_EMPTY",
+                    f"Represented intent facet {facet_id} lacks obligations or evidence.",
+                    context["assessed_by"],
+                    "Bind represented facets to obligations and exact evidence sources.",
+                )
+                intent_facet_blockers.append(blocker_id)
+                attach(facet_results, facet_id, blocker_id)
+            if facet["status"] == "not-applicable" and (
+                facet["obligation_ids"] or not facet["evidence_source_ids"]
+            ):
+                blocker_id = block(
+                    "INTENT_FACET_NOT_APPLICABLE_INVALID",
+                    f"Not-applicable intent facet {facet_id} must have evidence and no obligation IDs.",
+                    context["assessed_by"],
+                    "Provide exact evidence for non-applicability and remove obligation mappings.",
+                )
+                intent_facet_blockers.append(blocker_id)
+                attach(facet_results, facet_id, blocker_id)
+            if unknown_obligations or unknown_sources:
+                blocker_id = block(
+                    "INTENT_FACET_REFERENCE_UNKNOWN",
+                    (
+                        f"Intent facet {facet_id} has unknown obligations={unknown_obligations} "
+                        f"or evidence sources={unknown_sources}."
+                    ),
+                    context["assessed_by"],
+                    "Bind facets only to declared obligations and evidence sources.",
+                )
+                intent_facet_blockers.append(blocker_id)
+                attach(facet_results, facet_id, blocker_id)
+
+        for probe in context["concept_probes"]:
+            probe_id = probe["probe_id"]
+            declared = set(probe["obligation_ids"])
+            expected = expected_probe_obligations.get(probe_id, set())
+            if not expected:
+                blocker_id = block(
+                    "INTENT_PROBE_ORPHANED",
+                    f"Probe {probe_id} serves no covered semantic obligation.",
+                    context["assessed_by"],
+                    "Map the probe bidirectionally to at least one covered obligation.",
+                )
+                probe_blockers.append(blocker_id)
+            if declared != expected:
+                blocker_id = block(
+                    "INTENT_PROBE_MAPPING_MISMATCH",
+                    f"Probe {probe_id} declares obligations={sorted(declared)} but coverage expects={sorted(expected)}.",
+                    context["assessed_by"],
+                    "Make probe and obligation mappings exactly bidirectional.",
+                )
+                probe_blockers.append(blocker_id)
+
+        intent_receipt = {
+            "claim_ceiling": "enumerated-semantic-obligations",
+            "evidence_source_results": [
+                {
+                    "source_id": source["source_id"],
+                    "source_class": source["source_class"],
+                    "semantic_disposition": source["semantic_disposition"],
+                    "authority_disposition": source["authority_disposition"],
+                    "causal_blocker_ids": sorted(set(source_results[source["source_id"]])),
+                }
+                for source in evidence_sources
+            ],
+            "facet_results": [
+                {
+                    "facet_id": facet["facet_id"],
+                    "status": facet["status"],
+                    "obligation_ids": facet["obligation_ids"],
+                    "causal_blocker_ids": sorted(set(facet_results[facet["facet_id"]])),
+                }
+                for facet in facets
+            ],
+            "obligation_results": [
+                {
+                    "obligation_id": obligation["obligation_id"],
+                    "kind": obligation["kind"],
+                    "status": obligation["status"],
+                    "probe_ids": obligation["probe_ids"],
+                    "causal_blocker_ids": sorted(
+                        set(obligation_results[obligation["obligation_id"]])
+                    ),
+                }
+                for obligation in obligations
+            ],
+            "summary": {
+                "total": len(obligations),
+                "covered": sum(item["status"] == "covered" for item in obligations),
+                "out_of_scope": sum(item["status"] == "out-of-scope" for item in obligations),
+                "uncovered": sum(item["status"] == "uncovered" for item in obligations),
+                "concept": sum(item["kind"] == "concept" for item in obligations),
+                "relationship": sum(item["kind"] == "relationship" for item in obligations),
+                "boundary": sum(item["kind"] == "boundary" for item in obligations),
+            },
+        }
+
     adjacent_entries: list[tuple[dict[str, Any], dict[str, Any]]] = []
     adjacent_parse_blockers: list[str] = []
     registry_ids = [registry["registry_id"] for registry in context["adjacent_registries"]]
@@ -1011,7 +1284,15 @@ def main(
     semantic_source_blockers = [
         blocker_id for path in semantic_paths for blocker_id in source_blockers_by_path[path]
     ]
-    semantic_dependencies = semantic_source_blockers + probe_blockers + adjacent_parse_blockers + (authority_blockers if not canonical_definitions else [])
+    semantic_dependencies = (
+        semantic_source_blockers
+        + probe_blockers
+        + intent_facet_blockers
+        + intent_coverage_blockers
+        + historical_disposition_blockers
+        + adjacent_parse_blockers
+        + (authority_blockers if not canonical_definitions else [])
+    )
     semantic_evaluable = not semantic_dependencies and bool(canonical_definitions)
     semantic_blockers: list[str] = []
     probe_results: list[dict[str, Any]] = []
@@ -1145,20 +1426,36 @@ def main(
         })
 
     authority_dependencies = authority_source_blockers if authority_status == "ambiguous" and not authority_blockers else []
-    add_check(CHECK_IDS[0], authority_blockers, refs_for(
+    add_check(check_ids[0], authority_blockers, refs_for(
         [ref["path"] for ref in boundary["canonical_source_refs"] + boundary["index_refs"] + boundary["resolution_evidence_refs"]]
     ), authority_dependencies)
-    add_check(CHECK_IDS[1], source_blockers, refs_for(all_material_paths))
-    add_check(CHECK_IDS[2], probe_blockers, [context_ref])
+    add_check(check_ids[1], source_blockers, refs_for(all_material_paths))
+    if is_v2:
+        intent_source_paths = [
+            item["source_ref"]["path"]
+            for item in context["intent_coverage"]["evidence_sources"]
+        ]
+        add_check(check_ids[2], intent_facet_blockers, [context_ref, *refs_for(intent_source_paths)])
+        add_check(check_ids[3], intent_coverage_blockers, [context_ref, *refs_for(intent_source_paths)])
+        add_check(check_ids[4], probe_blockers, [context_ref])
+        add_check(
+            check_ids[5],
+            historical_disposition_blockers,
+            [context_ref, *refs_for(intent_source_paths)],
+        )
+        parity_index = 6
+    else:
+        add_check(check_ids[2], probe_blockers, [context_ref])
+        parity_index = 3
     parity_dependencies = canonical_index_source_blockers + authority_blockers if not canonical_definitions else []
-    add_check(CHECK_IDS[3], parity_blockers, refs_for([ref["path"] for ref in boundary["canonical_source_refs"] + boundary["index_refs"]]), parity_dependencies)
+    add_check(check_ids[parity_index], parity_blockers, refs_for([ref["path"] for ref in boundary["canonical_source_refs"] + boundary["index_refs"]]), parity_dependencies)
     registry_paths_for_collision = declared_registry_paths
     registry_source_blockers = [
         blocker_id for path in registry_paths_for_collision for blocker_id in source_blockers_by_path[path]
     ]
     collision_dependencies = registry_source_blockers + (authority_blockers if not canonical_definitions else [])
-    add_check(CHECK_IDS[4], collision_blockers, refs_for(list(discovered_registries) + [context_rel]), collision_dependencies)
-    add_check(CHECK_IDS[5], semantic_blockers, [context_ref, *refs_for(declared_registry_paths)], semantic_dependencies)
+    add_check(check_ids[parity_index + 1], collision_blockers, refs_for(list(discovered_registries) + [context_rel]), collision_dependencies)
+    add_check(check_ids[parity_index + 2], semantic_blockers, [context_ref, *refs_for(declared_registry_paths)], semantic_dependencies)
     consumer_source_paths = {
         ref["path"]
         for role, ref in iter_material_refs(context)
@@ -1167,8 +1464,8 @@ def main(
     consumer_source_blockers = [
         blocker_id for path in consumer_source_paths for blocker_id in source_blockers_by_path[path]
     ]
-    add_check(CHECK_IDS[6], consumer_blockers + discovery_blockers, refs_for(declared_consumer_paths), consumer_source_blockers)
-    add_check(CHECK_IDS[7], independent_blockers, [context_ref])
+    add_check(check_ids[parity_index + 3], consumer_blockers + discovery_blockers, refs_for(declared_consumer_paths), consumer_source_blockers)
+    add_check(check_ids[parity_index + 4], independent_blockers, [context_ref])
 
     all_check_blockers = {blocker_id for check in checks for blocker_id in check["causal_blocker_ids"]}
     for result in probe_results:
@@ -1191,11 +1488,11 @@ def main(
         outcome, route = "ready-for-define", "define-v3"
 
     receipt: dict[str, Any] = {
-        "$schema": SCHEMA_URI,
-        "schema_version": SCHEMA_VERSION,
+        "$schema": receipt_schema_uri,
+        "schema_version": receipt_schema_version,
         "receipt_id": "receipt:pending",
         "validator": {
-            "identity": VALIDATOR_ID,
+            "identity": validator_id,
             "owner": VALIDATOR_OWNER,
             "path": VALIDATOR_PATH,
             "sha256": sha256_bytes(validator_data),
@@ -1226,6 +1523,7 @@ def main(
         },
         "inspected_sources": sorted(inspections, key=lambda item: item["inspection_id"]),
         "probe_results": probe_results,
+        **({"intent_coverage": intent_receipt} if intent_receipt is not None else {}),
         "checks": checks,
         "blockers": sorted(blockers, key=lambda item: item["blocker_id"]),
         "outcome": outcome,

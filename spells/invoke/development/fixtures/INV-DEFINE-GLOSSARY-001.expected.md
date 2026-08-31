@@ -8,13 +8,14 @@
 - Scope: library
 - Phase status: pass
 - Mode contract: arcanum/spells/invoke/define.md
-- Outputs: artifacts/mars-geology-notebook/SPEC.md, artifacts/mars-geology-notebook/GLOSSARY.md, .arcanum/necronomicon/sessions/demo/invoke-transports/define.md
-- Template selection: research family
+- Outputs: artifacts/mars-geology-notebook/SPEC.md, artifacts/mars-geology-notebook/DEFINITIONS.json, artifacts/mars-geology-notebook/DEFINITIONS.md, artifacts/mars-geology-notebook/GLOSSARY.md, .arcanum/necronomicon/sessions/demo/invoke-transports/define.md
+- Template selection: `invoke.generic-definitions-baseline.v3`
 - Dispatch techniques: `entity_classing`, `residue_ledger`, `owner_boundary_check`
 - Distill validation: pass; notebook baseline remains one coherent definition unit
-- Decisions: define notebook baseline while keeping "sol-thread" as a candidate glossary term
-- Glossary updates: experiment session notebook, Mars geology analysis, sol-thread
-- Glossary linking: sol-thread is no-match with rationale; canonical promotion requires decision-gate or ontology-vault
+- Decisions: define notebook baseline while keeping "sol-thread" as a candidate definition
+- Candidate definitions: experiment session notebook, Mars geology analysis, sol-thread
+- Definition views: `DEFINITIONS.md` and `GLOSSARY.md` derive from `DEFINITIONS.json`
+- Promotion boundary: definitions-governance review is required; the Define receipt grants no authority
 - Implementation layering: seed emitted
 - Work-pack: n/a
 - Unresolved gaps: candidate term promotion unresolved

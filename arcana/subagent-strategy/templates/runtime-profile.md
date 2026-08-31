@@ -60,7 +60,7 @@ registration:
   close_rows: 1
 
 native_runtime_binding:
-  schema_version: arcanum.subagent-strategy-registration.v0.3
+  schema_version: arcanum.subagent-strategy-registration.v0.2
   dispatch_field: subagent_strategy.registration
   compile_command: <command-or-none>
   verify_registration_command: <command-or-none>
@@ -113,9 +113,8 @@ publication:
 - A stale runtime or candidate form version is a visible warning followed by
   rematerialization and revalidation before the human gate; it is never an
   admission bypass.
-- The agent pool or runtime provider is resolvable and every agent has one
-  eligible, unique identity before confirmation. Its exact initial prompt
-  begins with `You are {agent_name}.` followed by a blank line.
+- The agent pool or runtime provider is resolvable and every non-null identity
+  is eligible and unique before confirmation.
 - Final-approver eligibility is deterministic and consistent with the local
   sheet schema and registrar.
 - Draft revision authorization is not dispatch confirmation; a normal ready

@@ -1,0 +1,302 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+        {
+            "if": {
+                "type": "object",
+                "properties": {
+                    "selectionVerdict": {
+                        "const": "block"
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "reasons": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "prefixItems": [
+                                    true
+                                ],
+                                "minItems": 1
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "authorityEffect": {
+                    "const": "none"
+                },
+                "canonicalSemanticDigest": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "dependencyReceiptDigests": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "uniqueItems": true
+                },
+                "explicitConfirmationDigest": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "lifecycleEligibilityDigest": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "manifestDigest": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "mutationReady": {
+                    "const": false
+                },
+                "planEpochId": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^epoch-[a-f0-9]{24}$"
+                        }
+                    ]
+                },
+                "reasons": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
+                "requestDigest": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "schemaVersion": {
+                    "const": "1.0.0"
+                },
+                "selectionIntentDigest": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "selectionIntentSource": {
+                    "enum": [
+                        "execution-intent-binding",
+                        "explicit-confirmation",
+                        "invalid"
+                    ]
+                },
+                "selectionVerdict": {
+                    "enum": [
+                        "select",
+                        "block"
+                    ]
+                },
+                "swuId": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    ]
+                },
+                "taskId": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    ]
+                },
+                "terminalCode": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9_]+$"
+                },
+                "unitContractDigest": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            },
+            "if": {
+                "type": "object",
+                "properties": {
+                    "selectionVerdict": {
+                        "const": "select"
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "canonicalSemanticDigest": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "lifecycleEligibilityDigest": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "manifestDigest": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "planEpochId": {
+                        "type": "string"
+                    },
+                    "reasons": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "maxItems": 0
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "requestDigest": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "selectionIntentDigest": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "selectionIntentSource": {
+                        "enum": [
+                            "execution-intent-binding",
+                            "explicit-confirmation"
+                        ]
+                    },
+                    "swuId": {
+                        "type": "string"
+                    },
+                    "taskId": {
+                        "type": "string"
+                    },
+                    "terminalCode": {
+                        "const": "SELECTION_READY"
+                    },
+                    "unitContractDigest": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    }
+                }
+            },
+            "required": [
+                "authorityEffect",
+                "canonicalSemanticDigest",
+                "dependencyReceiptDigests",
+                "explicitConfirmationDigest",
+                "lifecycleEligibilityDigest",
+                "manifestDigest",
+                "mutationReady",
+                "planEpochId",
+                "reasons",
+                "requestDigest",
+                "schemaVersion",
+                "selectionIntentDigest",
+                "selectionIntentSource",
+                "selectionVerdict",
+                "swuId",
+                "taskId",
+                "terminalCode",
+                "unitContractDigest"
+            ]
+        }
+    ]
+}

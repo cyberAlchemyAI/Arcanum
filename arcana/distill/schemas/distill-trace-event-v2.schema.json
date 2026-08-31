@@ -1,0 +1,678 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/distill/trace-event/2-0-0",
+  "title": "Distill v2 Append-Only Semantic Trace Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "run_id",
+    "sequence",
+    "previous_event_sha256",
+    "created_at",
+    "event_type",
+    "payload",
+    "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "distill.trace_event.v2"
+    },
+    "event_id": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+    },
+    "run_id": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+    },
+    "sequence": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_negative_integer"
+    },
+    "previous_event_sha256": {
+      "oneOf": [
+        {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "created_at": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/utc_timestamp"
+    },
+    "event_type": {
+      "enum": [
+        "setup",
+        "proposal",
+        "objection",
+        "reconciliation",
+        "technique",
+        "round",
+        "termination",
+        "verdict_candidate"
+      ]
+    },
+    "payload": {},
+    "authority_effect": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/authority_effect_none"
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "event_type": {
+          "const": "setup"
+        },
+        "payload": {
+          "$ref": "#/$defs/setup_payload"
+        }
+      }
+    },
+    {
+      "properties": {
+        "event_type": {
+          "const": "proposal"
+        },
+        "payload": {
+          "$ref": "#/$defs/proposal_payload"
+        }
+      }
+    },
+    {
+      "properties": {
+        "event_type": {
+          "const": "objection"
+        },
+        "payload": {
+          "$ref": "#/$defs/objection_payload"
+        }
+      }
+    },
+    {
+      "properties": {
+        "event_type": {
+          "const": "reconciliation"
+        },
+        "payload": {
+          "$ref": "#/$defs/reconciliation_payload"
+        }
+      }
+    },
+    {
+      "properties": {
+        "event_type": {
+          "const": "technique"
+        },
+        "payload": {
+          "$ref": "#/$defs/technique_payload"
+        }
+      }
+    },
+    {
+      "properties": {
+        "event_type": {
+          "const": "round"
+        },
+        "payload": {
+          "$ref": "#/$defs/round_payload"
+        }
+      }
+    },
+    {
+      "properties": {
+        "event_type": {
+          "const": "termination"
+        },
+        "payload": {
+          "$ref": "#/$defs/termination_payload"
+        }
+      }
+    },
+    {
+      "properties": {
+        "event_type": {
+          "const": "verdict_candidate"
+        },
+        "payload": {
+          "$ref": "#/$defs/verdict_candidate_payload"
+        }
+      }
+    }
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "sequence": {
+            "const": 0
+          }
+        },
+        "required": [
+          "sequence"
+        ]
+      },
+      "then": {
+        "properties": {
+          "previous_event_sha256": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "previous_event_sha256": {
+            "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/sha256"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "setup_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_ref",
+        "profile_ref",
+        "mode_ref"
+      ],
+      "properties": {
+        "source_ref": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/exact_artifact_reference"
+        },
+        "profile_ref": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/exact_artifact_reference"
+        },
+        "mode_ref": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/exact_artifact_reference"
+        }
+      }
+    },
+    "proposal_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "track_id",
+        "round",
+        "claim",
+        "evidence_or_assumption"
+      ],
+      "properties": {
+        "track_id": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "round": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/positive_integer"
+        },
+        "claim": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+        },
+        "evidence_or_assumption": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+        }
+      }
+    },
+    "objection_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "track_id",
+        "round",
+        "category",
+        "objection",
+        "readiness_effect"
+      ],
+      "properties": {
+        "track_id": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "round": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/positive_integer"
+        },
+        "category": {
+          "enum": [
+            "lost_recomposition",
+            "missing_input_or_output",
+            "wrong_abstraction_level",
+            "unconfirmed_evolution_profile",
+            "excessive_cognitive_load",
+            "external_variety_not_handled",
+            "internal_complexity_greater_than_needed",
+            "stakeholder_boundary_ambiguity",
+            "concept_claim_treated_as_knowledge",
+            "validation_burden",
+            "hidden_glue",
+            "premature_complexity",
+            "brittle_minimalism"
+          ]
+        },
+        "objection": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+        },
+        "readiness_effect": {
+          "enum": [
+            "none",
+            "flag",
+            "block"
+          ]
+        }
+      }
+    },
+    "reconciliation_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "track_id",
+        "round",
+        "decision",
+        "rationale",
+        "stable_disagreement"
+      ],
+      "properties": {
+        "track_id": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "round": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/positive_integer"
+        },
+        "decision": {
+          "enum": [
+            "accept",
+            "revise",
+            "reject",
+            "defer",
+            "route"
+          ]
+        },
+        "rationale": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+        },
+        "stable_disagreement": {
+          "type": "boolean"
+        }
+      }
+    },
+    "emitted_output_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field_id",
+        "value"
+      ],
+      "properties": {
+        "field_id": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "value": {
+          "$ref": "#/$defs/emitted_value"
+        }
+      }
+    },
+    "emitted_value": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value_kind",
+            "value"
+          ],
+          "properties": {
+            "value_kind": {
+              "enum": [
+                "scalar",
+                "enum"
+              ]
+            },
+            "value": {
+              "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/json_scalar"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value_kind",
+            "value"
+          ],
+          "properties": {
+            "value_kind": {
+              "const": "list"
+            },
+            "value": {
+              "type": "array",
+              "maxItems": 32,
+              "items": {
+                "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/structured_value_level_1"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value_kind",
+            "value"
+          ],
+          "properties": {
+            "value_kind": {
+              "const": "record"
+            },
+            "value": {
+              "type": "object",
+              "maxProperties": 32,
+              "propertyNames": {
+                "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+              },
+              "additionalProperties": {
+                "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/structured_value_level_1"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value_kind",
+            "variant_tag",
+            "value"
+          ],
+          "properties": {
+            "value_kind": {
+              "const": "union"
+            },
+            "variant_tag": {
+              "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+            },
+            "value": {
+              "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/structured_value_level_1"
+            }
+          }
+        }
+      ]
+    },
+    "technique_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "technique_id",
+        "policy_status",
+        "hook_id",
+        "activation_status",
+        "matched_predicate_ids",
+        "activation_reason",
+        "inspected_state",
+        "emitted_output",
+        "decision",
+        "readiness_effect"
+      ],
+      "properties": {
+        "technique_id": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "policy_status": {
+          "enum": [
+            "required",
+            "available",
+            "not_applicable"
+          ]
+        },
+        "hook_id": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "activation_status": {
+          "enum": [
+            "activated",
+            "skipped"
+          ]
+        },
+        "matched_predicate_ids": {
+          "type": "array",
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+          }
+        },
+        "activation_reason": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+        },
+        "inspected_state": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/state_field_reference"
+          }
+        },
+        "emitted_output": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/emitted_output_entry"
+          }
+        },
+        "decision": {
+          "enum": [
+            "pass",
+            "flag",
+            "block",
+            "route",
+            "skipped_with_reason"
+          ]
+        },
+        "readiness_effect": {
+          "enum": [
+            "unchanged",
+            "downgraded_to_flag",
+            "downgraded_to_block",
+            "route"
+          ]
+        },
+        "skip_reason": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+        },
+        "route_target": {
+          "enum": [
+            "robot_talks",
+            "decision_gate",
+            "research",
+            "deferred"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "activation_status": {
+                "const": "skipped"
+              }
+            },
+            "required": [
+              "activation_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "skip_reason"
+            ],
+            "properties": {
+              "emitted_output": {
+                "maxItems": 0
+              },
+              "decision": {
+                "const": "skipped_with_reason"
+              },
+              "readiness_effect": {
+                "const": "unchanged"
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "skip_reason"
+              ]
+            },
+            "properties": {
+              "emitted_output": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "policy_status": {
+                "const": "not_applicable"
+              }
+            },
+            "required": [
+              "policy_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "activation_status": {
+                "const": "skipped"
+              },
+              "inspected_state": {
+                "maxItems": 0
+              },
+              "matched_predicate_ids": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "route"
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          },
+          "then": {
+            "required": [
+              "route_target"
+            ],
+            "properties": {
+              "readiness_effect": {
+                "const": "route"
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "route_target"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "round_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "track_id",
+        "round",
+        "status",
+        "remaining_budget"
+      ],
+      "properties": {
+        "track_id": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "round": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/positive_integer"
+        },
+        "status": {
+          "enum": [
+            "opened",
+            "completed"
+          ]
+        },
+        "remaining_budget": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_negative_integer"
+        }
+      }
+    },
+    "termination_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "detail"
+      ],
+      "properties": {
+        "reason": {
+          "enum": [
+            "closure_reached",
+            "budget_exhausted",
+            "cycle_guard",
+            "blocker"
+          ]
+        },
+        "detail": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+        }
+      }
+    },
+    "verdict_candidate_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verdict",
+        "selected_unit_id",
+        "next_route",
+        "rationale"
+      ],
+      "properties": {
+        "verdict": {
+          "enum": [
+            "pass",
+            "flag",
+            "block"
+          ]
+        },
+        "selected_unit_id": {
+          "oneOf": [
+            {
+              "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "next_route": {
+          "enum": [
+            "implementation_layering",
+            "robot_talks",
+            "decision_gate",
+            "invoke_design",
+            "invoke_plan",
+            "task_session",
+            "deferred"
+          ]
+        },
+        "rationale": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+        }
+      }
+    }
+  }
+}

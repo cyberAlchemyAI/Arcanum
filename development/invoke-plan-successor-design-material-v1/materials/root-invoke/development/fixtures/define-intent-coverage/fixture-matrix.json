@@ -1,0 +1,104 @@
+{
+  "schema_version": "invoke.define-intent-fixture-matrix.v1",
+  "claim_ceiling": "independently-enumerated-semantic-obligations",
+  "targets": {
+    "mixed-define-v3": {
+      "target_id": "target:mixed-define-v3",
+      "requires_historical_semantics": false,
+      "concepts": [
+        {"obligation_id": "obligation:mixed-contract", "label": "Contract", "aliases": ["artifact contract"], "materialization": "definition-or-binding", "facet": "subject"},
+        {"obligation_id": "obligation:mixed-semantic-closure", "label": "Semantic closure", "aliases": [], "facet": "validation-gates"},
+        {"obligation_id": "obligation:mixed-feature-contract", "label": "Feature contract", "aliases": [], "facet": "parts"}
+      ],
+      "external_concepts": [],
+      "relationships": [],
+      "boundaries": []
+    },
+    "complexity-example-ladder": {
+      "target_id": "target:complexity-example-ladder",
+      "requires_historical_semantics": false,
+      "concepts": [
+        {"obligation_id": "obligation:cel-low-rung", "label": "Low-complexity example rung", "aliases": ["low rung", "low"], "facet": "parts"},
+        {"obligation_id": "obligation:cel-medium-rung", "label": "Medium-complexity example rung", "aliases": ["medium rung", "medium"], "facet": "parts"},
+        {"obligation_id": "obligation:cel-complex-rung", "label": "Complex example rung", "aliases": ["complex rung", "complex"], "facet": "parts"},
+        {"obligation_id": "obligation:cel-invariant-preservation", "label": "Invariant preservation", "aliases": ["preserved invariant", "invariant concept"], "facet": "authority-boundary"},
+        {"obligation_id": "obligation:cel-structural-progression", "label": "Structural progression", "aliases": ["complexity progression", "structural complexity", "structural complexity progression", "complexity contract"], "facet": "relationships"},
+        {"obligation_id": "obligation:cel-evidence-separation", "label": "Evidence and hypothetical separation", "aliases": ["evidence hypothetical separation", "source evidence and hypothetical details", "evidence constraint and inference distinction", "evidence distinction"], "facet": "evidence-state"},
+        {"obligation_id": "obligation:cel-equal-option-coverage", "label": "Equal option coverage", "aliases": ["balanced option coverage", "option coverage", "comparative option fairness"], "facet": "validation-gates"},
+        {"obligation_id": "obligation:cel-authority-preservation", "label": "Decision authority preservation", "aliases": ["authority preservation", "decision authority", "caller decision contract", "authority boundary"], "facet": "authority-boundary"}
+      ],
+      "external_concepts": [],
+      "relationships": [
+        {"obligation_id": "obligation:cel-medium-builds-on-low", "subject": "obligation:cel-medium-rung", "type": "depends-on", "object": "obligation:cel-low-rung", "statement": "The medium rung builds on the low rung.", "facet": "relationships"},
+        {"obligation_id": "obligation:cel-complex-builds-on-medium", "subject": "obligation:cel-complex-rung", "type": "depends-on", "object": "obligation:cel-medium-rung", "statement": "The complex rung builds on the medium rung.", "facet": "relationships"}
+      ],
+      "boundaries": [
+        {"obligation_id": "obligation:cel-invariant-boundary", "subject": "obligation:cel-invariant-preservation", "field": "conditions", "match": "preserve invariant", "matches": ["invariant preservation"], "statement": "All rungs preserve the same invariant.", "facet": "authority-boundary"},
+        {"obligation_id": "obligation:cel-evidence-boundary", "subject": "obligation:cel-evidence-separation", "field": "excludes", "match": "present hypothetical material as evidence", "matches": ["presenting a hypothetical as source evidence"], "statement": "Hypothetical material must not be presented as evidence.", "facet": "evidence-state"},
+        {"obligation_id": "obligation:cel-option-boundary", "subject": "obligation:cel-equal-option-coverage", "field": "conditions", "match": "cover every option equally", "matches": ["unequal option coverage blocks"], "statement": "Every option receives equal semantic coverage.", "facet": "validation-gates"},
+        {"obligation_id": "obligation:cel-authority-boundary", "subject": "obligation:cel-authority-preservation", "field": "conditions", "match": "preserve decision authority", "matches": ["without changing the decision state"], "statement": "Examples preserve the original decision authority.", "facet": "authority-boundary"}
+      ]
+    },
+    "invoke-plan-successor": {
+      "target_id": "target:invoke-plan-successor",
+      "requires_historical_semantics": true,
+      "concepts": [
+        {"obligation_id": "obligation:plan-authoring-source", "label": "Plan authoring source", "aliases": [], "facet": "evidence-state"},
+        {"obligation_id": "obligation:plan-candidate-bundle", "label": "Plan candidate bundle", "aliases": [], "facet": "evidence-state"},
+        {"obligation_id": "obligation:plan-bundle-admission", "label": "Plan bundle admission", "aliases": [], "facet": "validation-gates"},
+        {"obligation_id": "obligation:plan-evidence-state", "label": "Plan evidence state", "aliases": [], "facet": "evidence-state"},
+        {"obligation_id": "obligation:invoke-plan", "label": "Invoke Plan", "aliases": ["Plan"], "facet": "subject"},
+        {"obligation_id": "obligation:work-pack", "label": "Work Pack", "aliases": [], "facet": "parts"},
+        {"obligation_id": "obligation:delivery-slice", "label": "Delivery slice", "aliases": [], "facet": "parts"},
+        {"obligation_id": "obligation:implementation-layer", "label": "Implementation layer", "aliases": ["layer", "implementation layering artifact"], "facet": "parts"},
+        {"obligation_id": "obligation:plan-wave", "label": "Plan wave", "aliases": ["wave", "execution wave"], "facet": "parts"},
+        {"obligation_id": "obligation:plan-task", "label": "Plan task", "aliases": ["task", "task execution contract"], "facet": "parts"},
+        {"obligation_id": "obligation:smallest-working-unit", "label": "Smallest Working Unit", "aliases": ["SWU"], "facet": "parts"},
+        {"obligation_id": "obligation:implementation-detail-contract", "label": "Implementation detail contract", "aliases": ["implementation detail specification"], "facet": "parts"},
+        {"obligation_id": "obligation:validation-obligation", "label": "Validation obligation", "aliases": ["validation"], "facet": "validation-gates"},
+        {"obligation_id": "obligation:plan-gate", "label": "Plan gate", "aliases": ["gate"], "facet": "validation-gates"},
+        {"obligation_id": "obligation:plan-blocker", "label": "Plan blocker", "aliases": ["blocker"], "facet": "validation-gates"},
+        {"obligation_id": "obligation:plan-gap", "label": "Plan gap", "aliases": ["gap"], "facet": "validation-gates"},
+        {"obligation_id": "obligation:execution-entry", "label": "Execution Entry", "aliases": [], "facet": "execution-handoff"},
+        {"obligation_id": "obligation:execution-pack", "label": "Execution Pack", "aliases": [], "facet": "execution-handoff"}
+      ],
+      "external_concepts": [
+        {"external_id": "external:admitted-design", "label": "Admitted Design", "aliases": ["admitted design evidence", "approved design output"]}
+      ],
+      "relationships": [
+        {"obligation_id": "obligation:design-feeds-plan", "subject": "obligation:invoke-plan", "type": "depends-on", "object": "external:admitted-design", "statement": "Admitted Design feeds Plan.", "facet": "relationships"},
+        {"obligation_id": "obligation:plan-uses-work-pack-source", "subject": "obligation:invoke-plan", "type": "references", "object": "obligation:work-pack", "statement": "Plan references the Work Pack as source truth.", "facet": "relationships"},
+        {"obligation_id": "obligation:layers-govern-waves", "subject": "obligation:plan-wave", "type": "depends-on", "object": "obligation:implementation-layer", "statement": "Layers govern waves.", "facet": "relationships"},
+        {"obligation_id": "obligation:waves-order-tasks", "subject": "obligation:plan-task", "type": "depends-on", "object": "obligation:plan-wave", "statement": "Waves order tasks.", "facet": "relationships"},
+        {"obligation_id": "obligation:waves-order-swus", "subject": "obligation:smallest-working-unit", "type": "depends-on", "object": "obligation:plan-wave", "statement": "Waves order SWUs.", "facet": "relationships"},
+        {"obligation_id": "obligation:tasks-own-swus", "subject": "obligation:smallest-working-unit", "type": "depends-on", "object": "obligation:plan-task", "statement": "Tasks own SWUs.", "facet": "relationships"},
+        {"obligation_id": "obligation:validation-feeds-gates", "subject": "obligation:plan-gate", "type": "depends-on", "object": "obligation:validation-obligation", "statement": "Validation feeds gates.", "facet": "relationships"},
+        {"obligation_id": "obligation:execution-entry-selects-unit", "subject": "obligation:execution-entry", "type": "references", "object": "obligation:smallest-working-unit", "statement": "Execution Entry selects one exact unit.", "facet": "relationships"},
+        {"obligation_id": "obligation:execution-pack-not-source-truth", "subject": "obligation:execution-pack", "type": "contrasts-with", "object": "obligation:work-pack", "statement": "Execution Pack is choreography rather than source truth.", "facet": "relationships"}
+      ],
+      "boundaries": [
+        {"obligation_id": "obligation:work-pack-source-truth", "subject": "obligation:work-pack", "field": "includes", "match": "source truth", "statement": "Work Pack is source truth.", "facet": "authority-boundary"},
+        {"obligation_id": "obligation:blockers-stop-progress", "subject": "obligation:plan-blocker", "field": "conditions", "match": "stop progress", "statement": "Blockers stop progress.", "facet": "validation-gates"},
+        {"obligation_id": "obligation:gaps-escalate", "subject": "obligation:plan-gap", "field": "conditions", "match": "escalation conditions", "statement": "Gaps have escalation conditions.", "facet": "validation-gates"},
+        {"obligation_id": "obligation:execution-entry-exact-unit", "subject": "obligation:execution-entry", "field": "conditions", "match": "select one exact unit", "statement": "Execution Entry selects one exact unit.", "facet": "execution-handoff"},
+        {"obligation_id": "obligation:execution-pack-choreography", "subject": "obligation:execution-pack", "field": "includes", "match": "choreography", "statement": "Execution Pack records choreography.", "facet": "authority-boundary"},
+        {"obligation_id": "obligation:execution-pack-excludes-source-truth", "subject": "obligation:execution-pack", "field": "excludes", "match": "source truth", "statement": "Execution Pack is not source truth.", "facet": "authority-boundary"}
+      ]
+    }
+  },
+  "cases": [
+    {"case_id": "PASS-MIXED-THREE", "target": "mixed-define-v3", "include_concepts": "all", "pre_closure_faults": [], "post_closure_faults": [], "expected_result": "pass", "expected_codes": []},
+    {"case_id": "PASS-CEL-COMPLETE", "target": "complexity-example-ladder", "include_concepts": "all", "pre_closure_faults": [], "post_closure_faults": [], "expected_result": "pass", "expected_codes": []},
+    {"case_id": "BLOCK-CEL-MISSING-INVARIANT", "target": "complexity-example-ladder", "include_concepts": "all", "pre_closure_faults": ["remove-concept:obligation:cel-invariant-preservation"], "post_closure_faults": [], "expected_result": "block", "expected_codes": ["MISSING_CONCEPT"]},
+    {"case_id": "BLOCK-PLAN-FOUR-TERM-SHELL", "target": "invoke-plan-successor", "include_concepts": ["obligation:plan-authoring-source", "obligation:plan-candidate-bundle", "obligation:plan-bundle-admission", "obligation:plan-evidence-state"], "pre_closure_faults": [], "post_closure_faults": [], "expected_result": "block", "expected_codes": ["MISSING_CONCEPT", "MISSING_RELATIONSHIP"]},
+    {"case_id": "BLOCK-PLAN-HISTORICAL-DISCARD", "target": "invoke-plan-successor", "include_concepts": "all", "pre_closure_faults": ["historical-discard"], "post_closure_faults": [], "expected_result": "block", "expected_codes": ["HISTORICAL_SEMANTICS_DISCARDED"]},
+    {"case_id": "BLOCK-UNASSESSED-FACET", "target": "mixed-define-v3", "include_concepts": "all", "pre_closure_faults": ["unassess-facet:parts"], "post_closure_faults": [], "expected_result": "block", "expected_codes": ["FACET_UNASSESSED"]},
+    {"case_id": "BLOCK-UNCOVERED-OBLIGATION", "target": "complexity-example-ladder", "include_concepts": "all", "pre_closure_faults": ["uncover:obligation:cel-equal-option-coverage"], "post_closure_faults": [], "expected_result": "block", "expected_codes": ["OBLIGATION_UNCOVERED"]},
+    {"case_id": "BLOCK-ORPHAN-PROBE", "target": "mixed-define-v3", "include_concepts": "all", "pre_closure_faults": ["add-orphan-probe"], "post_closure_faults": [], "expected_result": "block", "expected_codes": ["ORPHAN_PROBE"]},
+    {"case_id": "BLOCK-EMPTY-CIRCULAR-CONSUMERS", "target": "mixed-define-v3", "include_concepts": "all", "pre_closure_faults": ["empty-consumer-denominator"], "post_closure_faults": [], "expected_result": "block", "expected_codes": ["EMPTY_CIRCULAR_CONSUMER_DENOMINATOR"]},
+    {"case_id": "BLOCK-MISSING-REQUIRED-RELATIONSHIP", "target": "invoke-plan-successor", "include_concepts": "all", "pre_closure_faults": ["remove-relation:obligation:tasks-own-swus"], "post_closure_faults": [], "expected_result": "block", "expected_codes": ["MISSING_RELATIONSHIP"]},
+    {"case_id": "PASS-PLAN-EXPANDED-18", "target": "invoke-plan-successor", "include_concepts": "all", "pre_closure_faults": [], "post_closure_faults": [], "expected_result": "pass", "expected_codes": []},
+    {"case_id": "BLOCK-POST-CLOSURE-DEFINITION-REMOVAL", "target": "invoke-plan-successor", "include_concepts": "all", "pre_closure_faults": [], "post_closure_faults": ["remove-concept:obligation:work-pack"], "expected_result": "block", "expected_codes": ["ADMISSION_CLOSURE_DRIFT", "MISSING_CONCEPT"]},
+    {"case_id": "BLOCK-POST-CLOSURE-RELATION-REMOVAL", "target": "invoke-plan-successor", "include_concepts": "all", "pre_closure_faults": [], "post_closure_faults": ["remove-relation:obligation:tasks-own-swus"], "expected_result": "block", "expected_codes": ["ADMISSION_CLOSURE_DRIFT", "MISSING_RELATIONSHIP"]}
+  ]
+}

@@ -1,0 +1,24 @@
+## Invoke Validation Fixture Result
+
+- Fixture: INV-PLAN-PASS-001
+- User request: Plan implementation for a Mars sample catalog import review slice from approved design outputs.
+- Mode: plan
+- Spell: invoke
+- Canonical ID: invoke
+- Scope: library
+- Phase status: pass
+- Mode contract: arcanum/spells/invoke/plan.md
+- Outputs: artifacts/mars-sample-catalog/IMPLEMENTATION-PLAN.md, artifacts/mars-sample-catalog/IMPLEMENTATION-LAYERING.md, artifacts/mars-sample-catalog/WORK-PACK.md, .arcanum/necronomicon/sessions/demo/invoke-transports/plan.md
+- Design views: context, high-level structure, low-level components, workflow process, decision flow, dependency interface
+- Glossary consistency: pass
+- Dispatch techniques: sequence, scu_swu_reduction, recomposition_proof, validation_loop, owner_boundary_check, handle_handoff, residue_ledger, execution_receipt_handoff; validation status pass; full dispatch n/a
+- Distill validation: pass; recomposition proof pass; gap count 0
+- Implementation layering: artifacts/mars-sample-catalog/IMPLEMENTATION-LAYERING.md with global L0-L3 decision boundaries
+- Work-pack: artifacts/mars-sample-catalog/WORK-PACK.md, single-file
+- Complexity: low
+- Per-layer planning: compact
+- Template/profile selection: implementation-plan plus standalone implementation-layering and work-pack companions
+- Validation strategy: fixture replay and markdown contract checks mapped to every delivery slice
+- Decisions: keep plan non-mutating; create compact layer mapping in the single-file work-pack
+- Unresolved gaps: none blocking
+- Next route: task-session

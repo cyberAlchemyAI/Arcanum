@@ -1,0 +1,206 @@
+{
+  "definition_registry": {
+    "authority_scope": {
+      "kind": "project",
+      "ref": "invoke-documentation-tournament"
+    },
+    "definitions": [
+      {
+        "aliases": [
+          "validation gate"
+        ],
+        "boundary": {
+          "conditions": [
+            "The gate evaluates one exact source and its generated bundle."
+          ],
+          "excludes": [
+            "Acceptance or promotion decisions."
+          ],
+          "includes": [
+            "Source and generated-artifact validation."
+          ]
+        },
+        "challenge_contract": null,
+        "deferred_as": null,
+        "definition_version": "1",
+        "drift_route": "invoke",
+        "id": "DOC-T2-GATE",
+        "misuse_warning": null,
+        "notation": [],
+        "primary_consumers": [
+          "invoke",
+          "definitions-governance"
+        ],
+        "promotion_boundary": "Candidate only; definitions-governance owns promotion.",
+        "relations": [],
+        "source_kinds": [
+          "method-vocabulary"
+        ],
+        "source_refs": [
+          {
+            "end_line": null,
+            "path": "arcanum/spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations/evidence.md",
+            "role": "normative",
+            "selector": "Validation Gate",
+            "selector_type": "heading",
+            "sha256": "7aa40c6d12e4ba0af5c4ea13dfee56a1366f0367fdff074756490539454d0d83",
+            "size": 496,
+            "start_line": null,
+            "visibility": "public"
+          }
+        ],
+        "status": "candidate",
+        "status_detail": null,
+        "structural_schema": null,
+        "superseded_by": null,
+        "supersedes": [],
+        "term": "definition validation gate",
+        "use_carefully": null,
+        "voices": {
+          "domain_context": "Used by Invoke Define before its candidate bundle is handed to another route.",
+          "formal": "gate(source) = pass",
+          "normative": "A definition validation gate is a bounded check that must pass before a candidate definition bundle can proceed.",
+          "operational": "Run the declared source and artifact checks before handing the generated bundle forward.",
+          "plain_language": "A required check before the bundle can move on."
+        }
+      },
+      {
+        "aliases": [
+          "definition bundle"
+        ],
+        "boundary": {
+          "conditions": [
+            "Every file comes from the same successful compiler run."
+          ],
+          "excludes": [
+            "Active registry state or downstream execution authority."
+          ],
+          "includes": [
+            "The complete eleven-file atomic output directory."
+          ]
+        },
+        "challenge_contract": null,
+        "deferred_as": null,
+        "definition_version": "1",
+        "drift_route": "invoke",
+        "id": "DOC-T2-BUNDLE",
+        "misuse_warning": "Do not treat the stage receipt as the definition artifact.",
+        "notation": [],
+        "primary_consumers": [
+          "invoke",
+          "task-session"
+        ],
+        "promotion_boundary": "Candidate only; definitions-governance owns promotion.",
+        "relations": [
+          {
+            "id": "DOC-T2-GATE",
+            "type": "depends-on"
+          }
+        ],
+        "source_kinds": [
+          "synthesis"
+        ],
+        "source_refs": [
+          {
+            "end_line": null,
+            "path": "arcanum/spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations/evidence.md",
+            "role": "evidence",
+            "selector": "Candidate Bundle",
+            "selector_type": "heading",
+            "sha256": "7aa40c6d12e4ba0af5c4ea13dfee56a1366f0367fdff074756490539454d0d83",
+            "size": 496,
+            "start_line": null,
+            "visibility": "public"
+          }
+        ],
+        "status": "candidate",
+        "status_detail": null,
+        "structural_schema": null,
+        "superseded_by": null,
+        "supersedes": [],
+        "term": "candidate definition bundle",
+        "use_carefully": null,
+        "voices": {
+          "domain_context": "Used by Invoke Define as its candidate-only handoff package.",
+          "formal": "bundle = compile(valid_source)",
+          "normative": "A candidate definition bundle is the complete atomic output generated from one valid Define source.",
+          "operational": "Inspect DEFINITIONS.json first, derived views second, and the stage receipt last.",
+          "plain_language": "All files produced together from one valid definition source."
+        }
+      }
+    ],
+    "owner_route": "invoke",
+    "registry_id": "invoke.tournament.bundle-validation",
+    "title": "Bundle Validation Candidate Definitions",
+    "visibility": "public"
+  },
+  "discovery": {
+    "kind": "artifact",
+    "ref": {
+      "path": "arcanum/spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations/evidence.md",
+      "sha256": "7aa40c6d12e4ba0af5c4ea13dfee56a1366f0367fdff074756490539454d0d83",
+      "size": 496
+    }
+  },
+  "dispatch_trace": {
+    "techniques": [
+      "sequence",
+      "validation_loop",
+      "owner_boundary_check"
+    ]
+  },
+  "distill": {
+    "classification": "required",
+    "evidence": "Two related terms are retained as the smallest coherent semantic graph.",
+    "verdict": "pass"
+  },
+  "identity_denominator": {
+    "classification": "not-applicable",
+    "rationale": "Both requested ids are already stable and distinct."
+  },
+  "layering": {
+    "decision": "Preserve one atomic source-to-bundle producer boundary.",
+    "kind": "seed",
+    "minimum_unit": "One source, one compiler run, and one complete bundle."
+  },
+  "next_route": "design",
+  "output_contracts": {
+    "definitions": "DEFINITIONS.json",
+    "definitions_view": "DEFINITIONS.md",
+    "dispatch_trace": "DISPATCH-TRACE.json",
+    "distill": "DISTILL-RECEIPT.json",
+    "glossary": "GLOSSARY.md",
+    "identity_denominator": "IDENTITY-DENOMINATOR-RECEIPT.json",
+    "layering": "IMPLEMENTATION-LAYERING.md",
+    "spec": "SPEC.md",
+    "stage_receipt": "INVOKE-DEFINE-STAGE-RECEIPT.json",
+    "template_selection": "TEMPLATE-SELECTION-RECEIPT.json",
+    "transport": "DEFINE-TRANSPORT-REPORT.json"
+  },
+  "schema_version": "invoke.define-source.v2",
+  "source_id": "DOC-TOURNAMENT-C02",
+  "spec_declarations": [
+    {
+      "id": "C02-D1",
+      "statement": "The bundle is published only after every declared validation passes.",
+      "title": "Atomic Bundle"
+    }
+  ],
+  "target": {
+    "id": "Definition Bundle Validation",
+    "objective": "Define the gate and bundle relationship for an atomic candidate output."
+  },
+  "template_selection": {
+    "eligible": [
+      "invoke.generic-definitions-baseline.v2"
+    ],
+    "profile_id": "invoke.generic-definitions-baseline.v2",
+    "selected": "invoke.generic-definitions-baseline.v2",
+    "tie": false
+  },
+  "transport_policy": {
+    "append_existing_only": true,
+    "targets": [],
+    "upstream_mutation": false
+  }
+}

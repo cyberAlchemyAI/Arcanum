@@ -1,0 +1,919 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+        {
+            "if": {
+                "type": "object",
+                "properties": {
+                    "verdict": {
+                        "const": "flag"
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "current_smallest_coherent_unit": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "abstraction_level": {
+                                "enum": [
+                                    "purpose",
+                                    "value_constraint",
+                                    "capability",
+                                    "function",
+                                    "workflow_process",
+                                    "policy_rule",
+                                    "interface",
+                                    "artifact",
+                                    "operation"
+                                ]
+                            },
+                            "inputs": {
+                                "allOf": [
+                                    {
+                                        "prefixItems": [
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "minItems": 1,
+                                        "uniqueItems": true
+                                    }
+                                ]
+                            },
+                            "name": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "outputs": {
+                                "allOf": [
+                                    {
+                                        "prefixItems": [
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "minItems": 1,
+                                        "uniqueItems": true
+                                    }
+                                ]
+                            },
+                            "responsibility": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "selected_unit_id": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "abstraction_level",
+                            "inputs",
+                            "name",
+                            "outputs",
+                            "responsibility",
+                            "selected_unit_id"
+                        ]
+                    },
+                    "readiness_effects": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "prefixItems": [
+                                    true
+                                ],
+                                "minItems": 1
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "selected_unit_id": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "properties": {
+                    "verdict": {
+                        "const": "block"
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "current_smallest_coherent_unit": {
+                        "type": "null"
+                    },
+                    "next_route": {
+                        "enum": [
+                            "robot_talks",
+                            "decision_gate",
+                            "deferred"
+                        ]
+                    },
+                    "selected_unit_id": {
+                        "type": "null"
+                    }
+                }
+            }
+        },
+        {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "authority_effect": {
+                    "const": "none"
+                },
+                "closure_and_recomposition_proof": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "abstraction_level_explicit": {
+                            "type": "boolean"
+                        },
+                        "inputs_outputs_named": {
+                            "type": "boolean"
+                        },
+                        "no_hidden_glue": {
+                            "type": "boolean"
+                        },
+                        "no_meaning_loss": {
+                            "type": "boolean"
+                        },
+                        "no_smuggled_scale": {
+                            "type": "boolean"
+                        },
+                        "recomposes_upward": {
+                            "type": "boolean"
+                        },
+                        "responsibility_closed": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "abstraction_level_explicit",
+                        "inputs_outputs_named",
+                        "no_hidden_glue",
+                        "no_meaning_loss",
+                        "no_smuggled_scale",
+                        "recomposes_upward",
+                        "responsibility_closed"
+                    ]
+                },
+                "concept_layer_map": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                },
+                "current_smallest_coherent_unit": {
+                    "oneOf": [
+                        {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "abstraction_level": {
+                                    "enum": [
+                                        "purpose",
+                                        "value_constraint",
+                                        "capability",
+                                        "function",
+                                        "workflow_process",
+                                        "policy_rule",
+                                        "interface",
+                                        "artifact",
+                                        "operation"
+                                    ]
+                                },
+                                "inputs": {
+                                    "allOf": [
+                                        {
+                                            "prefixItems": [
+                                                true
+                                            ]
+                                        },
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "minItems": 1,
+                                            "uniqueItems": true
+                                        }
+                                    ]
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "outputs": {
+                                    "allOf": [
+                                        {
+                                            "prefixItems": [
+                                                true
+                                            ]
+                                        },
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "minItems": 1,
+                                            "uniqueItems": true
+                                        }
+                                    ]
+                                },
+                                "responsibility": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "selected_unit_id": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "abstraction_level",
+                                "inputs",
+                                "name",
+                                "outputs",
+                                "responsibility",
+                                "selected_unit_id"
+                            ]
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "deferred_complexity": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "evidence_emission": {
+                    "enum": [
+                        "complete",
+                        "partial",
+                        "failed",
+                        "not_required",
+                        "not_configured"
+                    ]
+                },
+                "evolution_profile": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "frame_expiry_note": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "mode_budget": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "rounds_per_track": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 1
+                                }
+                            ]
+                        },
+                        "tracks": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 1
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "rounds_per_track",
+                        "tracks"
+                    ]
+                },
+                "mode_id": {
+                    "type": "string"
+                },
+                "navigation_guide": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "how_to_use": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "start_here": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "unresolved": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        },
+                        "what_changed": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "required": [
+                        "how_to_use",
+                        "start_here",
+                        "unresolved",
+                        "what_changed"
+                    ]
+                },
+                "next_route": {
+                    "enum": [
+                        "implementation_layering",
+                        "robot_talks",
+                        "decision_gate",
+                        "invoke_design",
+                        "invoke_plan",
+                        "task_session",
+                        "deferred"
+                    ]
+                },
+                "objective": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "optimization_point": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "output_artifact": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "premortem": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "proposal_tracks": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "status": {
+                                        "enum": [
+                                            "selected",
+                                            "viable",
+                                            "eliminated"
+                                        ]
+                                    },
+                                    "summary": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "track_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "status",
+                                    "summary",
+                                    "track_id"
+                                ]
+                            },
+                            "minItems": 1
+                        }
+                    ]
+                },
+                "readiness_effects": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "effect": {
+                                "const": "flag"
+                            },
+                            "route_status": {
+                                "enum": [
+                                    "available",
+                                    "deferred",
+                                    "blocked"
+                                ]
+                            },
+                            "tension_id": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "effect",
+                            "route_status",
+                            "tension_id"
+                        ]
+                    }
+                },
+                "recursive_rounds": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "outcome": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "round": {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 1
+                                            }
+                                        ]
+                                    },
+                                    "track_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "outcome",
+                                    "round",
+                                    "track_id"
+                                ]
+                            },
+                            "minItems": 1
+                        }
+                    ]
+                },
+                "role_conversation_trace": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "balancer_objection": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "proposer_claim": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "reconciliation": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "round": {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 1
+                                            }
+                                        ]
+                                    },
+                                    "stable_disagreement": {
+                                        "type": "boolean"
+                                    },
+                                    "track_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "balancer_objection",
+                                    "proposer_claim",
+                                    "reconciliation",
+                                    "round",
+                                    "stable_disagreement",
+                                    "track_id"
+                                ]
+                            },
+                            "minItems": 1
+                        }
+                    ]
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "schema_version": {
+                    "const": "distill.result.v2"
+                },
+                "selected_unit_id": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "source_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "sha256": {
+                            "type": "string"
+                        },
+                        "size_bytes": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size_bytes"
+                    ]
+                },
+                "target_context": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "technique_pack_trace": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "decision": {
+                                        "enum": [
+                                            "pass",
+                                            "flag",
+                                            "block",
+                                            "skip_with_reason"
+                                        ]
+                                    },
+                                    "hook_id": {
+                                        "type": "string"
+                                    },
+                                    "readiness_effect": {
+                                        "enum": [
+                                            "none",
+                                            "flag",
+                                            "block"
+                                        ]
+                                    },
+                                    "technique_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "decision",
+                                    "hook_id",
+                                    "readiness_effect",
+                                    "technique_id"
+                                ]
+                            },
+                            "minItems": 1
+                        }
+                    ]
+                },
+                "telemetry": {
+                    "enum": [
+                        "recorded",
+                        "failed_with_residue",
+                        "not_configured"
+                    ]
+                },
+                "tension_ledger": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "effect": {
+                                "enum": [
+                                    "none",
+                                    "flag",
+                                    "block"
+                                ]
+                            },
+                            "status": {
+                                "enum": [
+                                    "resolved",
+                                    "stable_disagreement",
+                                    "unresolved"
+                                ]
+                            },
+                            "summary": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "tension_id": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "effect",
+                            "status",
+                            "summary",
+                            "tension_id"
+                        ]
+                    }
+                },
+                "verdict": {
+                    "enum": [
+                        "pass",
+                        "flag",
+                        "block"
+                    ]
+                }
+            },
+            "if": {
+                "type": "object",
+                "properties": {
+                    "verdict": {
+                        "const": "pass"
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "current_smallest_coherent_unit": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "abstraction_level": {
+                                "enum": [
+                                    "purpose",
+                                    "value_constraint",
+                                    "capability",
+                                    "function",
+                                    "workflow_process",
+                                    "policy_rule",
+                                    "interface",
+                                    "artifact",
+                                    "operation"
+                                ]
+                            },
+                            "inputs": {
+                                "allOf": [
+                                    {
+                                        "prefixItems": [
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "minItems": 1,
+                                        "uniqueItems": true
+                                    }
+                                ]
+                            },
+                            "name": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "outputs": {
+                                "allOf": [
+                                    {
+                                        "prefixItems": [
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "minItems": 1,
+                                        "uniqueItems": true
+                                    }
+                                ]
+                            },
+                            "responsibility": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "selected_unit_id": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "abstraction_level",
+                            "inputs",
+                            "name",
+                            "outputs",
+                            "responsibility",
+                            "selected_unit_id"
+                        ]
+                    },
+                    "readiness_effects": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "maxItems": 0
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "selected_unit_id": {
+                        "type": "string"
+                    },
+                    "tension_ledger": {
+                        "not": {
+                            "anyOf": [
+                                {
+                                    "type": "null"
+                                },
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "array",
+                                    "contains": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "array"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "effect": {
+                                                        "const": "block"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "effect"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "minContains": 1
+                                },
+                                {
+                                    "type": "object"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "required": [
+                "authority_effect",
+                "closure_and_recomposition_proof",
+                "concept_layer_map",
+                "current_smallest_coherent_unit",
+                "deferred_complexity",
+                "evidence_emission",
+                "evolution_profile",
+                "frame_expiry_note",
+                "mode_budget",
+                "mode_id",
+                "navigation_guide",
+                "next_route",
+                "objective",
+                "optimization_point",
+                "output_artifact",
+                "premortem",
+                "proposal_tracks",
+                "readiness_effects",
+                "recursive_rounds",
+                "role_conversation_trace",
+                "run_id",
+                "schema_version",
+                "selected_unit_id",
+                "source_ref",
+                "target_context",
+                "technique_pack_trace",
+                "telemetry",
+                "tension_ledger",
+                "verdict"
+            ]
+        }
+    ]
+}

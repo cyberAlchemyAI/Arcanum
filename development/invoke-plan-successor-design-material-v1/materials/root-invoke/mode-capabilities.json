@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0.0",
+  "spell": "invoke",
+  "status_axes": {
+    "artifact_authored": {
+      "values": ["pass", "flag", "block", "unsupported"],
+      "evidence": "artifact receipt"
+    },
+    "registry_released": {
+      "values": [true, false],
+      "evidence": "registry owner receipt bound to this capability table"
+    },
+    "mutation_runtime_ready": {
+      "values": [true, false],
+      "evidence": "material-package receipt plus mode-specific runtime receipt"
+    }
+  },
+  "modes": {
+    "define": {
+      "implementation_status": "active",
+      "dispatch_trace": "required",
+      "distill": "conditional",
+      "mutation_handoff_allowed": "requires_validator_result",
+      "runtime_required_gates": ["material_package", "mode_validator"],
+      "evidence": {
+        "required": ["producer_receipt", "producer_admission_receipt", "execution_path", "dispatch_trace", "template_selection", "layering_or_gap", "identity_denominator_validation", "result", "next_route"],
+        "artifact_pass_owner": "invoke.compile-define-source.v3",
+        "profile_id": "invoke.generic-definitions-baseline.v3",
+        "historical_artifact_receipts": ["invoke.define-stage-receipt.v1", "invoke.define-stage-receipt.v2"],
+        "distill_skip_requires_rationale": true
+      }
+    },
+    "design": {
+      "implementation_status": "active",
+      "dispatch_trace": "required",
+      "distill": "conditional",
+      "mutation_handoff_allowed": "requires_validator_result",
+      "runtime_required_gates": ["material_package", "mode_validator"],
+      "evidence": {
+        "required": ["producer_receipt", "producer_admission_receipt", "execution_path", "dispatch_trace", "source_contracts", "template_selection", "result", "next_route"],
+        "artifact_pass_owner": "invoke.compile-design-source.v3",
+        "profile_id": "invoke.generic-design-baseline.v1",
+        "historical_artifact_receipts": ["invoke.design-stage-receipt.v1", "invoke.design-stage-receipt.v2"],
+        "distill_skip_requires_rationale": true
+      }
+    },
+    "plan": {
+      "implementation_status": "active",
+      "dispatch_trace": "required",
+      "distill": "required",
+      "mutation_handoff_allowed": "requires_validator_result",
+      "runtime_required_gates": ["material_package", "mode_validator"],
+      "evidence": {
+        "required": ["execution_path", "dispatch_trace", "work_pack", "implementation_layering", "swu_manifest", "validation_strategy", "result", "next_route"],
+        "distill_skip_requires_rationale": false
+      }
+    },
+    "handoff": {
+      "implementation_status": "active",
+      "dispatch_trace": "required",
+      "distill": "conditional",
+      "mutation_handoff_allowed": "requires_validator_result",
+      "runtime_required_gates": ["material_package", "mode_validator"],
+      "evidence": {
+        "required": ["execution_path", "dispatch_trace", "source_session", "context_builder", "obligation_coverage", "result", "next_route"],
+        "distill_skip_requires_rationale": true
+      }
+    },
+    "refresh": {
+      "implementation_status": "active",
+      "dispatch_trace": "required",
+      "distill": "conditional",
+      "mutation_handoff_allowed": "requires_validator_result",
+      "runtime_required_gates": ["material_package", "refresh_handoff"],
+      "evidence": {
+        "required": ["execution_path", "dispatch_trace", "source_evidence", "target_inventory", "activation_source", "mutation_mode", "mutation_mode_source", "phase_status", "handoff_status", "blocker_scopes", "result", "next_route"],
+        "distill_skip_requires_rationale": true
+      }
+    },
+    "full": {
+      "implementation_status": "deferred",
+      "dispatch_trace": "not_evaluated",
+      "distill": "unsupported",
+      "mutation_handoff_allowed": "never",
+      "runtime_required_gates": []
+    },
+    "validate": {
+      "implementation_status": "deferred",
+      "dispatch_trace": "not_evaluated",
+      "distill": "unsupported",
+      "mutation_handoff_allowed": "never",
+      "runtime_required_gates": []
+    }
+  }
+}

@@ -1,10 +1,10 @@
 ---
 name: invoke
 description: "Use when: turning development intent into governed define, design, plan, handoff, or refresh artifacts before lifecycle execution."
-argument-hint: "modes | <define|design> <describe|check|author|produce|admit|status> ..."
+argument-hint: "modes | <define|design|plan> <describe|check|author|produce|admit|status> ..."
 tier: spells
 domain: lifecycle-authoring
-version: 0.5.0
+version: 0.6.0
 origin: canonical Arcanum spell for intent-to-artifact authoring
 allowed-tools: Read, Write, Glob, Grep, Bash, AskQuestions, Task
 ---
@@ -377,8 +377,7 @@ Reflection and telemetry from such a run should preserve both layers. If the gap
   versioned [preacceptance closure](./preacceptance-closure.md). The v2
   request generator is the only emission path and must block unless the final
   staged bundle has a passing two-run no-effect consumer-closure receipt, a
-  passing closure-bound review attestation over the same closure-graph digest,
-  process evidence that the review was independently dispatched, and an
+  passing independent review over the same closure-graph digest, and an
   implemented or enforced reflection-adoption receipt with a passing
   cross-capability regression. Historical v1 requests remain readable but do
   not satisfy this gate. The ordinary Invoke owner-request path must execute

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 /*
- * Test battery for the Arcanum append-dispatch.cjs (schema v0.7.0).
+ * Test battery for the Arcanum append-dispatch.cjs (schema v0.6.1).
  *
  *   node arcana/subagent-strategy/development/test-append-dispatch.cjs
  *
@@ -71,9 +71,9 @@ function expectReject(name, root, record, pattern) {
 function validDispatch(over) {
   return Object.assign({
     dispatch_id: '2026-06-12-battery-main',
-    schema_version: '0.7.0',
+    schema_version: '0.6.1',
     dispatch_type: 'research',
-    goal: 'Prove the v0.7.0 appender end to end.',
+    goal: 'Prove the v0.6.1 appender end to end.',
     context: 'Synthetic record produced by the test battery. Runs against a temp ledger, never the real one.',
     max_loops: 2,
     final_approver: 'parent',
@@ -87,15 +87,15 @@ function validDispatch(over) {
         predicted_disagreements: [{ between: [0, 1], question: 'Will static reading or dynamic probing expose the decisive defect?' }],
         agents: [
           { agent_name: 'Abramsky, Samson', role: 'explorer', model: 'claude-sonnet-4-6', token_budget: 800,
-            angle: 'static-reading side', initial_prompt: 'You are Abramsky, Samson.\n\nExplore statically.\nSecond line proves stringify newline escaping.' },
-          { agent_name: 'Hewitt, Carl', role: 'explorer', model: 'claude-opus-4-8', token_budget: 800,
-            angle: 'dynamic-probing side', initial_prompt: 'You are Hewitt, Carl.\n\nExplore dynamically.' },
+            angle: 'static-reading side', initial_prompt: 'Explore statically.\nSecond line proves stringify newline escaping.' },
+          { agent_name: null, role: 'explorer', model: 'claude-opus-4-8', token_budget: 800,
+            angle: 'dynamic-probing side', initial_prompt: 'Explore dynamically.' },
         ],
       },
       {
         group_id: 'synthesizer',
         agents: [
-          { agent_name: 'Shannon, Claude', role: 'writer', model: 'claude-opus-4-8', token_budget: 4000, initial_prompt: 'You are Shannon, Claude.\n\nSynthesize the explorers\' returns.' },
+          { role: 'writer', model: 'claude-opus-4-8', token_budget: 4000, initial_prompt: 'Synthesize the explorers\' returns.' },
         ],
       },
     ],
@@ -109,19 +109,9 @@ function validClose(over) {
   return Object.assign({
     close_of: '2026-06-12-battery-main',
     exit_reason: 'resolved',
-    agents_spawned: validSpawn(),
+    agents_spawned: { total: 3, tree: { explorer: 2, writer: 1, helpers: 0 }, loops_used: 1 },
     feedback_prompts: ['Verbatim feedback ask sent back to the explorers.'],
     invoked_by: 'tester@example.com',
-  }, over);
-}
-
-function validSpawn(over) {
-  return Object.assign({
-    planned_total: 3,
-    total: 3,
-    not_launched: 0,
-    tree: { explorer: 2, writer: 1, helpers: 0 },
-    loops_used: 1,
   }, over);
 }
 // Drop a key from a fresh valid record.
@@ -135,22 +125,22 @@ function twoFanout(over) {
     anti_bias: 'attack-vector (precedent-kill vs non-vacuity)',
     predicted_disagreements: [{ between: [0, 1], question: 'Does precedent-kill or non-vacuity control the verdict?' }],
     agents: [
-      { agent_name: 'Sattler, Christian', role: 'skeptic', model: 'claude-opus-4-8', token_budget: 1000, angle: 'precedent-kill gate', initial_prompt: 'You are Sattler, Christian.\n\nAttack precedent.' },
-      { agent_name: 'Popper, Karl', role: 'skeptic', model: 'claude-opus-4-8', token_budget: 1000, angle: 'non-vacuity gate', initial_prompt: 'You are Popper, Karl.\n\nAttack vacuity.' },
+      { role: 'skeptic', model: 'claude-opus-4-8', token_budget: 1000, angle: 'precedent-kill gate', initial_prompt: 'Attack precedent.' },
+      { role: 'skeptic', model: 'claude-opus-4-8', token_budget: 1000, angle: 'non-vacuity gate', initial_prompt: 'Attack vacuity.' },
     ],
   });
   return r;
 }
 
 // =====================================================================
-console.log('\n[1] valid full v0.7.0 row appends; emitted lines pass the self-check on a second append');
+console.log('\n[1] valid full v0.6.1 row appends; emitted lines pass the self-check on a second append');
 {
   const root = freshRoot();
   const r1 = run(root, validDispatch());
   check('1a valid dispatch row appends (exit 0)', r1.status === 0, r1.stderr || r1.stdout);
   const text = readLedger(root);
   check('1b row start emitted', /^  - dispatch_id: "2026-06-12-battery-main"$/m.test(text), text);
-  check('1c schema_version block key', /^    schema_version: "0\.7\.0"$/m.test(text), text);
+  check('1c schema_version block key', /^    schema_version: "0\.6\.1"$/m.test(text), text);
   check('1d invoked_by taken from record', /^    invoked_by: "tester@example\.com"$/m.test(text), text);
   check('1e created stamped by appender', /^    created: "\d{4}-\d{2}-\d{2}T/m.test(text), text);
   check('1f exact temporary sheet digest emitted', /^    sheet_sha256: "[a-f0-9]{64}"$/m.test(text), text);
@@ -174,7 +164,7 @@ console.log('\n[2] each missing required dispatch field is rejected (exit 2)');
   const root = freshRoot();
   const fieldPattern = {
     dispatch_id: /dispatch_id is required/,
-    schema_version: /schema_version must be exactly "0\.7\.0"/,
+    schema_version: /schema_version must be exactly "0\.6\.1"/,
     dispatch_type: /dispatch_type must be one of/,
     goal: /goal is required/,
     context: /context is required/,
@@ -189,24 +179,15 @@ console.log('\n[2] each missing required dispatch field is rejected (exit 2)');
   expectReject('2 group missing group_id', root, validDispatch({ groups: [{ agents: [{ role: 'writer', model: 'm', token_budget: 1, initial_prompt: 'p' }] }] }), /group_id is required/);
   expectReject('2 agent missing token_budget', root, validDispatch({ groups: [{ group_id: 'g', agents: [{ role: 'writer', model: 'm', initial_prompt: 'p' }] }], connections: [] }), /token_budget is required/);
   expectReject('2 agent missing initial_prompt', root, validDispatch({ groups: [{ group_id: 'g', agents: [{ role: 'writer', model: 'm', token_budget: 1 }] }], connections: [] }), /initial_prompt is required/);
-  const missingIdentity = validDispatch();
-  delete missingIdentity.groups[0].agents[0].agent_name;
-  expectReject('2 agent missing agent_name', root, missingIdentity, /agent_name is required/);
-  const wrongIdentityPrefix = validDispatch();
-  wrongIdentityPrefix.groups[0].agents[0].initial_prompt = 'You are Hewitt, Carl.\n\nExplore statically.';
-  expectReject('2 initial_prompt identity mismatch', root, wrongIdentityPrefix, /initial_prompt must start exactly with "You are Abramsky, Samson\."/);
-  const emptyInstructionBody = validDispatch();
-  emptyInstructionBody.groups[0].agents[0].initial_prompt = 'You are Abramsky, Samson.\n\n';
-  expectReject('2 initial_prompt requires bounded instructions after identity', root, emptyInstructionBody, /followed by a blank line/);
   check('2z ledger untouched by rejected records', readLedger(root) === '');
 }
 
 console.log('\n[3] wrong schema_version rejected');
 {
   const root = freshRoot();
-  expectReject('3a schema_version "0.3.0"', root, validDispatch({ schema_version: '0.3.0' }), /schema_version must be exactly "0\.7\.0"/);
+  expectReject('3a schema_version "0.3.0"', root, validDispatch({ schema_version: '0.3.0' }), /schema_version must be exactly "0\.6\.1"/);
   expectReject('3b schema_version 0.6.0 as number', root, validDispatch({ schema_version: 0.6 }), /schema_version/);
-  expectReject('3c old schema_version "0.5.2" now rejected', root, validDispatch({ schema_version: '0.5.2' }), /schema_version must be exactly "0\.7\.0"/);
+  expectReject('3c old schema_version "0.5.2" now rejected', root, validDispatch({ schema_version: '0.5.2' }), /schema_version must be exactly "0\.6\.1"/);
 }
 
 console.log('\n[4] bad enum values rejected');
@@ -225,13 +206,12 @@ console.log('\n[4] bad enum values rejected');
   const syn = validDispatch({ dispatch_id: '2026-06-12-battery-synthesizer-role' });
   syn.groups[1].agents[0].role = 'synthesizer';
   const rSyn = run(root, syn);
-  check('4c3 synthesizer with a pool-admitted identity is accepted',
-    rSyn.status === 0, rSyn.stderr || rSyn.stdout);
+  check('4c3 agent role "synthesizer" accepted (exit 0)', rSyn.status === 0, rSyn.stderr || rSyn.stdout);
   expectReject('4d exit_reason "success"', root, validClose({ exit_reason: 'success' }), /exit_reason must be one of resolved/);
-  expectReject('4e agents_spawned missing tree', root, validClose({ agents_spawned: validSpawn({ tree: undefined }) }), /agents_spawned\.tree/);
-  expectReject('4f agents_spawned non-numeric total', root, validClose({ agents_spawned: validSpawn({ total: 'three', tree: {} }) }), /agents_spawned\.total/);
-  expectReject('4g close row missing loops_used', root, validClose({ agents_spawned: validSpawn({ loops_used: undefined }) }), /agents_spawned\.loops_used is required/);
-  expectReject('4h negative loops_used', root, validClose({ agents_spawned: validSpawn({ loops_used: -1 }) }), /agents_spawned\.loops_used is required and must be a non-negative integer/);
+  expectReject('4e agents_spawned missing tree', root, validClose({ agents_spawned: { total: 3 } }), /agents_spawned\.tree/);
+  expectReject('4f agents_spawned non-numeric total', root, validClose({ agents_spawned: { total: 'three', tree: {} } }), /agents_spawned\.total/);
+  expectReject('4g close row missing loops_used', root, validClose({ agents_spawned: { total: 3, tree: { investigate: 2, synthesize: 1, helpers: 0 } } }), /agents_spawned\.loops_used is required/);
+  expectReject('4h negative loops_used', root, validClose({ agents_spawned: { total: 3, tree: { investigate: 2, synthesize: 1, helpers: 0 }, loops_used: -1 } }), /agents_spawned\.loops_used is required and must be a non-negative integer/);
 }
 
 console.log('\n[5] pre-v0.5.2 keys rejected with the right per-provenance message');
@@ -324,7 +304,7 @@ console.log('\n[11] close rows');
   check('11a valid close row appends (exit 0)', r1.status === 0, r1.stderr || r1.stdout);
   const text = readLedger(root);
   check('11b close row block keys emitted', /^  - close_of: "2026-06-12-battery-main"$/m.test(text) && /^    exit_reason: "resolved"$/m.test(text) && /^    closed: "\d{4}/m.test(text), text);
-  check('11c agents_spawned emitted as JSON column', /^    agents_spawned: \{"planned_total":3,"total":3,"not_launched":0,"tree":\{"explorer":2,"writer":1,"helpers":0\},"loops_used":1\}$/m.test(text), text);
+  check('11c agents_spawned emitted as JSON column', /^    agents_spawned: \{"total":3,"tree":\{"explorer":2,"writer":1,"helpers":0\},"loops_used":1\}$/m.test(text), text);
   check('11d feedback_prompts emitted as JSON column', /^    feedback_prompts: \["Verbatim feedback ask sent back to the explorers\."\]$/m.test(text), text);
   expectReject('11e close row with unknown key rejected', root, validClose({ close_of: '2026-06-12-battery-second', bogus: 1 }), /unknown key "bogus" on a close record/);
   expectReject('11f close row with dispatch_id rejected', root, Object.assign(validClose(), { dispatch_id: 'x' }), /must use close_of, not dispatch_id/);
@@ -449,13 +429,9 @@ console.log('\n[16] anti_bias_global conditional (>= 2 fan-out groups) enforced'
   // 16d: the conditional counts GROUPS WITH >= 2 AGENTS, not groups.length —
   // one fan-out group + three singletons must not trigger it.
   const manySingletons = without(validDispatch({ dispatch_id: '2026-06-12-battery-many-singletons' }), 'anti_bias_global');
-  const singletonIdentities = ['Mac Lane, Saunders', 'Turing, Alan', 'Spivak, David'];
-  for (let i = 0; i < singletonIdentities.length; i++) {
-    const id = `solo-${i}`;
-    const agentName = singletonIdentities[i];
+  for (const id of ['solo-a', 'solo-b', 'solo-c']) {
     manySingletons.groups.push({ group_id: id,
-      agents: [{ agent_name: agentName, role: 'writer', model: 'claude-opus-4-8', token_budget: 1,
-        initial_prompt: `You are ${agentName}.\n\nWrite the bounded return.` }] });
+      agents: [{ role: 'writer', model: 'claude-opus-4-8', token_budget: 1, initial_prompt: 'p' }] });
   }
   const r3 = run(root, manySingletons);
   check('16d one fan-out + three singleton groups without anti_bias_global appends (exit 0)', r3.status === 0, r3.stderr || r3.stdout);
@@ -506,34 +482,22 @@ console.log('\n[18] traversal and semantic close hardening');
   expectReject('18b absolute Windows working_folder is rejected', root,
     validDispatch({ working_folder: 'C:\\outside' }), /portable forward slashes|project-relative/);
   run(root, validDispatch());
-  expectReject('18c close planned total must match registered topology', root,
-    validClose({ agents_spawned: validSpawn({ planned_total: 2, total: 2, tree: { explorer: 1, writer: 1 }, loops_used: 0 }) }), /registered strategy agent count/);
+  expectReject('18c close total must match registered topology', root,
+    validClose({ agents_spawned: { total: 2, tree: { explorer: 1, writer: 1 }, loops_used: 0 } }), /registered strategy agent count/);
   expectReject('18d close tree must sum to total', root,
-    validClose({ agents_spawned: validSpawn({ tree: { explorer: 1, writer: 1 }, loops_used: 0 }) }), /sum exactly/);
+    validClose({ agents_spawned: { total: 3, tree: { explorer: 1, writer: 1 }, loops_used: 0 } }), /sum exactly/);
   expectReject('18e close loop count cannot exceed registered max_loops', root,
-    validClose({ agents_spawned: validSpawn({ loops_used: 3 }) }), /exceeds registered max_loops/);
-  const partialRoot = freshRoot();
-  run(partialRoot, validDispatch());
-  const partial = run(partialRoot, validClose({
-    exit_reason: 'error',
-    agents_spawned: validSpawn({ total: 1, not_launched: 2, tree: { explorer: 1 }, loops_used: 0 }),
-  }));
-  check('18f non-resolved close preserves actual partial launch count', partial.status === 0, partial.stderr || partial.stdout);
-  const resolvedRoot = freshRoot();
-  run(resolvedRoot, validDispatch());
-  expectReject('18g resolved close rejects unlaunched planned agents', resolvedRoot,
-    validClose({ agents_spawned: validSpawn({ total: 1, not_launched: 2, tree: { explorer: 1 }, loops_used: 0 }) }),
-    /resolved close requires every registered agent/);
+    validClose({ agents_spawned: { total: 3, tree: { explorer: 2, writer: 1 }, loops_used: 3 } }), /exceeds registered max_loops/);
   const linkRoot = freshRoot();
   const outsideRoot = freshRoot();
   fs.mkdirSync(path.join(linkRoot, '.arcanum'), { recursive: true });
   try {
     fs.symlinkSync(outsideRoot, path.join(linkRoot, '.arcanum', 'observability'), process.platform === 'win32' ? 'junction' : 'dir');
     const escaped = run(linkRoot, validDispatch({ dispatch_id: 'junction-escape' }));
-    check('18h ledger junction/symlink escape is blocked',
+    check('18f ledger junction/symlink escape is blocked',
       escaped.status === 2 && escaped.tempExists && /escapes the real project root/.test(escaped.stderr), escaped.stderr);
   } catch (error) {
-    note('18h ledger junction/symlink escape is blocked', `link creation unavailable: ${error.code || error.message}`);
+    note('18f ledger junction/symlink escape is blocked', `link creation unavailable: ${error.code || error.message}`);
   }
 }
 

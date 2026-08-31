@@ -10,11 +10,17 @@ from typing import Any
 
 SCHEMA_VERSION = "arcanum.native-dispatch-runner.evidence-validation.v0.1"
 VALIDATOR_NAME = "validate_run_evidence.py"
+RUN_EVENT_SCHEMA_VERSIONS = {
+    "arcanum.native-dispatch-runner.run-event.v0.1",
+    "arcanum.native-dispatch-runner.run-event.v0.2",
+    "arcanum.native-dispatch-runner.run-event.v0.3",
+}
 HOST_RESULTS = {"host_spawn_returned", "host_spawn_failed"}
 EVENT_KINDS = {
     "action_attempted",
     "host_spawn_returned",
     "host_spawn_failed",
+    "agent_binding_corrected",
     "agent_wait_registered",
     "wait_attempted",
     "agent_terminal",
@@ -36,6 +42,11 @@ EVENT_FIELDS = BASE_FIELDS | {
     "failed_action_ids",
     "cleaned_action_ids",
     "blocker_code",
+    "prior_agent_id",
+    "prepared_task_name",
+    "supersedes_sequences",
+    "reason_code",
+    "domain_outcome",
 }
 
 
@@ -58,7 +69,7 @@ def event_shape_violation(event: dict[str, Any]) -> str | None:
     unexpected = sorted(set(event) - EVENT_FIELDS)
     if unexpected:
         return "unexpected fields: " + ", ".join(unexpected)
-    if event.get("schema_version") != "arcanum.native-dispatch-runner.run-event.v0.1":
+    if event.get("schema_version") not in RUN_EVENT_SCHEMA_VERSIONS:
         return "unsupported schema_version"
     if event.get("event") not in EVENT_KINDS:
         return "unsupported event kind"
@@ -68,6 +79,19 @@ def event_shape_violation(event: dict[str, Any]) -> str | None:
         if not isinstance(event.get(field), str) or not event[field]:
             return f"{field} must be a non-empty string"
     kind = event["event"]
+    event_version = event.get("schema_version")
+    if event_version == "arcanum.native-dispatch-runner.run-event.v0.3" and kind != "gate_decided":
+        return "run-event.v0.3 is reserved for typed gate_decided evidence"
+    if event_version != "arcanum.native-dispatch-runner.run-event.v0.3" and "domain_outcome" in event:
+        return "domain_outcome requires run-event.v0.3"
+    correction_fields = {
+        "prior_agent_id",
+        "prepared_task_name",
+        "supersedes_sequences",
+        "reason_code",
+    }
+    if kind != "agent_binding_corrected" and correction_fields & set(event):
+        return "binding-correction fields are only valid on agent_binding_corrected"
     if kind in {"gate_decided", "wait_attempted"}:
         if event.get("action_id") is not None or event.get("agent_id") is not None:
             return f"{kind} action_id and agent_id must be null"
@@ -75,8 +99,25 @@ def event_shape_violation(event: dict[str, Any]) -> str | None:
             return None
         if not isinstance(event.get("gate_id"), str) or not event["gate_id"]:
             return "gate_decided requires gate_id"
-        if event.get("decision") not in {"gate_pass", "gate_block"}:
+        if event.get("decision") not in {"gate_pass", "gate_block", "gate_resolved"}:
             return "gate_decided requires a supported decision"
+        domain_outcome = event.get("domain_outcome")
+        if event_version == "arcanum.native-dispatch-runner.run-event.v0.3":
+            if domain_outcome is not None:
+                if not isinstance(domain_outcome, dict) or set(domain_outcome) != {"role_id", "source_field", "value", "classification"}:
+                    return "typed gate_decided domain_outcome has invalid shape"
+                if any(not isinstance(domain_outcome.get(field), str) or not domain_outcome[field] for field in ("role_id", "source_field", "value")):
+                    return "typed gate_decided domain_outcome fields must be non-empty strings"
+            if event.get("decision") == "gate_resolved" and (
+                not isinstance(domain_outcome, dict) or domain_outcome.get("classification") != "resolved"
+            ):
+                return "gate_resolved requires a resolved domain_outcome"
+            if event.get("decision") == "gate_pass" and isinstance(domain_outcome, dict) and domain_outcome.get("classification") != "pass":
+                return "gate_pass domain_outcome must be classified pass"
+            if event.get("decision") == "gate_block" and domain_outcome is not None:
+                return "gate_block must not carry a domain_outcome"
+        elif event.get("decision") == "gate_resolved":
+            return "gate_resolved requires run-event.v0.3"
         for field in ("required_action_ids", "admitted_receipt_action_ids"):
             value = event.get(field)
             if not isinstance(value, list) or (field == "required_action_ids" and not value) or any(not isinstance(item, str) or not item for item in value):
@@ -109,6 +150,35 @@ def event_shape_violation(event: dict[str, Any]) -> str | None:
             return "run_blocked requires at least one failed_action_id"
         if event.get("action_id") not in event["failed_action_ids"]:
             return "run_blocked action_id must identify a failed action"
+    elif kind == "agent_binding_corrected":
+        if event.get("schema_version") != "arcanum.native-dispatch-runner.run-event.v0.2":
+            return "agent_binding_corrected requires run-event.v0.2"
+        if not isinstance(event.get("agent_id"), str) or not event["agent_id"]:
+            return "agent_binding_corrected requires corrected agent_id"
+        if not isinstance(event.get("prior_agent_id"), str) or not event["prior_agent_id"]:
+            return "agent_binding_corrected requires prior_agent_id"
+        if event["prior_agent_id"] == event["agent_id"]:
+            return "agent_binding_corrected requires a changed agent_id"
+        task_name = event.get("prepared_task_name")
+        if not isinstance(task_name, str) or not task_name:
+            return "agent_binding_corrected requires prepared_task_name"
+        if event["agent_id"].rsplit("/", 1)[-1] != task_name:
+            return "corrected agent_id must end with the exact prepared_task_name"
+        supersedes = event.get("supersedes_sequences")
+        if (
+            not isinstance(supersedes, list)
+            or len(supersedes) != 2
+            or len(set(supersedes)) != 2
+            or any(
+                not isinstance(item, int)
+                or isinstance(item, bool)
+                or item < 1
+                for item in supersedes
+            )
+        ):
+            return "agent_binding_corrected requires two unique positive supersedes_sequences"
+        if event.get("reason_code") != "host_agent_id_transcription_error":
+            return "agent_binding_corrected requires host_agent_id_transcription_error"
     elif not isinstance(event.get("agent_id"), str) or not event["agent_id"]:
         return f"{kind} requires agent_id"
     if kind == "receipt_joined" and event.get("receipt_status") not in {"pass", "block", "fail", "timed_out"}:
@@ -126,6 +196,7 @@ def validate_events(
     attempts: dict[str, dict[str, Any]] = {}
     host_results: dict[str, dict[str, Any]] = {}
     registrations: dict[str, dict[str, Any]] = {}
+    binding_corrections: dict[str, dict[str, Any]] = {}
     waits_by_wave: dict[str, list[dict[str, Any]]] = {}
     terminals: dict[str, dict[str, Any]] = {}
     closes: dict[str, dict[str, Any]] = {}
@@ -207,6 +278,120 @@ def validate_events(
                 registration_valid = False
             if registration_valid:
                 registrations[action_id] = event
+
+        elif kind == "agent_binding_corrected":
+            correction_valid = True
+            host_result = host_results.get(action_id)
+            registration = registrations.get(action_id)
+            prior_agent_id = event.get("prior_agent_id")
+            corrected_agent_id = event.get("agent_id")
+            if action_id in binding_corrections:
+                reject(
+                    "duplicate_agent_binding_correction",
+                    event,
+                    "action already has an agent binding correction",
+                )
+                correction_valid = False
+            if host_result is None or host_result.get("event") != "host_spawn_returned":
+                reject(
+                    "correction_without_host_result",
+                    event,
+                    "binding correction has no earlier successful host result",
+                )
+                correction_valid = False
+            elif host_result.get("agent_id") != prior_agent_id:
+                reject(
+                    "correction_prior_agent_mismatch",
+                    event,
+                    "prior_agent_id differs from the effective host result",
+                )
+                correction_valid = False
+            elif host_result.get("wave_id") != event.get("wave_id"):
+                reject(
+                    "correction_wave_mismatch",
+                    event,
+                    "binding correction wave differs from the host result",
+                )
+                correction_valid = False
+            if registration is None:
+                reject(
+                    "correction_without_registration",
+                    event,
+                    "binding correction has no earlier wait registration",
+                )
+                correction_valid = False
+            elif registration.get("agent_id") != prior_agent_id:
+                reject(
+                    "correction_registration_agent_mismatch",
+                    event,
+                    "prior_agent_id differs from the effective wait registration",
+                )
+                correction_valid = False
+            elif registration.get("wave_id") != event.get("wave_id"):
+                reject(
+                    "correction_registration_wave_mismatch",
+                    event,
+                    "binding correction wave differs from the wait registration",
+                )
+                correction_valid = False
+            if host_result is not None and registration is not None:
+                expected_sequences = [
+                    host_result.get("sequence"),
+                    registration.get("sequence"),
+                ]
+                if event.get("supersedes_sequences") != expected_sequences:
+                    reject(
+                        "correction_sequence_mismatch",
+                        event,
+                        "supersedes_sequences must name the effective host result then registration",
+                    )
+                    correction_valid = False
+            same_wave_terminal_evidence = [
+                candidate
+                for collection in (
+                    terminals,
+                    closes,
+                    timeouts,
+                    interrupts,
+                    joined,
+                )
+                for candidate in collection.values()
+                if candidate.get("wave_id") == event.get("wave_id")
+            ]
+            if same_wave_terminal_evidence or event.get("wave_id") in gate_decision_waves:
+                reject(
+                    "correction_after_terminal_evidence",
+                    event,
+                    "binding correction must precede same-wave terminal, cleanup, join, and gate evidence",
+                )
+                correction_valid = False
+            duplicate_owner = next(
+                (
+                    candidate_action_id
+                    for candidate_action_id, candidate in host_results.items()
+                    if candidate_action_id != action_id
+                    and candidate.get("event") == "host_spawn_returned"
+                    and candidate.get("agent_id") == corrected_agent_id
+                ),
+                None,
+            )
+            if duplicate_owner is not None:
+                reject(
+                    "correction_agent_id_not_unique",
+                    event,
+                    f"corrected agent_id is already bound to {duplicate_owner}",
+                )
+                correction_valid = False
+            if correction_valid and host_result is not None and registration is not None:
+                host_results[action_id] = {
+                    **host_result,
+                    "agent_id": corrected_agent_id,
+                }
+                registrations[action_id] = {
+                    **registration,
+                    "agent_id": corrected_agent_id,
+                }
+                binding_corrections[action_id] = event
 
         elif kind == "wait_attempted":
             wave_id = event.get("wave_id")
@@ -390,13 +575,13 @@ def validate_events(
                     reject("gate_missing_host_result", event, "required action has no earlier host result", required_action_id)
                 if required_action_id not in joined:
                     reject("gate_missing_joined_receipt", event, "required action has no earlier joined receipt", required_action_id)
-            if event.get("decision") == "gate_pass":
+            if event.get("decision") in {"gate_pass", "gate_resolved"}:
                 if set(admitted) != set(required):
-                    reject("gate_receipt_set_mismatch", event, "gate_pass must admit exactly its required action receipts")
+                    reject("gate_receipt_set_mismatch", event, "successful gate decisions must admit exactly their required action receipts")
                 for required_action_id in required:
                     receipt = joined.get(required_action_id)
                     if receipt is not None and receipt.get("receipt_status") != "pass":
-                        reject("gate_admitted_non_pass", event, "gate_pass admitted a non-pass receipt", required_action_id)
+                        reject("gate_admitted_non_pass", event, "successful gate decision admitted a non-pass receipt", required_action_id)
             if len(errors) == gate_error_count and isinstance(gate_id, str):
                 gate_decisions[gate_id] = event.get("sequence")
                 gate_decision_waves.add(str(event.get("wave_id")))

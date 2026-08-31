@@ -59,7 +59,46 @@ class CapabilityStatusResolverTest(unittest.TestCase):
             artifact["producer_admission_receipt"] = self.design_admission_receipt(
                 artifact["producer_receipt"]
             )
+        if mode == "plan" and status == "pass":
+            artifact["producer_receipt"] = self.plan_producer_receipt()
+            artifact["producer_admission_receipt"] = self.plan_admission_receipt(
+                artifact["producer_receipt"]
+            )
         return artifact
+
+    def plan_producer_receipt(self):
+        consumers = ["wpra", "implementation-readiness", "task-session", "context-builder", "dispatch-spec", "goal", "signal-observer"]
+        receipt = {
+            "$schema": "https://arcanum.dev/schemas/invoke/plan-stage-receipt/v2",
+            "schema_version": "invoke.plan-stage-receipt.v2",
+            "receipt_id": "plan-stage-v2:fixture",
+            "source_ref": {"path": "PLAN-SOURCE.json", "sha256": "1" * 64, "size": 1},
+            "design_binding": {"fixture": "admitted-design-v3"},
+            "producer": {
+                "identity": "invoke.compile-plan-bundle.v2",
+                "path": "arcanum/spells/invoke/scripts/compile_plan_bundle_v2.py",
+                "sha256": hashlib.sha256((INVOKE / "scripts" / "compile_plan_bundle_v2.py").read_bytes()).hexdigest(),
+            },
+            "outputs": [{"path": "PLAN-SOURCE.json", "sha256": "1" * 64, "size": 1}],
+            "consumer_results": [{"consumer": name, "result": "pass"} for name in consumers],
+            "result": "pass", "authority_effect": "none", "receipt_digest": "0" * 64,
+        }
+        receipt["receipt_digest"] = MODULE.canonical_digest(receipt, "receipt_digest")
+        return receipt
+
+    def plan_admission_receipt(self, producer):
+        rendered = (json.dumps(producer, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode()
+        inventory = producer["outputs"] + [{"path": "PLAN-STAGE-RECEIPT.json", "sha256": hashlib.sha256(rendered).hexdigest(), "size": len(rendered)}]
+        receipt = {
+            "$schema": "https://arcanum.dev/schemas/invoke/plan-bundle-admission-receipt/v1",
+            "schema_version": "invoke.plan-bundle-admission-receipt.v1",
+            "receipt_id": "plan-admission-v1:fixture",
+            "validator": {"identity": "invoke.validate-plan-bundle-admission.v1", "path": "arcanum/spells/invoke/scripts/validate_plan_bundle_admission.py", "sha256": hashlib.sha256((INVOKE / "scripts" / "validate_plan_bundle_admission.py").read_bytes()).hexdigest()},
+            "stage_receipt_ref": inventory[-1], "bundle_inventory": inventory, "replay_inventory": inventory,
+            "consumer_results": producer["consumer_results"], "blockers": [], "result": "pass", "authority_effect": "none", "receipt_digest": "0" * 64,
+        }
+        receipt["receipt_digest"] = MODULE.canonical_digest(receipt, "receipt_digest")
+        return receipt
 
     def design_producer_receipt(self):
         exact = lambda path, digest, size=1: {"path": path, "sha256": digest, "size": size}
@@ -540,6 +579,14 @@ class CapabilityStatusResolverTest(unittest.TestCase):
         request["artifact_receipt"] = receipt
         result = self.resolve(request)
         self.assertEqual("block", result["artifact_authored"]["status"])
+
+    def test_plan_generic_self_assertion_cannot_open_new_pass(self):
+        request = self.base("plan")
+        receipt = self.artifact("plan")
+        receipt.pop("producer_receipt")
+        receipt.pop("producer_admission_receipt")
+        request["artifact_receipt"] = receipt
+        self.assertEqual("block", self.resolve(request)["artifact_authored"]["status"])
 
     def test_design_forged_producer_or_admission_validator_blocks(self):
         for mutation in ("producer", "admission-validator"):

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/fast-execution-entry-request/1-0-0",
+  "title": "FastExecutionEntryRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "execution_policy",
+    "execution_entry",
+    "execution_binding",
+    "selected_unit",
+    "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "execution_policy": {"type": "object"},
+    "execution_entry": {"type": "object"},
+    "execution_binding": {"type": "object"},
+    "selected_unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["work_pack_id", "swu_id"],
+      "properties": {
+        "work_pack_id": {"type": "string", "minLength": 1},
+        "swu_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "authority_effect": {"const": "none"}
+  }
+}

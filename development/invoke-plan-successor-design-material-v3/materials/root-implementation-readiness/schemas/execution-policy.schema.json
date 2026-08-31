@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/implementation-readiness/execution-policy/1-1-0",
+  "title": "WorkPackExecutionPolicy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "work_pack_id",
+    "work_pack_semantic_digest",
+    "frontier",
+    "allowed_routes",
+    "allowed_routes_digest",
+    "automatic_decisions",
+    "stop_decisions",
+    "validation_commands",
+    "scope_source",
+    "validation_policy",
+    "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {"enum": ["1.0.0", "1.1.0"]},
+    "work_pack_id": {"type": "string", "minLength": 1},
+    "work_pack_semantic_digest": {"$ref": "#/$defs/sha256"},
+    "frontier": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "completion_continuity": {"$ref": "#/$defs/completionContinuity"},
+    "allowed_routes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/allowedRoute"}
+    },
+    "allowed_routes_digest": {"$ref": "#/$defs/sha256"},
+    "automatic_decisions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "internal-tool-selection",
+          "capability-owner-routing",
+          "reversible-local-default",
+          "declared-fallback",
+          "declared-retry",
+          "fresh-task-session-resumption"
+        ]
+      }
+    },
+    "stop_decisions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "product-or-semantic-choice",
+          "scope-expansion",
+          "destructive-or-irreversible-effect",
+          "credentials-or-secret-access",
+          "external-message-or-network-effect",
+          "cost-policy-or-risk-acceptance",
+          "authority-promotion-publication-deployment",
+          "failed-acceptance-critical-validation"
+        ]
+      }
+    },
+    "validation_commands": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "scope_source": {"const": "exact-work-pack-and-captured-frontier"},
+    "validation_policy": {"const": "owner-gates-remain-mandatory"},
+    "authority_effect": {"const": "none"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"schema_version": {"const": "1.1.0"}},
+        "required": ["schema_version"]
+      },
+      "then": {"required": ["completion_continuity"]}
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "completedPrefixItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit_id", "unit_contract_digest", "completion_binding_id", "completion_artifact_ref", "closeout_binding_id"],
+      "properties": {
+        "unit_id": {"type": "string", "minLength": 1},
+        "unit_contract_digest": {"$ref": "#/$defs/sha256"},
+        "completion_binding_id": {"type": "string", "minLength": 1},
+        "completion_artifact_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "closeout_binding_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "completionContinuity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_audit_id", "source_projection_digest", "work_pack_semantic_digest", "plan_epoch_id", "completed_prefix", "next_unit", "authority_effect", "continuity_digest"],
+      "properties": {
+        "source_audit_id": {"type": "string", "minLength": 1},
+        "source_projection_digest": {"$ref": "#/$defs/sha256"},
+        "work_pack_semantic_digest": {"$ref": "#/$defs/sha256"},
+        "plan_epoch_id": {"type": "string", "pattern": "^epoch-[a-f0-9]{24}$"},
+        "completed_prefix": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/completedPrefixItem"}},
+        "next_unit": {"type": ["string", "null"], "minLength": 1},
+        "authority_effect": {"const": "none"},
+        "continuity_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "allowedRoute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route_id",
+        "frontier_swu",
+        "capability",
+        "mode",
+        "target",
+        "write_scope",
+        "effect_class",
+        "required_inputs",
+        "expected_receipt"
+      ],
+      "properties": {
+        "route_id": {"type": "string", "pattern": "^[A-Za-z0-9._:-]+$"},
+        "frontier_swu": {"type": "string", "minLength": 1},
+        "capability": {"type": "string", "minLength": 1},
+        "mode": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1},
+        "write_scope": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "effect_class": {
+          "enum": [
+            "repository-local-reversible",
+            "destructive-or-irreversible",
+            "external-network-or-message",
+            "authority-or-promotion",
+            "publication-or-deployment"
+          ]
+        },
+        "required_inputs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "expected_receipt": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

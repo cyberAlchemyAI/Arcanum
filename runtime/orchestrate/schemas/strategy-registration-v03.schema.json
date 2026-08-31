@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "arcanum.subagent-strategy-registration.v0.3",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "profile_id",
+    "profile_ref",
+    "ledger",
+    "sheet_schema_version",
+    "source_sheet_ref",
+    "source_lifecycle",
+    "registration_envelope_ref",
+    "confirmation",
+    "admission_receipt_ref",
+    "execution_projection_sha256",
+    "temporary_close"
+  ],
+  "properties": {
+    "schema_version": { "const": "arcanum.subagent-strategy-registration.v0.3" },
+    "profile_id": { "type": "string", "minLength": 1 },
+    "profile_ref": { "$ref": "#/$defs/exactRef" },
+    "ledger": { "$ref": "#/$defs/path" },
+    "sheet_schema_version": { "type": "string", "minLength": 1 },
+    "source_sheet_ref": { "$ref": "#/$defs/exactRef" },
+    "source_lifecycle": { "enum": ["consumed", "durable"] },
+    "registration_envelope_ref": { "$ref": "#/$defs/exactRef" },
+    "confirmation": {
+      "type": "object",
+      "required": ["mode", "handle", "binding_sha256", "material_equivalence_ref"],
+      "properties": {
+        "mode": { "enum": ["exact_sheet", "material_projection"] },
+        "handle": { "type": "string", "minLength": 1 },
+        "binding_sha256": { "$ref": "#/$defs/sha256" },
+        "material_equivalence_ref": {
+          "anyOf": [
+            { "$ref": "#/$defs/exactRef" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "admission_receipt_ref": {
+      "anyOf": [
+        { "$ref": "#/$defs/exactRef" },
+        { "type": "null" }
+      ]
+    },
+    "execution_projection_sha256": { "$ref": "#/$defs/sha256" },
+    "temporary_close": { "$ref": "#/$defs/path" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "exactRef": {
+      "type": "object",
+      "required": ["path", "sha256", "size"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "size": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

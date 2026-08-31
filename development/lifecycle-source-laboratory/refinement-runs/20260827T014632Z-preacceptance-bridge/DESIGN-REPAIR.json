@@ -1,0 +1,45 @@
+{
+  "schema_version": "arcanum.preacceptance-bridge-design.v1",
+  "status": "refined-design-complete",
+  "problem": "Plan readiness proves declarations but cannot produce exact preacceptance final_postimages before candidate materialization.",
+  "selected_architecture": "transactional candidate materialization followed by deterministic acceptance-bundle compilation",
+  "flow": [
+    "validate one Plan source and run WPRA twice",
+    "materialize every declared SWU candidate in an isolated transaction without canonical writes",
+    "validate candidate outputs with declared post-produce commands",
+    "freeze one exact candidate bundle and material receipt",
+    "compile canonical preacceptance manifest and normalized execution projection from Plan plus candidate bundle",
+    "run all 11 real consumer boundaries twice with no effects",
+    "join independent review and enforced adoption evidence",
+    "emit and validate exactly one owner request",
+    "after exact acceptance, capture fresh live baselines and apply only accepted postimages",
+    "terminalize and join owner closeout and continuity"
+  ],
+  "new_contracts": [
+    {"id": "invoke.plan-execution-source.v2", "purpose": "Add exact candidate-materialization contracts per SWU without claiming candidate outputs exist."},
+    {"id": "invoke.candidate-materialization-request.v1", "purpose": "Bind Plan receipt, producer identities, isolated root, declared outputs and validation commands."},
+    {"id": "invoke.candidate-materialization-receipt.v1", "purpose": "Bind exact postimages, actual isolated writes, validation results and zero canonical effects."},
+    {"id": "invoke.acceptance-bundle-source.v1", "purpose": "Single machine join of validated Plan, candidate material receipt, canonical runtime inventory and adoption evidence."},
+    {"id": "invoke.acceptance-bundle-compilation-receipt.v1", "purpose": "Prove lossless manifest/projection/base-request derivation and atomic publication."}
+  ],
+  "transaction_boundaries": {
+    "candidate_materialization": "temporary sibling/worktree; publish immutable bundle only on complete output and post-produce PASS",
+    "acceptance_bundle": "temporary sibling; publish manifest/projection only after schema and exact-ref closure",
+    "consumer_rehearsal": "two disposable roots; repository and protected bytes unchanged",
+    "owner_request": "exclusive create after review/adoption PASS; never overwrite",
+    "accepted_apply": "single-use live admission; exact postimages only"
+  },
+  "alternatives": [
+    {"id": "A", "design": "derive preacceptance from Plan alone", "verdict": "reject", "reason": "must invent final postimages and material evidence"},
+    {"id": "B", "design": "put finalized postimages directly inside Plan source", "verdict": "reject", "reason": "collapses planning and candidate production and makes large code payloads the Plan authority"},
+    {"id": "C", "design": "hand-author manifest after implementation", "verdict": "reject", "reason": "reintroduces model drift and missing-field loops"},
+    {"id": "D", "design": "Plan plus isolated candidate bundle plus deterministic acceptance compiler", "verdict": "select", "reason": "preserves source authority, exact bytes, real consumers and one owner decision"}
+  ],
+  "compatibility": [
+    "Plan source v1 remains readable and WPRA-valid but is execution-handoff-incomplete.",
+    "Only source v2 with passing candidate material receipt may compile new preacceptance bundles.",
+    "Historical preacceptance v1 evidence remains readable and cannot be regenerated from incomplete sources.",
+    "No existing acceptance can cover changed Plan, candidate, runner, schema, route, effect or adoption bytes."
+  ],
+  "authority_effect": "none"
+}

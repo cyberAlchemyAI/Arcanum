@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/spells/goal/execution-receipt.schema.json",
+  "title": "Goal Execution Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_id",
+    "route_id",
+    "owner",
+    "status",
+    "terminal",
+    "evidence"
+  ],
+  "properties": {
+    "receipt_id": {
+      "type": "string"
+    },
+    "route_id": {
+      "type": "string"
+    },
+    "owner": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "closed",
+        "blocked",
+        "timed-out",
+        "handed-off"
+      ]
+    },
+    "terminal": {
+      "type": "boolean",
+      "const": true
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "files_touched": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "validation": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "residue": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "reroute": {
+      "type": "string"
+    }
+  }
+}

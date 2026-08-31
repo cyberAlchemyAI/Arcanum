@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "arcanum.subagent-strategy-runtime-profile.v1",
+  "title": "Arcanum Subagent Strategy Runtime Profile v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "profile_id",
+    "profile_version",
+    "row_schemas",
+    "confirmation",
+    "source_lifecycle",
+    "ledger",
+    "runtime_temp_root",
+    "adapter_module",
+    "adapter_base",
+    "adapter_operations",
+    "required_admission_receipt_kind",
+    "dispatch_types"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "arcanum.subagent-strategy-runtime-profile.v1"
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9.-]+$"
+    },
+    "profile_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "row_schemas": {
+      "type": "object",
+      "required": ["current", "historical_validate_only"],
+      "properties": {
+        "current": { "type": "string", "minLength": 1 },
+        "historical_validate_only": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "confirmation": {
+      "type": "object",
+      "required": ["mode", "binding_digest", "equivalence_receipt_kind"],
+      "properties": {
+        "mode": { "enum": ["exact_sheet", "material_projection"] },
+        "binding_digest": { "enum": ["source_sheet", "material_projection"] },
+        "equivalence_receipt_kind": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "mode": { "const": "exact_sheet" } } },
+          "then": {
+            "properties": {
+              "binding_digest": { "const": "source_sheet" },
+              "equivalence_receipt_kind": { "const": null }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "mode": { "const": "material_projection" } } },
+          "then": {
+            "properties": {
+              "binding_digest": { "const": "material_projection" },
+              "equivalence_receipt_kind": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "source_lifecycle": { "enum": ["temporary_consumed", "durable"] },
+    "ledger": { "$ref": "#/$defs/projectRelativePath" },
+    "runtime_temp_root": { "$ref": "#/$defs/projectRelativePath" },
+    "adapter_module": { "$ref": "#/$defs/projectRelativePath" },
+    "adapter_base": { "enum": ["arcanum_root", "project_root"] },
+    "adapter_operations": {
+      "type": "object",
+      "required": ["readiness", "register", "close"],
+      "properties": {
+        "readiness": { "type": "string", "pattern": "^--[a-z][a-z-]*$" },
+        "register": { "type": "string", "pattern": "^--[a-z][a-z-]*$" },
+        "close": { "type": "string", "pattern": "^--[a-z][a-z-]*$" }
+      },
+      "additionalProperties": false
+    },
+    "required_admission_receipt_kind": { "type": ["string", "null"] },
+    "dispatch_types": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "owner_capability"],
+        "properties": {
+          "status": { "enum": ["live", "reserved"] },
+          "owner_capability": {
+            "anyOf": [
+              { "$ref": "#/$defs/projectRelativePath" },
+              { "type": "null" }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "status": { "const": "live" } } },
+            "then": {
+              "properties": {
+                "owner_capability": { "$ref": "#/$defs/projectRelativePath" }
+              }
+            }
+          },
+          {
+            "if": { "properties": { "status": { "const": "reserved" } } },
+            "then": { "properties": { "owner_capability": { "const": null } } }
+          }
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "projectRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    }
+  },
+  "additionalProperties": false
+}

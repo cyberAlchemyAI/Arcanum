@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/pre-execution-failure-terminalization/1-0-0",
+  "title": "TaskSessionPreExecutionFailureTerminalizationV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "work_pack_id",
+    "task_id",
+    "swu_id",
+    "attempt_id",
+    "owner_acceptance_request_ref",
+    "owner_acceptance_response_ref",
+    "control_evidence_partition_ref",
+    "failure_terminal_schema_ref",
+    "invoke_owner_schema_ref",
+    "continuity_schema_ref",
+    "blocker_refs",
+    "control_refs",
+    "blocker_fingerprint",
+    "terminal_receipt_path",
+    "invoke_owner_receipt_path",
+    "continuity_cursor_path",
+    "continuity_updated_at",
+    "requested_effect"
+  ],
+  "properties": {
+    "schema_version": {"const": "task-session.pre-execution-failure-terminalization.v1"},
+    "work_pack_id": {"$ref": "#/$defs/nonEmptyString"},
+    "task_id": {"$ref": "#/$defs/nonEmptyString"},
+    "swu_id": {"$ref": "#/$defs/nonEmptyString"},
+    "attempt_id": {"$ref": "#/$defs/nonEmptyString"},
+    "owner_acceptance_request_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "owner_acceptance_response_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "control_evidence_partition_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "failure_terminal_schema_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "invoke_owner_schema_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "continuity_schema_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "blocker_refs": {"$ref": "#/$defs/nonEmptyExactRefSet"},
+    "control_refs": {"$ref": "#/$defs/nonEmptyExactRefSet"},
+    "blocker_fingerprint": {"$ref": "#/$defs/sha256"},
+    "terminal_receipt_path": {"$ref": "#/$defs/path"},
+    "invoke_owner_receipt_path": {"$ref": "#/$defs/path"},
+    "continuity_cursor_path": {"$ref": "#/$defs/path"},
+    "continuity_updated_at": {"type": "string", "format": "date-time"},
+    "requested_effect": {"const": "record-pre-execution-block-with-no-product-effect"}
+  },
+  "$defs": {
+    "nonEmptyString": {"type": "string", "minLength": 1, "pattern": "^[^\\u0000]+$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$))[^\\u0000]+$"},
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "nonEmptyExactRefSet": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/exactArtifactRef"}
+    }
+  }
+}

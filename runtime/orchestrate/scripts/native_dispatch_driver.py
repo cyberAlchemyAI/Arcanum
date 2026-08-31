@@ -33,7 +33,7 @@ import native_dispatch_coordinator as coordinator  # noqa: E402
 import validate_run_evidence as evidence  # noqa: E402
 
 
-RUN_EVENT_SCHEMA_VERSION = "arcanum.native-dispatch-runner.run-event.v0.1"
+RUN_EVENT_SCHEMA_VERSION = "arcanum.native-dispatch-runner.run-event.v0.2"
 RESIDUE_SCHEMA_VERSION = "arcanum.native-dispatch-runner.run-residue.v0.1"
 RECEIPT_ADMISSION_SCHEMA_VERSION = (
     "arcanum.native-dispatch-runner.receipt-admission.v0.1"
@@ -182,11 +182,13 @@ def append_causal_records(
                             + ", ".join(owned)
                         ]
                     )
+                event_version = record.get("_schema_version", RUN_EVENT_SCHEMA_VERSION)
+                event_body = {key: value for key, value in record.items() if key != "_schema_version"}
                 prepared.append(
                     {
-                        "schema_version": RUN_EVENT_SCHEMA_VERSION,
+                        "schema_version": event_version,
                         "sequence": len(existing) + ordinal,
-                        **record,
+                        **event_body,
                     }
                 )
 
@@ -448,6 +450,8 @@ def validate_raw_task_results(
                 "task_status": raw_result.get(semantics["task_status_field"]),
                 "task_complete_value": semantics["task_complete_value"],
                 "task_blocked_value": semantics["task_blocked_value"],
+                "domain_gate_status_field": semantics["domain_gate_status_field"],
+                "domain_gate_status": raw_result.get(semantics["domain_gate_status_field"]),
             }
         )
     validation = {
@@ -542,12 +546,26 @@ def prepare_spawn(
 def record_spawn(
     action_path: Path,
     run_plan_path: Path,
+    request_path: Path,
     event_stream: Path,
     agent_id: str | None,
 ) -> dict[str, Any]:
     action, _ = _admit_persisted_action(action_path, run_plan_path)
+    request = _load_json_object(request_path, "prepared spawn request")
+    expected_request = _spawn_request(action)
+    if request != expected_request:
+        raise DriverBlocked(
+            ["prepared spawn request does not exactly match the admitted action"]
+        )
     if agent_id is not None and not agent_id:
         raise DriverBlocked(["agent_id must be non-empty when spawn succeeds"])
+    if (
+        agent_id is not None
+        and agent_id.rsplit("/", 1)[-1] != request["task_name"]
+    ):
+        raise DriverBlocked(
+            ["native agent_id does not end with the exact prepared task_name"]
+        )
     kind = "host_spawn_returned" if agent_id is not None else "host_spawn_failed"
     return append_causal_records(
         event_stream,
@@ -560,6 +578,110 @@ def record_spawn(
                 "action_id": action["action_id"],
                 "agent_id": agent_id,
                 "operation": "collaboration.spawn_agent",
+            }
+        ],
+    )[0]
+
+
+def correct_agent_binding(
+    action_path: Path,
+    run_plan_path: Path,
+    request_path: Path,
+    event_stream: Path,
+    prior_agent_id: str,
+    corrected_agent_id: str,
+    supersedes_sequences: list[int],
+) -> dict[str, Any]:
+    """Append one pre-terminal correction without rewriting prior evidence."""
+
+    action, _ = _admit_persisted_action(action_path, run_plan_path)
+    request = _load_json_object(request_path, "prepared spawn request")
+    expected_request = _spawn_request(action)
+    if request != expected_request:
+        raise DriverBlocked(
+            ["prepared spawn request does not exactly match the admitted action"]
+        )
+    if not prior_agent_id or not corrected_agent_id:
+        raise DriverBlocked(
+            ["prior_agent_id and corrected_agent_id must be non-empty"]
+        )
+    if prior_agent_id == corrected_agent_id:
+        raise DriverBlocked(["binding correction must change the agent_id"])
+    if corrected_agent_id.rsplit("/", 1)[-1] != request["task_name"]:
+        raise DriverBlocked(
+            ["corrected agent_id does not end with the exact prepared task_name"]
+        )
+    if (
+        len(supersedes_sequences) != 2
+        or len(set(supersedes_sequences)) != 2
+        or any(
+            not isinstance(sequence, int)
+            or isinstance(sequence, bool)
+            or sequence < 1
+            for sequence in supersedes_sequences
+        )
+    ):
+        raise DriverBlocked(
+            ["supersedes_sequences must contain two unique positive integers"]
+        )
+
+    events = _validated_prefix(event_stream)
+    host_result = next(
+        (
+            event
+            for event in events
+            if event.get("event") == "host_spawn_returned"
+            and event.get("action_id") == action["action_id"]
+        ),
+        None,
+    )
+    registration = next(
+        (
+            event
+            for event in events
+            if event.get("event") == "agent_wait_registered"
+            and event.get("action_id") == action["action_id"]
+        ),
+        None,
+    )
+    if host_result is None or registration is None:
+        raise DriverBlocked(
+            ["binding correction requires an earlier host result and wait registration"]
+        )
+    if host_result.get("agent_id") != prior_agent_id:
+        raise DriverBlocked(["prior_agent_id does not match the host result"])
+    if registration.get("agent_id") != prior_agent_id:
+        raise DriverBlocked(["prior_agent_id does not match the wait registration"])
+    if host_result.get("wave_id") != action["wave_id"]:
+        raise DriverBlocked(["host result wave does not match the admitted action"])
+    if registration.get("wave_id") != action["wave_id"]:
+        raise DriverBlocked(
+            ["wait registration wave does not match the admitted action"]
+        )
+    expected_sequences = [
+        int(host_result["sequence"]),
+        int(registration["sequence"]),
+    ]
+    if supersedes_sequences != expected_sequences:
+        raise DriverBlocked(
+            ["supersedes_sequences do not match host result then registration"]
+        )
+
+    return append_causal_records(
+        event_stream,
+        [
+            {
+                "event": "agent_binding_corrected",
+                "dispatch_id": action["dispatch_id"],
+                "run_id": action["run_id"],
+                "wave_id": action["wave_id"],
+                "action_id": action["action_id"],
+                "agent_id": corrected_agent_id,
+                "operation": "orchestrate.correct-agent-binding",
+                "prior_agent_id": prior_agent_id,
+                "prepared_task_name": request["task_name"],
+                "supersedes_sequences": supersedes_sequences,
+                "reason_code": "host_agent_id_transcription_error",
             }
         ],
     )[0]
@@ -1214,6 +1336,11 @@ def admit_receipt_directory(
         "role",
         "capability_ref",
     )
+    expected_receipt_version = (
+        coordinator.RECEIPT_SCHEMA_VERSION_V2
+        if run_plan.get("execution_contract_version") == coordinator.STRICT_EXECUTION_CONTRACT
+        else coordinator.RECEIPT_SCHEMA_VERSION
+    )
     for action_id, action in expected_by_id.items():
         path = actual_files.get(f"{action_id}.json")
         if path is None:
@@ -1223,7 +1350,9 @@ def admit_receipt_directory(
         except (OSError, json.JSONDecodeError) as exc:
             blockers.append(f"{path.name}: invalid receipt JSON: {exc}")
             continue
-        shape_blockers = coordinator._receipt_shape_blockers(receipt, len(file_rows))
+        shape_blockers = coordinator._receipt_shape_blockers(
+            receipt, len(file_rows), expected_receipt_version
+        )
         blockers.extend(f"{path.name}: {item}" for item in shape_blockers)
         if shape_blockers or not isinstance(receipt, dict):
             continue
@@ -1293,7 +1422,8 @@ def advance_wave(
     receipt_by_id = {receipt["action_id"]: receipt for receipt in receipts}
     status_binding_blockers: list[str] = []
     for row in task_result_validation["results"]:
-        normalized_status = receipt_by_id[row["action_id"]]["status"]
+        normalized_receipt = receipt_by_id[row["action_id"]]
+        normalized_status = normalized_receipt["status"]
         if row["task_status"] == row["task_blocked_value"] and normalized_status != "block":
             status_binding_blockers.append(
                 f"{row['action_id']}: blocked task result requires normalized status=block"
@@ -1302,6 +1432,20 @@ def advance_wave(
             status_binding_blockers.append(
                 f"{row['action_id']}: normalized status=pass requires completed task result"
             )
+        if run_plan.get("execution_contract_version") == coordinator.STRICT_EXECUTION_CONTRACT:
+            raw_domain_value = row["domain_gate_status"]
+            expected_domain_gate = {
+                "source_field": row["domain_gate_status_field"],
+                "value": raw_domain_value,
+            }
+            if not isinstance(raw_domain_value, str) or not raw_domain_value:
+                status_binding_blockers.append(
+                    f"{row['action_id']}: v0.2 raw domain-gate status must be a non-empty string"
+                )
+            elif normalized_receipt.get("domain_gate") != expected_domain_gate:
+                status_binding_blockers.append(
+                    f"{row['action_id']}: normalized domain_gate does not match the raw result field and value"
+                )
         row["normalized_status"] = normalized_status
     if status_binding_blockers:
         task_result_validation["status"] = "block"
@@ -1327,22 +1471,26 @@ def advance_wave(
     ]
     gate_id = gate.get("gate_id")
     if gate_id is not None:
+        gate_event = {
+            "event": "gate_decided",
+            "dispatch_id": gate["dispatch_id"],
+            "run_id": gate["run_id"],
+            "wave_id": gate["wave_id"],
+            "action_id": None,
+            "agent_id": None,
+            "operation": "orchestrate.reduce",
+            "gate_id": gate_id,
+            "decision": gate["decision"],
+            "required_action_ids": gate["required_action_ids"],
+            "admitted_receipt_action_ids": gate[
+                "admitted_receipt_action_ids"
+            ],
+        }
+        if gate.get("schema_version") == coordinator.GATE_DECISION_SCHEMA_VERSION_V2:
+            gate_event["_schema_version"] = "arcanum.native-dispatch-runner.run-event.v0.3"
+            gate_event["domain_outcome"] = gate.get("domain_outcome")
         join_events.append(
-            {
-                "event": "gate_decided",
-                "dispatch_id": gate["dispatch_id"],
-                "run_id": gate["run_id"],
-                "wave_id": gate["wave_id"],
-                "action_id": None,
-                "agent_id": None,
-                "operation": "orchestrate.reduce",
-                "gate_id": gate_id,
-                "decision": gate["decision"],
-                "required_action_ids": gate["required_action_ids"],
-                "admitted_receipt_action_ids": gate[
-                    "admitted_receipt_action_ids"
-                ],
-            }
+            gate_event
         )
     append_causal_records(event_stream, join_events)
 
@@ -1389,10 +1537,26 @@ def main() -> int:
     record_spawn_parser = subparsers.add_parser("record-spawn")
     record_spawn_parser.add_argument("--action", required=True, type=Path)
     record_spawn_parser.add_argument("--run-plan", required=True, type=Path)
+    record_spawn_parser.add_argument("--request", required=True, type=Path)
     record_spawn_parser.add_argument("--events", required=True, type=Path)
     spawn_result = record_spawn_parser.add_mutually_exclusive_group(required=True)
     spawn_result.add_argument("--agent-id")
     spawn_result.add_argument("--failed", action="store_true")
+
+    correct_binding_parser = subparsers.add_parser("correct-agent-binding")
+    correct_binding_parser.add_argument("--action", required=True, type=Path)
+    correct_binding_parser.add_argument("--run-plan", required=True, type=Path)
+    correct_binding_parser.add_argument("--request", required=True, type=Path)
+    correct_binding_parser.add_argument("--events", required=True, type=Path)
+    correct_binding_parser.add_argument("--prior-agent-id", required=True)
+    correct_binding_parser.add_argument("--corrected-agent-id", required=True)
+    correct_binding_parser.add_argument(
+        "--supersedes-sequences",
+        required=True,
+        nargs=2,
+        type=int,
+        metavar=("HOST_RESULT_SEQUENCE", "REGISTRATION_SEQUENCE"),
+    )
 
     next_plan_parser = subparsers.add_parser("prepare-next-wave-plan")
     next_plan_parser.add_argument("dispatch", type=Path)
@@ -1461,6 +1625,12 @@ def main() -> int:
     try:
         if args.command == "append-event":
             record = _load_json_object(args.record, "causal record")
+            if record.get("event") == "agent_binding_corrected":
+                raise DriverBlocked(
+                    [
+                        "agent_binding_corrected requires the dedicated correct-agent-binding command"
+                    ]
+                )
             appended = append_causal_records(args.events, [record])
             summary = {
                 "status": "pass",
@@ -1486,6 +1656,7 @@ def main() -> int:
             event = record_spawn(
                 args.action,
                 args.run_plan,
+                args.request,
                 args.events,
                 None if args.failed else args.agent_id,
             )
@@ -1494,6 +1665,23 @@ def main() -> int:
                 "state": event["event"],
                 "action_id": event["action_id"],
                 "agent_id": event["agent_id"],
+            }
+        elif args.command == "correct-agent-binding":
+            event = correct_agent_binding(
+                args.action,
+                args.run_plan,
+                args.request,
+                args.events,
+                args.prior_agent_id,
+                args.corrected_agent_id,
+                args.supersedes_sequences,
+            )
+            summary = {
+                "status": "pass",
+                "state": event["event"],
+                "action_id": event["action_id"],
+                "agent_id": event["agent_id"],
+                "sequence": event["sequence"],
             }
         elif args.command == "prepare-next-wave-plan":
             run_plan = prepare_next_wave_plan(

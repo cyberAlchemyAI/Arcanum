@@ -140,7 +140,7 @@ or a proposed strategy, but it blocks registration and execution.
 
 ## Default Dispatch Form And Registrar
 
-The default form is the DomainSpec v0.7.0 shape: top-level `dispatch_id`,
+The default form is the DomainSpec v0.6.1 shape: top-level `dispatch_id`,
 `schema_version`, `dispatch_type`, `goal`, `context`, `max_loops`,
 `final_approver`, and `groups`; optional `meta`, `parent_dispatch_id`,
 `anti_bias_global`, `output_mode`, `working_folder`, `invoked_by`, and
@@ -148,11 +148,6 @@ The default form is the DomainSpec v0.7.0 shape: top-level `dispatch_id`,
 written as JSON flow columns inside the YAML row.
 
 Write the confirmed candidate beneath the governed temp root and register it:
-
-Every agent in a new candidate must have a non-null pool-backed `agent_name`.
-Its `initial_prompt` begins with `You are {agent_name}.`, then one blank line,
-then the bounded instructions. Confirmation binds that identity sentence as
-part of the exact sheet bytes.
 
 ```text
 node arcana/subagent-strategy/scripts/append-dispatch.cjs --consume .arcanum/runtime/subagents-strategy/<dispatch-id>.tmp.json
@@ -163,11 +158,6 @@ At termination, write a temporary close record containing `close_of`,
 then call the same command. Successful and idempotent appends consume the temp;
 validation or append failures preserve it for diagnosis.
 
-`agents_spawned` records `planned_total`, actual launched `total`,
-`not_launched`, the launched-agent `tree`, and `loops_used`. Its tree sums to
-`total`, while `total + not_launched` equals `planned_total`; a `resolved`
-close requires every planned agent to have launched.
-
 For native capability-bound execution, keep the richer Dispatch Spec document
 as separate runtime state and add:
 
@@ -175,9 +165,9 @@ as separate runtime state and add:
 {
   "subagent_strategy": {
     "registration": {
-      "schema_version": "arcanum.subagent-strategy-registration.v0.3",
+      "schema_version": "arcanum.subagent-strategy-registration.v0.2",
       "ledger": ".arcanum/observability/subagents-strategy/subagents-dispatch.yaml",
-      "sheet_schema_version": "0.7.0",
+      "sheet_schema_version": "0.6.1",
       "sheet_sha256": "<digest returned by --check>",
       "execution_projection_sha256": "<digest returned by native_dispatch_coordinator.py projection-digest>",
       "temporary_sheet": ".arcanum/runtime/subagents-strategy/<dispatch-id>.tmp.json",
@@ -187,10 +177,8 @@ as separate runtime state and add:
 }
 ```
 
-Each capability-bound role declares one `agents` entry per planned instance;
-each entry binds `agent_name`, the exact confirmed `initial_prompt`, and its own
-typed `briefing_binding`. `orchestrate compile` and `verify-registration` block
-until the ledger contains the matching identities and prompts and the temporary sheet is gone. After close append,
+`orchestrate compile` and `verify-registration` block until the ledger contains
+the matching dispatch row and the temporary sheet is gone. After close append,
 `verify-close` requires one later paired close row and a consumed close JSON.
 Use forward-slash project-relative paths on Windows and Linux.
 

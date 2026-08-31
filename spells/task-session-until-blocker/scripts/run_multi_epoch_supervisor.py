@@ -17,6 +17,7 @@ CONFIG_SCHEMA = SPELL_ROOT / "schemas" / "multi-epoch-supervisor-config.schema.j
 ACCEPTANCE_SCHEMA = (
     SPELL_ROOT / "schemas" / "finite-stream-execution-acceptance.schema.json"
 )
+ACCEPTED_DRIVER_PATH = SPELL_ROOT / "scripts" / "run_accepted_stream_driver.py"
 
 
 def _task_session_root() -> Path:
@@ -46,6 +47,11 @@ if FAST_SPEC is None or FAST_SPEC.loader is None:
     raise RuntimeError(f"cannot load {FAST_ENTRY_PATH}")
 FAST_ENTRY = importlib.util.module_from_spec(FAST_SPEC)
 FAST_SPEC.loader.exec_module(FAST_ENTRY)
+DRIVER_SPEC = importlib.util.spec_from_file_location("accepted_stream_driver", ACCEPTED_DRIVER_PATH)
+if DRIVER_SPEC is None or DRIVER_SPEC.loader is None:
+    raise RuntimeError(f"cannot load {ACCEPTED_DRIVER_PATH}")
+ACCEPTED_DRIVER = importlib.util.module_from_spec(DRIVER_SPEC)
+DRIVER_SPEC.loader.exec_module(ACCEPTED_DRIVER)
 
 
 def supervisor_block(code: str, claim: str) -> dict[str, Any]:
@@ -115,6 +121,10 @@ def accepted_stream_documents(
     chain_config = _load_bound_document(
         root, envelope["chain_config_ref"], "accepted chain config"
     )
+    if chain_config.get("frontier_binding_mode") != "accepted-policy-frontier":
+        raise ValueError(
+            "accepted stream lacks the accepted policy frontier binding mode"
+        )
     chain_errors = CHAIN.schema_errors(
         chain_config, CHAIN.CONFIG_SCHEMA, "accepted chain config"
     )
@@ -126,7 +136,6 @@ def accepted_stream_documents(
             "accepted chain preflight "
             f"{preflight_receipt['terminal_code']}: {preflight_receipt['claim']}"
         )
-
     acceptance = _load_bound_document(
         root, envelope["execution_acceptance_ref"], "stream acceptance"
     )
@@ -579,78 +588,36 @@ def supervise_accepted_stream(
     fast_entry_request_path: Path | None,
     fast_entry_receipt_path: Path | None,
 ) -> dict[str, Any]:
-    """Advance one accepted finite stream through one command surface."""
+    """Delegate accepted-stream orchestration to its single canonical owner."""
 
-    chain_config, manifest, _, _, _ = accepted_stream_documents(config, root)
-    transitions_dir, state = CHAIN.open_chain_state(chain_config, manifest, root)
-    if transition_path is not None:
-        transition_ref = exact_ref(root, transition_path)
-        transition = _load_bound_document(root, transition_ref, "chain transition")
-        prior_count = state["request_count"]
-        receipt, next_state = CHAIN.evaluate_transition(
-            chain_config, manifest, transition, state, root
+    envelope = config["accepted_stream"]
+    driver_request_ref = envelope.get("driver_request_ref")
+    if not isinstance(driver_request_ref, dict):
+        return supervisor_block(
+            "ACCEPTED_STREAM_DRIVER_REQUEST_REQUIRED",
+            "legacy supervisor orchestration is ineligible without an exact driver request",
         )
-        if next_state["request_count"] == prior_count + 1:
-            CHAIN.persist_transition(
-                transitions_dir, transition, receipt, next_state
-            )
-        state = next_state
-        if receipt["status"] == "BLOCK":
-            receipt.update(completed_epochs=len(state["visited"]))
-            return receipt
-    elif state["request_count"] > 0:
-        # A replay-safe status call is allowed after prior transitions.
-        pass
-
-    admission = CHAIN.admit_next_request(chain_config, manifest, state)
-    if admission["status"] == "COMPLETE":
-        return {
-            "status": "COMPLETE",
-            "terminal_code": "SUPERVISOR_COMPLETE",
-            "claim": "every accepted-stream unit has a separate joined Task Session and closeout",
-            "next_task_session_selector": None,
-            "next_fresh_epoch_unit": None,
-            "next_route": None,
-            "completed_epochs": len(state["visited"]),
-            "authority_effect": "none",
-        }
-    if admission["status"] != "READY":
-        admission.update(completed_epochs=len(state["visited"]))
-        return admission
-
-    expected_unit = admission["next_task_session_selector"]
-    if not state["visited"]:
-        request_ref = config["accepted_stream"]["initial_fast_entry_request_ref"]
-        receipt_ref = config["accepted_stream"]["initial_fast_entry_receipt_ref"]
-    else:
-        if (fast_entry_request_path is None) != (fast_entry_receipt_path is None):
-            return supervisor_block(
-                "FAST_ENTRY_PAIR_INCOMPLETE",
-                "both current fast-entry request and receipt are required",
-            )
-        if fast_entry_request_path is None:
-            result = {
-                "status": "READY",
-                "terminal_code": "FAST_ENTRY_INPUT_REQUIRED",
-                "claim": "the next unit needs a fresh deterministic fast-entry projection",
-                "next_task_session_selector": None,
-                "next_fresh_epoch_unit": expected_unit,
-                "next_route": "implementation-readiness:project-fast-entry",
-                "completed_epochs": len(state["visited"]),
-                "authorization_prompt_required": False,
-                "authority_effect": "none",
-            }
-            return result
-        request_ref = exact_ref(root, fast_entry_request_path)
-        receipt_ref = exact_ref(root, fast_entry_receipt_path)
-    return _accepted_fast_entry_result(
-        config,
-        root,
-        expected_unit=expected_unit,
-        visited=state["visited"],
-        request_ref=request_ref,
-        receipt_ref=receipt_ref,
-    )
+    if any(value is not None for value in (transition_path, fast_entry_request_path, fast_entry_receipt_path)):
+        return supervisor_block(
+            "LEGACY_ACCEPTED_STREAM_INPUT_REJECTED",
+            "accepted streams cannot consume legacy transition or fast-entry orchestration inputs",
+        )
+    request = _load_bound_document(root, driver_request_ref, "accepted-stream driver request")
+    receipt = ACCEPTED_DRIVER.run(request)
+    if receipt.get("status") == "blocked":
+        return supervisor_block("ACCEPTED_STREAM_DRIVER_BLOCKED", "canonical accepted-stream driver blocked")
+    return {
+        "status": "COMPLETE",
+        "terminal_code": "SUPERVISOR_COMPLETE",
+        "claim": "canonical accepted-stream driver completed the exact frozen frontier",
+        "next_task_session_selector": None,
+        "next_fresh_epoch_unit": None,
+        "next_route": None,
+        "completed_epochs": len(receipt["ordered_units"]),
+        "driver_receipt_digest": hashlib.sha256(json.dumps(receipt, sort_keys=True, separators=(",", ":")).encode()).hexdigest(),
+        "orchestration_owner": "task-session-until-blocker.accepted-stream-driver/v1",
+        "authority_effect": "none",
+    }
 
 
 def parse_args() -> argparse.Namespace:

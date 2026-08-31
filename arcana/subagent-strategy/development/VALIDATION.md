@@ -29,7 +29,7 @@
 - Stage-handoff readiness fixture: pass for `needs_feedback`, repair-owner
   routing, declared-edge enforcement, and preservation of downstream revision
   capacity.
-- Default registrar battery: pass (`107` cases) for strict v0.7.0 dispatch and
+- Default registrar battery: pass (`94` cases) for strict v0.6.1 dispatch and
   close validation, JSON-column YAML emission, structural self-check,
   grandfathering, idempotency, exact sheet digest, non-mutating `--check`,
   governed `--consume`, failure preservation, and temp-path containment.
@@ -58,7 +58,7 @@
 - Preserve one repaired research run where the type owner returns
   `needs_feedback`, the declared explorer route supplies the missing binding,
   and the rechecked handoff returns `ready`.
-- Prove one v0.7.0 confirmed dispatch row and one paired close row through the
+- Prove one v0.6.1 confirmed dispatch row and one paired close row through the
   deterministic registrar with both temporary JSON records consumed.
 - Import the eligible current per-topic JSON/JSONL lifecycle evidence into the
   central YAML ledger without rewriting or deleting historical sources.

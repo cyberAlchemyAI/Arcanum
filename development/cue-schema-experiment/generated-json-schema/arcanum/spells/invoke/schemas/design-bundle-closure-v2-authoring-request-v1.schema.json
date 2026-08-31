@@ -1,0 +1,82 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+        "\"/allOf/0\"": {
+            "type": "object",
+            "description": "Invoke CLI Authoring Request v1\n\nStage-bound authored values and explicit evidence selectors. Fixed fields,\nexact bytes, receipts, and authority effects are not authored here.",
+            "additionalProperties": false,
+            "properties": {
+                "$schema": {
+                    "$ref": "#/$defs/AbsURL"
+                },
+                "document": {
+                    "const": {}
+                },
+                "evidence_paths": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "kind": {
+                                "enum": [
+                                    "file",
+                                    "directory"
+                                ]
+                            },
+                            "path": {
+                                "type": "string"
+                            },
+                            "pointer": {
+                                "type": "string",
+                                "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"
+                            }
+                        },
+                        "required": [
+                            "path",
+                            "pointer"
+                        ]
+                    },
+                    "uniqueItems": true
+                },
+                "mode": {
+                    "enum": [
+                        "define",
+                        "design"
+                    ]
+                },
+                "schema_version": {
+                    "const": "invoke.cli-authoring-request.v1"
+                },
+                "stage": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": [
+                "$schema",
+                "document",
+                "evidence_paths",
+                "mode",
+                "schema_version",
+                "stage"
+            ]
+        },
+        "AbsURL": {
+            "type": "string"
+        }
+    },
+    "type": "object",
+    "properties": {
+        "$schema": {
+            "const": "https://arcanum.dev/schemas/invoke/design-bundle-closure-v2-authoring-request/v1"
+        },
+        "mode": {
+            "const": "design"
+        },
+        "stage": {
+            "const": "bundle-closure"
+        }
+    },
+    "$ref": "#/$defs/%22~1allOf~10%22"
+}

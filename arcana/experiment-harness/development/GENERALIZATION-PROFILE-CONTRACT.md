@@ -21,6 +21,12 @@ The lifecycle authority owns:
 - which Quality Bar, Anti-Patterns, and output contract define success,
 - whether the evidence supports promotion, hold, or revision.
 
+An optional repository-owned semantic validator may be declared by a profile.
+It receives each configured machine-readable evidence artifact plus an exact
+oracle and must fail closed. Harness mechanics may relay its receipt and exit
+status, but may not replace the lifecycle owner's semantic oracle with heading,
+keyword, or file-presence checks.
+
 ## Command Surface
 
 Backward-compatible form:
@@ -216,33 +222,49 @@ Validation focus:
 
 ### `invoke-live`
 
-Use when Invoke needs live promotion evidence for its own define, design, composed define-to-design, and observability regimes.
+Use when Invoke needs live evidence for define, design, plan, composed handoffs,
+semantic-intent completeness, and observability regimes.
 
 Required modes:
 
 - define,
 - design,
+- plan,
 - define-design,
+- define-design-plan,
+- semantic-intent low, medium, and complex,
 - observability.
 
 Prompt set:
 
 - `invoke-define-live-pass`,
 - `invoke-design-live-pass`,
+- `invoke-plan-live-pass`,
 - `invoke-define-design-live-pass`,
-- `invoke-define-live-pass`.
+- `invoke-define-design-plan-live-pass`,
+- `invoke-semantic-intent-low`,
+- `invoke-semantic-intent-medium`,
+- `invoke-semantic-intent-complex`,
+- `invoke-observability-live-pass`.
 
 Regime set:
 
 - `LIVE-DEFINE-001`,
 - `LIVE-DESIGN-001`,
+- `LIVE-PLAN-001`,
 - `LIVE-DEFINE-DESIGN-001`,
+- `LIVE-DEFINE-DESIGN-PLAN-001`,
+- `LIVE-SEMANTIC-INTENT-LOW-001`,
+- `LIVE-SEMANTIC-INTENT-MEDIUM-001`,
+- `LIVE-SEMANTIC-INTENT-COMPLEX-001`,
 - `LIVE-OBSERVABILITY-001`.
 
 Validation focus:
 
 - Invoke output contract is represented,
 - define and design authority boundaries are visible,
+- plan consumes admitted design without executing work,
+- parsed artifacts cover independently enumerated semantic obligations,
 - live loop reports pass without mock output,
 - observability records completed live evidence.
 

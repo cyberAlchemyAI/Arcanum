@@ -6,7 +6,7 @@ Validate that `invoke` experiment evidence uses Quality Bar and Anti-Pattern che
 
 ## Quality Bar pass output
 
-- Define output includes intent, scope, missing inputs, glossary handling, define transport, phase status, and next route.
+- Define output includes intent, scope, missing inputs, a machine candidate definition registry, deterministic views, define transport, phase status, and next route.
 - Design output includes approved source contracts, six design views, risks, dependency/interface notes, glossary consistency, handoff boundaries, phase status, and next route.
 - Integration output consumes define artifacts in design without inventing upstream approval.
 
@@ -31,3 +31,4 @@ Validate that `invoke` experiment evidence uses Quality Bar and Anti-Pattern che
 - Design treats missing contracts as approved.
 - Design silently implements deferred `plan` or `full` behavior.
 - Design mutates downstream spell or sigil contracts instead of handing off to `spellcraft` or `sigil-development`.
+- Define silently promotes a candidate definition or treats a generated glossary view as its authority source.

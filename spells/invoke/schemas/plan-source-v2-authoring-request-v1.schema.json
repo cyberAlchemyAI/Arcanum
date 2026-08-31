@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/plan-source-v2-authoring-request/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "mode", "stage", "document", "evidence_paths"],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/plan-source-v2-authoring-request/v1"},
+    "schema_version": {"const": "invoke.plan-source-v2-authoring-request.v1"},
+    "mode": {"const": "plan"},
+    "stage": {"const": "source"},
+    "document": {"type": "object"},
+    "evidence_paths": {
+      "type": "array", "minItems": 2, "maxItems": 2,
+      "items": {"type": "object", "additionalProperties": false, "required": ["pointer", "path"], "properties": {"pointer": {"enum": ["/design_binding/stage_receipt", "/design_binding/admission_receipt"]}, "path": {"type": "string", "minLength": 1}, "kind": {"const": "file"}}}
+    }
+  }
+}

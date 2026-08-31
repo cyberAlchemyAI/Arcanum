@@ -1,0 +1,17 @@
+{
+  "schema_version": "arcanum.cue_schema_experiment.stressor_cases.v1",
+  "definition": "#DistillW2Stressor",
+  "expected_case_count": 10,
+  "cases": [
+    {"case_id": "stressor-valid-complete", "path": "fixtures/distill-stressor/valid.json", "expected_valid": true},
+    {"case_id": "stressor-valid-minimal-source", "path": "fixtures/distill-stressor/minimal-source.json", "expected_valid": true},
+    {"case_id": "stressor-invalid-activation", "base": "fixtures/distill-stressor/valid.json", "operation": "remove", "pointer": "/technique/activation/predicates/1", "expected_valid": false},
+    {"case_id": "stressor-invalid-emitted-tag", "base": "fixtures/distill-stressor/valid.json", "operation": "remove", "pointer": "/technique/emits/violations/item_type", "expected_valid": false},
+    {"case_id": "stressor-invalid-failure-action", "base": "fixtures/distill-stressor/valid.json", "operation": "set", "pointer": "/technique/failure_actions/0/kind", "value": "decide", "expected_valid": false},
+    {"case_id": "stressor-invalid-role-step", "base": "fixtures/distill-stressor/valid.json", "operation": "set", "pointer": "/mode/role_program/0/sequence", "value": 0, "expected_valid": false},
+    {"case_id": "stressor-invalid-technique-state", "base": "fixtures/distill-stressor/valid.json", "operation": "set", "pointer": "/mode/technique_policy/0/state", "value": "optional", "expected_valid": false},
+    {"case_id": "stressor-invalid-empty-gates", "base": "fixtures/distill-stressor/valid.json", "operation": "set", "pointer": "/mode/human_gate_policy/gates", "value": [], "expected_valid": false},
+    {"case_id": "stressor-invalid-disabled-pitch-dimensions", "base": "fixtures/distill-stressor/minimal-source.json", "operation": "set", "pointer": "/mode/pitch_off/dimensions", "value": ["coherence"], "expected_valid": false},
+    {"case_id": "stressor-invalid-source-field", "base": "fixtures/distill-stressor/minimal-source.json", "operation": "set", "pointer": "/source/verdict", "value": "pass", "expected_valid": false}
+  ]
+}

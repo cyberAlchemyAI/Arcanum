@@ -25,6 +25,8 @@ INVOKE_DIR = Path(__file__).resolve().parents[1]
 SCRIPT = INVOKE_DIR / "scripts" / "validate_define_semantic_closure.py"
 CONTEXT_SCHEMA = INVOKE_DIR / "schemas" / "define-semantic-context-v1.schema.json"
 RECEIPT_SCHEMA = INVOKE_DIR / "schemas" / "define-semantic-closure-receipt-v1.schema.json"
+CONTEXT_SCHEMA_V2 = INVOKE_DIR / "schemas" / "define-semantic-context-v2.schema.json"
+RECEIPT_SCHEMA_V2 = INVOKE_DIR / "schemas" / "define-semantic-closure-receipt-v2.schema.json"
 
 VALIDATOR_SPEC = importlib.util.spec_from_file_location("define_semantic_closure_validator", SCRIPT)
 assert VALIDATOR_SPEC is not None and VALIDATOR_SPEC.loader is not None
@@ -258,6 +260,101 @@ Specialize contract as feature contract.
     def write_context(self) -> None:
         write_json(self.context_path, self.context)
 
+    def upgrade_to_v2(self) -> None:
+        """Upgrade the real repository fixture to the additive intent contract."""
+
+        self.context_schema.write_bytes(CONTEXT_SCHEMA_V2.read_bytes())
+        self.receipt_schema.write_bytes(RECEIPT_SCHEMA_V2.read_bytes())
+        self.context["$schema"] = "https://arcanum.dev/schemas/invoke/define-semantic-context/v2"
+        self.context["schema_version"] = "invoke.define-semantic-context.v2"
+        self.context["discovery_contract"] = {
+            "profile": "semantic-surface-v2",
+            "claim_scope": "configured-roots-complete",
+            "registry_roots": [
+                {
+                    "root_id": "root:public-registries",
+                    "path": "public",
+                    "globs": [
+                        "**/DEFINITIONS.md",
+                        "**/DEFINITIONS-INDEX.md",
+                        "**/DEFINITIONS.json",
+                        "**/GLOSSARY.md",
+                    ],
+                    "visibility": "public",
+                }
+            ],
+            "consumer_roots": [
+                {
+                    "root_id": "root:public-consumers",
+                    "path": "public",
+                    "globs": ["consumer/*.md"],
+                    "visibility": "public",
+                }
+            ],
+        }
+        evidence_source_id = "intent-source:fixture-discovery"
+        obligations = []
+        for probe in self.context["concept_probes"]:
+            obligation_id = f"obligation:{probe['probe_id'].split(':', 1)[1]}"
+            probe["obligation_ids"] = [obligation_id]
+            obligations.append(
+                {
+                    "obligation_id": obligation_id,
+                    "kind": "concept",
+                    "statement": probe["intent"],
+                    "status": "covered",
+                    "evidence_source_ids": [evidence_source_id],
+                    "probe_ids": [probe["probe_id"]],
+                    "relationship": None,
+                    "boundary": None,
+                    "rationale": "The target objective requires this concept.",
+                }
+            )
+        represented = [item["obligation_id"] for item in obligations]
+        self.context["intent_coverage"] = {
+            "claim_ceiling": "enumerated-semantic-obligations",
+            "evidence_sources": [
+                {
+                    "source_id": evidence_source_id,
+                    "source_class": "current-intent",
+                    "source_ref": self.ref(
+                        "public/discovery.md", "markdown", "heading", "Purpose"
+                    ),
+                    "semantic_disposition": "retain",
+                    "authority_disposition": "none",
+                    "rationale": "The discovery artifact states the current bounded objective.",
+                }
+            ],
+            "facets": [
+                {
+                    "facet_id": "subject",
+                    "status": "represented",
+                    "obligation_ids": represented,
+                    "evidence_source_ids": [evidence_source_id],
+                    "rationale": "The three probed concepts define the fixture subject.",
+                },
+                *[
+                    {
+                        "facet_id": facet_id,
+                        "status": "not-applicable",
+                        "obligation_ids": [],
+                        "evidence_source_ids": [evidence_source_id],
+                        "rationale": "This bounded vocabulary fixture does not require this facet.",
+                    }
+                    for facet_id in (
+                        "parts",
+                        "relationships",
+                        "evidence-state",
+                        "validation-gates",
+                        "execution-handoff",
+                        "authority-boundary",
+                    )
+                ],
+            ],
+            "obligations": obligations,
+        }
+        self.write_context()
+
     def refresh_path(self, relative: str) -> None:
         data = (self.root / relative).read_bytes()
         digest = hashlib.sha256(data).hexdigest()
@@ -313,53 +410,6 @@ class DefineSemanticClosureValidatorTest(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory()
         return temporary, RepositoryFixture(Path(temporary.name))
 
-    def test_windows_path_canonicalization_preserves_trusted_spelling(self) -> None:
-        actual = "Arcanum/spells/invoke/schemas/context.schema.json"
-        bindings = [
-            (
-                "arcanum/spells/invoke/examples/define-v3",
-                "Arcanum/spells/invoke/examples/define-v3",
-            )
-        ]
-        canonical = VALIDATOR_MODULE.canonical_repo_relative(
-            actual,
-            bindings,
-            case_insensitive=True,
-        )
-        self.assertEqual("arcanum/spells/invoke/schemas/context.schema.json", canonical)
-
-    def test_posix_path_canonicalization_keeps_case_distinct(self) -> None:
-        actual = "Arcanum/spells/invoke/schemas/context.schema.json"
-        bindings = [
-            (
-                "arcanum/spells/invoke/examples/define-v3",
-                "Arcanum/spells/invoke/examples/define-v3",
-            )
-        ]
-        canonical = VALIDATOR_MODULE.canonical_repo_relative(
-            actual,
-            bindings,
-            case_insensitive=False,
-        )
-        self.assertEqual(actual, canonical)
-
-    @unittest.skipUnless(sys.platform == "win32", "Windows case-insensitive path regression")
-    def test_checked_example_replays_when_checkout_case_differs(self) -> None:
-        checkout_root = INVOKE_DIR.parents[1]
-        example = INVOKE_DIR / "examples" / "define-v3"
-        replayed = VALIDATOR_MODULE.evaluate_context(
-            context_path=example / "DEFINE-SEMANTIC-CONTEXT.json",
-            repository_root=checkout_root.parent,
-            context_schema_path=CONTEXT_SCHEMA,
-            receipt_schema_path=RECEIPT_SCHEMA,
-            discovery_roots=["arcanum/spells/invoke/examples/define-v3"],
-            public_roots=["arcanum"],
-        )
-        checked = json.loads(
-            (example / "DEFINE-SEMANTIC-CLOSURE-RECEIPT.json").read_text(encoding="utf-8")
-        )
-        self.assertEqual(checked, replayed)
-
     def assert_receipt(self, fixture: RepositoryFixture, output_name: str = "receipt.json") -> dict[str, Any]:
         receipt = json.loads((fixture.root / output_name).read_text(encoding="utf-8"))
         schema = json.loads(fixture.receipt_schema.read_text(encoding="utf-8"))
@@ -392,6 +442,107 @@ class DefineSemanticClosureValidatorTest(unittest.TestCase):
             self.assertEqual(proposal["claimed_matches"], result["matches"])
             self.assertEqual(proposal["proposed_basis_ids"], result["basis_ids"])
             self.assertEqual(proposal["assessment_rationale"], result["rationale"])
+
+    def test_v2_intent_complete_context_is_ready_and_deterministic(self) -> None:
+        temporary, fixture = self.fixture()
+        self.addCleanup(temporary.cleanup)
+        fixture.upgrade_to_v2()
+        first = fixture.run("one.json")
+        second = fixture.run("two.json")
+        self.assertEqual(0, first.returncode, first.stderr)
+        self.assertEqual(0, second.returncode, second.stderr)
+        self.assertEqual(
+            (fixture.root / "one.json").read_bytes(),
+            (fixture.root / "two.json").read_bytes(),
+        )
+        receipt = self.assert_receipt(fixture, "one.json")
+        self.assertEqual("invoke.define-semantic-closure-receipt.v2", receipt["schema_version"])
+        self.assertEqual("invoke.validate-define-semantic-closure.v2", receipt["validator"]["identity"])
+        self.assertEqual("ready-for-define", receipt["outcome"])
+        self.assertEqual(11, len(receipt["checks"]))
+        self.assertTrue(all(item["status"] == "pass" for item in receipt["checks"]))
+        self.assertEqual(
+            {
+                "total": 3,
+                "covered": 3,
+                "out_of_scope": 0,
+                "uncovered": 0,
+                "concept": 3,
+                "relationship": 0,
+                "boundary": 0,
+            },
+            receipt["intent_coverage"]["summary"],
+        )
+
+    def test_v2_uncovered_obligation_blocks(self) -> None:
+        temporary, fixture = self.fixture()
+        self.addCleanup(temporary.cleanup)
+        fixture.upgrade_to_v2()
+        obligation = fixture.context["intent_coverage"]["obligations"][0]
+        obligation["status"] = "uncovered"
+        obligation["probe_ids"] = []
+        fixture.write_context()
+        result = fixture.run()
+        self.assertEqual(1, result.returncode, result.stderr)
+        receipt = self.assert_receipt(fixture)
+        codes = {item["code"] for item in receipt["blockers"]}
+        self.assertIn("INTENT_OBLIGATION_UNCOVERED", codes)
+
+    def test_v2_orphan_probe_blocks_declared_probe_integrity(self) -> None:
+        temporary, fixture = self.fixture()
+        self.addCleanup(temporary.cleanup)
+        fixture.upgrade_to_v2()
+        obligation = fixture.context["intent_coverage"]["obligations"][0]
+        obligation["status"] = "out-of-scope"
+        obligation["probe_ids"] = []
+        fixture.write_context()
+        result = fixture.run()
+        self.assertEqual(1, result.returncode, result.stderr)
+        receipt = self.assert_receipt(fixture)
+        codes = {item["code"] for item in receipt["blockers"]}
+        self.assertIn("INTENT_PROBE_ORPHANED", codes)
+        check = next(
+            item
+            for item in receipt["checks"]
+            if item["check_id"] == "check:declared-probe-integrity"
+        )
+        self.assertEqual("block", check["status"])
+
+    def test_v2_historical_source_requires_separate_dispositions(self) -> None:
+        temporary, fixture = self.fixture()
+        self.addCleanup(temporary.cleanup)
+        fixture.upgrade_to_v2()
+        source = fixture.context["intent_coverage"]["evidence_sources"][0]
+        source["source_class"] = "historical"
+        source["semantic_disposition"] = "unspecified"
+        source["authority_disposition"] = "unspecified"
+        fixture.write_context()
+        result = fixture.run()
+        self.assertEqual(1, result.returncode, result.stderr)
+        receipt = self.assert_receipt(fixture)
+        codes = {item["code"] for item in receipt["blockers"]}
+        self.assertIn("HISTORICAL_EVIDENCE_DISPOSITION_MISSING", codes)
+
+    def test_v2_consumer_topology_is_not_filtered_by_probe_labels(self) -> None:
+        temporary, fixture = self.fixture()
+        self.addCleanup(temporary.cleanup)
+        fixture.upgrade_to_v2()
+        hidden = fixture.root / "public/consumer/HIDDEN.md"
+        hidden.write_text(
+            "# Downstream Usage\n\nThis artifact deliberately omits every selected probe label.\n",
+            encoding="utf-8",
+        )
+        result = fixture.run()
+        self.assertEqual(1, result.returncode, result.stderr)
+        receipt = self.assert_receipt(fixture)
+        codes = {item["code"] for item in receipt["blockers"]}
+        self.assertIn("CONSUMER_COVERAGE_MISMATCH", codes)
+        discovered = {
+            path
+            for snapshot in receipt["discovery_snapshots"]
+            for path in snapshot["consumer_paths"]
+        }
+        self.assertIn("public/consumer/HIDDEN.md", discovered)
 
     def test_in_memory_api_is_byte_identical_to_cli_receipt(self) -> None:
         temporary, fixture = self.fixture()
@@ -808,12 +959,7 @@ class DefineSemanticClosureValidatorTest(unittest.TestCase):
         self.addCleanup(outside.unlink, missing_ok=True)
         consumer = fixture.root / "public/consumer/SPEC.md"
         consumer.unlink()
-        try:
-            consumer.symlink_to(outside)
-        except OSError as exc:
-            if sys.platform == "win32" and getattr(exc, "winerror", None) == 1314:
-                self.skipTest("Windows process lacks symbolic-link creation privilege")
-            raise
+        consumer.symlink_to(outside)
         fixture.refresh_path("public/consumer/SPEC.md")
         result = fixture.run()
         self.assertEqual(1, result.returncode, result.stderr)

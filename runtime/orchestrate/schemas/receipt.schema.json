@@ -8,7 +8,7 @@
     "capability_ref", "agent_id", "status", "artifacts", "validation", "blockers", "started_at", "finished_at"
   ],
   "properties": {
-    "schema_version": {"const": "arcanum.native-dispatch-runner.receipt.v0.1"},
+    "schema_version": {"enum": ["arcanum.native-dispatch-runner.receipt.v0.1", "arcanum.native-dispatch-runner.receipt.v0.2"]},
     "action_id": {"type": "string", "pattern": "^spawn-[0-9]{4}$"},
     "dispatch_id": {"type": "string", "minLength": 1},
     "run_id": {"type": "string", "minLength": 1},
@@ -22,7 +22,26 @@
     "validation": {"enum": ["pass", "fail", "block"]},
     "blockers": {"type": "array", "items": {"type": "string"}},
     "started_at": {"type": "string", "minLength": 1},
-    "finished_at": {"type": "string", "minLength": 1}
+    "finished_at": {"type": "string", "minLength": 1},
+    "domain_gate": {
+      "type": "object",
+      "required": ["source_field", "value"],
+      "properties": {
+        "source_field": {"type": "string", "minLength": 1},
+        "value": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
   },
+  "allOf": [
+    {
+      "if": {"properties": {"schema_version": {"const": "arcanum.native-dispatch-runner.receipt.v0.2"}}},
+      "then": {
+        "required": ["domain_gate"],
+        "properties": {"artifacts": {"minItems": 1, "uniqueItems": true}}
+      },
+      "else": {"not": {"required": ["domain_gate"]}}
+    }
+  ],
   "additionalProperties": false
 }

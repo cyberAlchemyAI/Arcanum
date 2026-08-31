@@ -1,0 +1,201 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "authority_bindings": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "canonical_authority_refs": true,
+                "derived_projection_refs": true,
+                "execution_byte_baselines": true,
+                "semantic_bindings": true
+            },
+            "required": [
+                "canonical_authority_refs",
+                "derived_projection_refs",
+                "execution_byte_baselines",
+                "semantic_bindings"
+            ]
+        },
+        "authority_effect": {
+            "const": "none"
+        },
+        "canonical_plan_graph": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "finite_frontier": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                },
+                "units": {
+                    "type": "array",
+                    "prefixItems": [
+                        true
+                    ],
+                    "minItems": 1
+                }
+            },
+            "required": [
+                "finite_frontier",
+                "units"
+            ]
+        },
+        "classifier_version": {
+            "type": "string",
+            "minLength": 1
+        },
+        "closeout_bindings": {
+            "type": "array",
+            "prefixItems": [
+                true
+            ],
+            "minItems": 1
+        },
+        "closure_receipt_refs": {
+            "type": "array",
+            "prefixItems": [
+                true
+            ],
+            "minItems": 1
+        },
+        "continuity_projection": {
+            "const": {}
+        },
+        "epoch_binding": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "approval_status": {
+                    "const": "unapproved"
+                },
+                "approved_frontier_ref": {
+                    "type": "array",
+                    "prefixItems": [
+                        true
+                    ],
+                    "minItems": 1
+                },
+                "audit_projection_digest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "canonical_semantic_digest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "decision_gate_approval_receipt_ref": {
+                    "const": {}
+                },
+                "epoch_id": {
+                    "type": "string",
+                    "pattern": "^epoch-[a-f0-9]{24}$"
+                },
+                "risk_policy_ref": {
+                    "const": {}
+                },
+                "run_budget": {
+                    "const": {}
+                },
+                "source_snapshot_digest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                }
+            },
+            "required": [
+                "approval_status",
+                "approved_frontier_ref",
+                "audit_projection_digest",
+                "canonical_semantic_digest",
+                "decision_gate_approval_receipt_ref",
+                "epoch_id",
+                "risk_policy_ref",
+                "run_budget",
+                "source_snapshot_digest"
+            ]
+        },
+        "evidence_ceiling": {
+            "const": "frozen-input-contractual-readiness"
+        },
+        "execution_bindings": {
+            "type": "array",
+            "prefixItems": [
+                true
+            ],
+            "minItems": 1
+        },
+        "lifecycle_status_refs": {
+            "const": {}
+        },
+        "manifest_id": {
+            "type": "string",
+            "pattern": "^oem-[a-f0-9]{24}$"
+        },
+        "mutation_ready": {
+            "const": false
+        },
+        "objective_ref": {
+            "const": {}
+        },
+        "receipt_bindings": {
+            "const": {}
+        },
+        "runtime_binding": {
+            "const": {}
+        },
+        "schema_version": {
+            "const": "1.0.0"
+        },
+        "selected_unit": {
+            "type": "null"
+        },
+        "semantic_component_digests": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+            }
+        },
+        "status_receipt_refs": {
+            "const": {}
+        }
+    },
+    "required": [
+        "authority_bindings",
+        "authority_effect",
+        "canonical_plan_graph",
+        "classifier_version",
+        "closeout_bindings",
+        "closure_receipt_refs",
+        "continuity_projection",
+        "epoch_binding",
+        "evidence_ceiling",
+        "execution_bindings",
+        "lifecycle_status_refs",
+        "manifest_id",
+        "mutation_ready",
+        "objective_ref",
+        "receipt_bindings",
+        "runtime_binding",
+        "schema_version",
+        "selected_unit",
+        "semantic_component_digests",
+        "status_receipt_refs"
+    ]
+}

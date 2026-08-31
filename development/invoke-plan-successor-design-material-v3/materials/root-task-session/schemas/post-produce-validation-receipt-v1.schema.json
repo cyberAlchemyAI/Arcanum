@@ -1,0 +1,15 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://arcanum.dev/schemas/task-session/post-produce-validation-receipt/1-0-0",
+  "type":"object","additionalProperties":false,
+  "required":["schema_version","unit_id","result","actual_postimages","commands","undeclared_outputs","authority_effect"],
+  "properties":{
+    "schema_version":{"const":"task-session.post-produce-validation-receipt.v1"},
+    "unit_id":{"type":"string","minLength":1},
+    "result":{"enum":["pass","block"]},
+    "actual_postimages":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["path","sha256","size_bytes"],"properties":{"path":{"type":"string"},"sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"},"size_bytes":{"type":"integer","minimum":0}}}},
+    "commands":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["argv","exit_code"],"properties":{"argv":{"type":"array","items":{"type":"string"}},"exit_code":{"type":"integer"}}}},
+    "undeclared_outputs":{"type":"array","items":{"type":"string"}},
+    "authority_effect":{"const":"none"}
+  }
+}

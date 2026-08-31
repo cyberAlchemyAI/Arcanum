@@ -1,0 +1,386 @@
+{
+  "schema_version": "arcanum.distill-v2-wire-api-decision-addendum.v1",
+  "addendum_id": "DISTILL-V2-WIRE-API-DECISION-ADDENDUM-2026-08-27",
+  "target": "arcanum/arcana/distill v2 public machine wire and schema API",
+  "status": "candidate-pending-independent-review",
+  "decided_at": "2026-08-27",
+  "decision_source": "explicit user approval of the recommended D11-D17 selections followed by exact D14 and D17 confirmation in the active conversation",
+  "authority_effect": "none",
+  "owner_confirmation_ref": {
+    "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-WIRE-API-OWNER-CONFIRMATION.json",
+    "sha256": "1b6047ba61dc204422205a99c53c82966141e76f0d20cf8d16b430fb30ef647f",
+    "size_bytes": 2143
+  },
+  "parent_decision_ref": {
+    "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-DECISION-RECORD.json",
+    "sha256": "2183eb31d63b578250e4a51b56fba8a451e01dcbab474191cb3d58b5f6613094",
+    "size_bytes": 5284
+  },
+  "blocked_contract_context": {
+    "contract_ref": {
+      "path": "arcana/distill/development/distill-v2-machine-contract-plan/direct-implementation/SWU-DV2-001-DIRECT-CONTRACT.json",
+      "sha256": "f45e29506ed2206d7497e75fbbd5856eeacf8450f593e93d5302cc8dedb96044",
+      "size_bytes": 21094
+    },
+    "review_004_ref": {
+      "path": "arcana/distill/development/distill-v2-machine-contract-plan/direct-implementation/SWU-DV2-001-DIRECT-CONTRACT-REVIEW-004.json",
+      "sha256": "d261b11cda7ca7126093ee1bfe60aef9463fef2d9bcc1983f71b028ee1d2948f",
+      "size_bytes": 4732
+    },
+    "review_004_safe_execution_claim_superseded_by_active_adversarial_review": true,
+    "implementation_authorized": false
+  },
+  "convention_evidence": [
+    {
+      "path": "arcana/decision-gate/schemas/option-admissibility-request.schema.json",
+      "sha256": "09b5c1d73bbbc2066521adabce9652dc4364be418f67e0ae89152a5a8062e7eb",
+      "size_bytes": 2459
+    },
+    {
+      "path": "arcana/decision-gate/schemas/option-admissibility-receipt.schema.json",
+      "sha256": "02532b31a88dee804710710d1c522b3a0eedc72d65a06b9f65c7851167b395e0",
+      "size_bytes": 1838
+    },
+    {
+      "path": "arcana/task-session/schemas/execution-ticket.schema.json",
+      "sha256": "30aa2c44298fcc45e04689e63e14655f054b964ec2559d911591af5f64c39655",
+      "size_bytes": 16211
+    }
+  ],
+  "source_evidence": [
+    {
+      "path": "arcana/distill/development/techniques/README.md",
+      "sha256": "10a5cf4a45bea0cce95b59002871fb4560ae97519637a5a7c7d70096eac32ec6",
+      "size_bytes": 5204
+    },
+    {
+      "path": "arcana/distill/development/MODE-TECHNIQUE-SURFACE-DESIGN.md",
+      "sha256": "5316dbe7067a729ae69776370303cfe9f8556a5b9c1709a3dcd9e96dc72c82c6",
+      "size_bytes": 20169
+    },
+    {
+      "path": "arcana/distill/development/techniques/abstraction-level-guard.md",
+      "sha256": "24aac15eda45b0de2b5e1864efc7b7d13a5935169d60ca2dd4be22b385a39569",
+      "size_bytes": 1669
+    }
+  ],
+  "selections": {
+    "D11_machine_wire": {
+      "selected_option": "SNAKE-CASE-CANONICAL-WIRE",
+      "canonical_rule": "lowercase snake_case canonical machine tokens; source prose labels are descriptive mappings only; historical or alternate machine forms remain separately versioned adapter inputs",
+      "exact_mappings": {
+        "mode mechanic": "mode_mechanic",
+        "always-on": "always_on",
+        "concept mapping": "concept_mapping",
+        "pitch-off": "pitch_off",
+        "final synthesis": "final_synthesis",
+        "mode-required": "mode_required",
+        "risk-required": "risk_required",
+        "user-requested": "user_requested",
+        "skip-with-reason": "skip_with_reason",
+        "skipped-with-reason": "skipped_with_reason",
+        "downgraded-to-flag": "downgraded_to_flag",
+        "downgraded-to-block": "downgraded_to_block",
+        "contested optimization": "contested_optimization",
+        "no justified winner": "no_justified_winner",
+        "frame-expiry": "frame_expiry",
+        "premortem requirement": "premortem_requirement",
+        "route recommendation": "route_recommendation",
+        "value/constraint": "value_constraint",
+        "workflow/process": "workflow_process",
+        "policy/rule": "policy_rule"
+      }
+    },
+    "D12_cross_level_confusion": {
+      "selected_option": "BOOLEAN-CROSS-LEVEL-CONFUSION",
+      "canonical_type": "boolean",
+      "prose_mapping": {
+        "yes": true,
+        "no": false
+      },
+      "prose_strings_accepted_by_v2_writers": false
+    },
+    "D13_technique_collections": {
+      "selected_option": "PLURAL-ARRAY-COLLECTIONS",
+      "properties": {
+        "phases": {
+          "type": "array",
+          "min_items": 1,
+          "unique_items": true
+        },
+        "hooks": {
+          "type": "array",
+          "min_items": 1,
+          "unique_items": true
+        }
+      },
+      "ordering_semantics": "canonical_lifecycle_order",
+      "canonical_phase_order": [
+        "setup",
+        "concept_mapping",
+        "proposal",
+        "balance",
+        "closure",
+        "pitch_off",
+        "final_synthesis",
+        "handoff"
+      ],
+      "canonical_hook_order": [
+        "after_intent_confirmation",
+        "before_layer_split",
+        "after_proposer_pass",
+        "after_balancer_pass",
+        "before_accept_split",
+        "before_pitch_off",
+        "before_verdict",
+        "after_verdict"
+      ],
+      "instance_subset_rule": "members form a unique non-empty subset and preserve their relative order from the canonical lifecycle list; arbitrary or lexicographically sorted order is invalid",
+      "singular_phase_or_hook_properties_allowed": false,
+      "delimited_string_collections_allowed": false
+    },
+    "D14_schema_identity": {
+      "selected_option": "ARCANUM-DEV-SEMVER-IDS",
+      "id_template": "https://arcanum.dev/schemas/distill/{hyphenated_artifact}/2-0-0",
+      "local_definition_fragment_template": "#/$defs/{snake_case_definition}",
+      "cross_schema_ref_template": "{target_schema_id}#/$defs/{snake_case_definition}",
+      "exact_identities": {
+        "common": {
+          "$id": "https://arcanum.dev/schemas/distill/common/2-0-0",
+          "schema_version": "distill.common.v2"
+        },
+        "mode_spec": {
+          "$id": "https://arcanum.dev/schemas/distill/mode-spec/2-0-0",
+          "schema_version": "distill.mode_spec.v2"
+        },
+        "technique_spec": {
+          "$id": "https://arcanum.dev/schemas/distill/technique-spec/2-0-0",
+          "schema_version": "distill.technique_spec.v2"
+        },
+        "profile": {
+          "$id": "https://arcanum.dev/schemas/distill/profile/2-0-0",
+          "schema_version": "distill.profile.v2"
+        },
+        "source": {
+          "$id": "https://arcanum.dev/schemas/distill/source/2-0-0",
+          "schema_version": "distill.source.v2"
+        },
+        "trace_event": {
+          "$id": "https://arcanum.dev/schemas/distill/trace-event/2-0-0",
+          "schema_version": "distill.trace_event.v2"
+        },
+        "result": {
+          "$id": "https://arcanum.dev/schemas/distill/result/2-0-0",
+          "schema_version": "distill.result.v2"
+        },
+        "stage_receipt": {
+          "$id": "https://arcanum.dev/schemas/distill/stage-receipt/2-0-0",
+          "schema_version": "distill.stage_receipt.v2"
+        }
+      }
+    },
+    "D15_schema_version": {
+      "selected_option": "PER-ARTIFACT-SCHEMA-VERSIONS",
+      "version_template": "distill.{snake_case_artifact}.v2",
+      "exact_versions": {
+        "common": "distill.common.v2",
+        "mode_spec": "distill.mode_spec.v2",
+        "technique_spec": "distill.technique_spec.v2",
+        "profile": "distill.profile.v2",
+        "source": "distill.source.v2",
+        "trace_event": "distill.trace_event.v2",
+        "result": "distill.result.v2",
+        "stage_receipt": "distill.stage_receipt.v2"
+      }
+    },
+    "D16_identifier_grammar": {
+      "selected_option": "STRICT-LOWER-SNAKE-IDENTIFIERS",
+      "lexical_pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*(?![\\s\\S])",
+      "governed_semantic_class": "canonical_identifier",
+      "applies_to": [
+        "mode_id",
+        "technique_id",
+        "profile_id",
+        "source_id",
+        "run_id",
+        "track_id",
+        "hook_id",
+        "parent_run_id",
+        "parent_source_id",
+        "event_id",
+        "unit_or_layer_id",
+        "selected_unit_id",
+        "producer_id",
+        "finalizer_id"
+      ],
+      "application_rule": "each listed field, when present in a Distill v2 artifact, must reference the common canonical_identifier definition; a new Distill-owned identifier field requires an explicit addition to this inventory before implementation",
+      "excludes": [
+        "$id and $ref URIs",
+        "schema_version constants",
+        "repository paths",
+        "SHA-256 digests",
+        "external runtime, agent, tool, or evidence identifiers",
+        "user-authored prose"
+      ],
+      "rules": [
+        "lowercase ASCII letters and digits only",
+        "first character is a lowercase letter",
+        "single underscores separate non-empty segments",
+        "leading, trailing, and consecutive underscores are prohibited"
+      ]
+    },
+    "D17_utc_timestamp": {
+      "selected_option": "UTC-Z-SECOND-PRECISION",
+      "lexical_form": "YYYY-MM-DDTHH:MM:SSZ",
+      "lexical_pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$",
+      "semantic_validation": "after lexical validation, datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ') in the pinned Python runtime must succeed; no strftime display round trip is permitted",
+      "year_range": {
+        "minimum": 1,
+        "maximum": 9999
+      },
+      "numeric_offsets_allowed": false,
+      "fractional_seconds_allowed": false
+    }
+  },
+  "admissibility_evidence": [
+    {
+      "decision_id": "DISTILL-V2-D11-MACHINE-WIRE-2026-08-27",
+      "request_digest": "2b5715455ea2a515c66686bc6cbf548df55ceb367c1a264d77190e3aac26361a",
+      "request_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D11-MACHINE-WIRE-REQUEST.json",
+        "sha256": "4bcb2bfdaa56c7614bba529df48c90fb1e2097ae7b87bfb3c0680259f5a2bd7d",
+        "size_bytes": 3994
+      },
+      "receipt_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D11-MACHINE-WIRE-RECEIPT.json",
+        "sha256": "8279bc340af1feb22b35e06646f7f699857feaecae6f561dc275f00096a385cb",
+        "size_bytes": 845
+      },
+      "route_outcome": "gate",
+      "selected_option": "SNAKE-CASE-CANONICAL-WIRE"
+    },
+    {
+      "decision_id": "DISTILL-V2-D12-CONFUSION-TYPE-2026-08-27",
+      "request_digest": "ec1ca123854717cad8b7677301921ad06581fbbe038ead4f1d33a6538eb42ee6",
+      "request_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D12-CONFUSION-TYPE-REQUEST.json",
+        "sha256": "203e203762469e8fef9076e8a8661cf14c26f2fc26bc79f90234c4fc95a411da",
+        "size_bytes": 3103
+      },
+      "receipt_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D12-CONFUSION-TYPE-RECEIPT.json",
+        "sha256": "122d7c04279eb915f7c72ee2565c0df13c26e81c354949d287c1086a13bcf672",
+        "size_bytes": 702
+      },
+      "route_outcome": "gate",
+      "selected_option": "BOOLEAN-CROSS-LEVEL-CONFUSION"
+    },
+    {
+      "decision_id": "DISTILL-V2-D13-TECHNIQUE-COLLECTIONS-2026-08-27",
+      "request_digest": "be87c50d459d7d40d2f08f58d5532bb148705da9bb691faa8ecf421c4c316fd3",
+      "request_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D13-TECHNIQUE-COLLECTIONS-REQUEST.json",
+        "sha256": "c1c32fe75f79116367082604a595590bc78b095c7b8d321aa37e8d3bda008455",
+        "size_bytes": 3996
+      },
+      "receipt_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D13-TECHNIQUE-COLLECTIONS-RECEIPT.json",
+        "sha256": "b795c09bdbd55f5d6f6f54e583a8804d08a19be7aacce824e1298824809337dd",
+        "size_bytes": 918
+      },
+      "route_outcome": "gate",
+      "selected_option": "PLURAL-ARRAY-COLLECTIONS"
+    },
+    {
+      "decision_id": "DISTILL-V2-D14-SCHEMA-IDENTITY-2026-08-27",
+      "request_digest": "b28ca625d8e6fa4ea9f2438d5556c76dff446324aef4c11c7700565c2766f1e9",
+      "request_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D14-SCHEMA-IDENTITY-REQUEST.json",
+        "sha256": "c293f0fa1a527162e0028b474d5b9c72007d51e84bf15b8dc052dbc5b27e4908",
+        "size_bytes": 4021
+      },
+      "receipt_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D14-SCHEMA-IDENTITY-RECEIPT.json",
+        "sha256": "44327ea56e56c00224db14a6c4f0b30f4e90083bfa00f83f258b367f105c2f72",
+        "size_bytes": 719
+      },
+      "route_outcome": "gate",
+      "selected_option": "ARCANUM-DEV-SEMVER-IDS"
+    },
+    {
+      "decision_id": "DISTILL-V2-D15-SCHEMA-VERSION-2026-08-27",
+      "request_digest": "3ddb596998ceec5e16ef4e4bc421088352d8e07086bd5167f2752fd9a487983b",
+      "request_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D15-SCHEMA-VERSION-REQUEST.json",
+        "sha256": "1e70427db22c41ed03675a75ee140e7857ccae8e96cf6fd3ac4f8ba5920d46ff",
+        "size_bytes": 3195
+      },
+      "receipt_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D15-SCHEMA-VERSION-RECEIPT.json",
+        "sha256": "1db8bde72f1c6110f2befd8922786831689db15f0ce1072e242bd7b464a39bbd",
+        "size_bytes": 700
+      },
+      "route_outcome": "gate",
+      "selected_option": "PER-ARTIFACT-SCHEMA-VERSIONS"
+    },
+    {
+      "decision_id": "DISTILL-V2-D16-IDENTIFIER-GRAMMAR-2026-08-27",
+      "request_digest": "0e79e219d90ee33f04486fedb7b5163d501256e6b9e956a812c2c47707df66dc",
+      "request_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D16-IDENTIFIER-GRAMMAR-REQUEST.json",
+        "sha256": "6ac1ab098254e58e56ac5d2bd7eca41a8c2f65004603ce16f8483c74aa3f40f8",
+        "size_bytes": 3182
+      },
+      "receipt_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D16-IDENTIFIER-GRAMMAR-RECEIPT.json",
+        "sha256": "7d0e33e4eff804158ba40b1cd4e49187bcb3576ce3c16d15ff12699669a514b5",
+        "size_bytes": 724
+      },
+      "route_outcome": "gate",
+      "selected_option": "STRICT-LOWER-SNAKE-IDENTIFIERS"
+    },
+    {
+      "decision_id": "DISTILL-V2-D17-UTC-TIMESTAMP-2026-08-27",
+      "request_digest": "eca8d1ae070eaa720243de8737be369bea873f5d9c794c77149624c161375b14",
+      "request_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D17-UTC-TIMESTAMP-REQUEST.json",
+        "sha256": "cec73bbaa702252a691154cb7f0244fa9c75ad0095fe76954a13b242b3b6509d",
+        "size_bytes": 3926
+      },
+      "receipt_ref": {
+        "path": "arcana/distill/development/distill-v2-machine-contract-plan/decision-gate/DISTILL-V2-D17-UTC-TIMESTAMP-RECEIPT.json",
+        "sha256": "f971bb416d0d72c71fdbb8545f3bc30de401a18eaef57dec49afba266d572115",
+        "size_bytes": 721
+      },
+      "route_outcome": "gate",
+      "selected_option": "UTC-Z-SECOND-PRECISION"
+    }
+  ],
+  "remaining_blockers": [],
+  "deferred_decisions": [],
+  "assumptions": [],
+  "effects": {
+    "D11_through_D17_resolved": true,
+    "contract_repair_decisions_frozen": true,
+    "contract_repair_authorized": false,
+    "schema_authored": false,
+    "implementation_authorized": false,
+    "publication_authorized": false,
+    "deployment_authorized": false,
+    "external_effect_authorized": false
+  },
+  "review_requirement": {
+    "independent_read_only_review_required": true,
+    "required_checks": [
+      "parent and evidence digests",
+      "each selected option is admissible",
+      "user confirmation fidelity",
+      "wire mapping completeness",
+      "schema identity uniqueness",
+      "identifier pattern fidelity",
+      "timestamp lexical and calendar law",
+      "authority ceiling"
+    ]
+  },
+  "next_route": "independent read-only review, then prepare a separately bounded immutable SWU-DV2-001 direct-contract R2 candidate"
+}

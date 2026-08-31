@@ -77,6 +77,20 @@ grep -q "preview only" "$test_root/preview.out" ||
 
 "$sync_tool" \
   --target "$target" \
+  --spell invoke \
+  --apply >"$test_root/invoke-apply.out"
+[[ -f "$target/.agents/skills/invoke/PLAN-ARTIFACT-BOUNDARIES.md" ]] ||
+  fail "Invoke selective sync omitted the runtime Plan artifact-boundary contract"
+grep -q '\[PLAN-ARTIFACT-BOUNDARIES.md\](PLAN-ARTIFACT-BOUNDARIES.md)' \
+  "$target/.agents/skills/invoke/plan.md" ||
+  fail "generated Invoke Plan contract does not reference its packaged artifact-boundary contract"
+[[ ! -d "$target/.agents/skills/invoke/development" ]] ||
+  fail "Invoke selective sync unexpectedly copied the development history directory"
+[[ "$(sha256sum "$target/.agents/skills/sentinel/SKILL.md")" == "$sentinel_before" ]] ||
+  fail "Invoke selective sync changed the sentinel package"
+
+"$sync_tool" \
+  --target "$target" \
   --spell work-pack-readiness-audit \
   --profiles repo-codex,claude \
   --apply >"$test_root/both-profiles.out"

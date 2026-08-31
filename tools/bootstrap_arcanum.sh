@@ -1392,6 +1392,13 @@ write_repo_codex_surface() {
   write_runtime_skill_packages "codex" "$target_root/.agents/skills" "arcanum-"
   write_file_if_missing "$target_root/AGENTS.md" "# Agent Instructions
 
+Repository skill resolution order is: explicit repository route, explicit
+user-named skill normalized through repository aliases, repository capability
+match, then user-global or catalog fallback only when the local package is absent
+and fallback is explicitly permitted. Codex uses the repository capability name
+orchestrate; the legacy alias arcanum-orchestrate must never name a repository
+package.
+
 This repository exposes Arcanum capabilities as repo-scoped Codex skills under \`.agents/skills/\`.
 
 Core rules:
@@ -1439,6 +1446,13 @@ Rules:
 "
 
   write_file_if_missing "$target_root/CLAUDE.md" "# Claude Code Instructions
+
+Repository skill resolution order is: explicit repository route, explicit
+user-named skill normalized through repository aliases, repository capability
+match, then user-global or catalog fallback only when the local package is absent
+and fallback is explicitly permitted. Claude uses the repository capability name
+orchestrate; the legacy alias arcanum-orchestrate must never name a repository
+package.
 
 Use the project Arcanum skill at \`.claude/skills/orchestrate/SKILL.md\` for Arcanum work.
 

@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/governance-evaluation-receipt/1-0-0",
+  "title": "TaskSessionGovernanceEvaluationReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "evaluation_kind",
+    "policy_ref",
+    "input_sha256",
+    "outcome",
+    "allowed_outcomes",
+    "evaluator_sha256",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.governance-evaluation-receipt.v1"
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evaluation_kind": {
+      "enum": [
+        "series-intent",
+        "automatic-choice",
+        "closeout-preflight",
+        "validation",
+        "closeout-sync"
+      ]
+    },
+    "policy_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "outcome": {
+      "enum": [
+        "PROCEED",
+        "PASS",
+        "NO_OP",
+        "FLAG",
+        "BLOCK",
+        "ROUTE_TASK_SESSION_UNTIL_BLOCKER",
+        "CONTINUE_SINGLE_TASK_SESSION"
+      ]
+    },
+    "allowed_outcomes": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "PROCEED",
+          "PASS",
+          "NO_OP",
+          "FLAG",
+          "BLOCK",
+          "ROUTE_TASK_SESSION_UNTIL_BLOCKER",
+          "CONTINUE_SINGLE_TASK_SESSION"
+        ]
+      }
+    },
+    "evaluator_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "evaluation_kind": {
+            "const": "series-intent"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "enum": [
+              "ROUTE_TASK_SESSION_UNTIL_BLOCKER",
+              "CONTINUE_SINGLE_TASK_SESSION"
+            ]
+          },
+          "allowed_outcomes": {
+            "const": [
+              "CONTINUE_SINGLE_TASK_SESSION",
+              "ROUTE_TASK_SESSION_UNTIL_BLOCKER"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "evaluation_kind": {
+            "enum": [
+              "automatic-choice",
+              "closeout-preflight"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "enum": [
+              "PROCEED",
+              "BLOCK"
+            ]
+          },
+          "allowed_outcomes": {
+            "const": [
+              "BLOCK",
+              "PROCEED"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "evaluation_kind": {
+            "const": "validation"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "enum": [
+              "PASS",
+              "FLAG",
+              "BLOCK"
+            ]
+          },
+          "allowed_outcomes": {
+            "const": [
+              "BLOCK",
+              "FLAG",
+              "PASS"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "evaluation_kind": {
+            "const": "closeout-sync"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "enum": [
+              "PASS",
+              "NO_OP",
+              "BLOCK"
+            ]
+          },
+          "allowed_outcomes": {
+            "const": [
+              "BLOCK",
+              "NO_OP",
+              "PASS"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

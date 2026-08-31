@@ -6,13 +6,13 @@ Validate that experiment loop reports can be observed and converted into telemet
 
 ## Prompt
 
-- Prompt: `example-prompts/invoke-define-live-pass.md`
+- Prompt: `example-prompts/invoke-observability-live-pass.md`
 
 ## Required Output Patterns
 
 - `## Invoke Result`
-- `Mode:.*define`
-- `Phase status:.*pass`
+- `semantic receipt|Semantic receipt`
+- `claim ceiling|Claim ceiling`
 
 ## Quality Bar
 

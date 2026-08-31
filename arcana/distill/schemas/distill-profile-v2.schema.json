@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/distill/profile/2-0-0",
+  "title": "Distill v2 Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile_id",
+    "display_name",
+    "mode_refs",
+    "technique_refs",
+    "objection_categories",
+    "output_contract_version",
+    "override_policy"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "distill.profile.v2"
+    },
+    "profile_id": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+    },
+    "display_name": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+    },
+    "mode_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/exact_artifact_reference"
+      }
+    },
+    "technique_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/exact_artifact_reference"
+      }
+    },
+    "objection_categories": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "lost_recomposition",
+          "missing_input_or_output",
+          "wrong_abstraction_level",
+          "unconfirmed_evolution_profile",
+          "excessive_cognitive_load",
+          "external_variety_not_handled",
+          "internal_complexity_greater_than_needed",
+          "stakeholder_boundary_ambiguity",
+          "concept_claim_treated_as_knowledge",
+          "validation_burden",
+          "hidden_glue",
+          "premature_complexity",
+          "brittle_minimalism"
+        ]
+      }
+    },
+    "output_contract_version": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+    },
+    "override_policy": {
+      "$ref": "#/$defs/override_policy"
+    }
+  },
+  "$defs": {
+    "override_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowed_fields",
+        "require_within_mode_maxima"
+      ],
+      "properties": {
+        "allowed_fields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "tracks",
+              "rounds_per_track"
+            ]
+          }
+        },
+        "require_within_mode_maxima": {
+          "const": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,969 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "audit_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "authority_class": {
+            "enum": [
+                "public",
+                "private"
+            ]
+        },
+        "closeout_directory": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create_if_missing": {
+                    "type": "boolean"
+                },
+                "path": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": [
+                "create_if_missing",
+                "path"
+            ]
+        },
+        "control_artifacts": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "path": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "sha256": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$"
+                            },
+                            "size_bytes": {
+                                "allOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "path",
+                            "sha256",
+                            "size_bytes"
+                        ]
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        },
+        "handoff_state": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "artifact_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size_bytes": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size_bytes"
+                    ]
+                },
+                "expected_fields": true
+            },
+            "required": [
+                "artifact_ref",
+                "expected_fields"
+            ]
+        },
+        "immutable_paths": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "minLength": 1
+            },
+            "uniqueItems": true
+        },
+        "next_owner": {
+            "const": "invoke:refresh"
+        },
+        "publication_class": {
+            "enum": [
+                "public",
+                "private",
+                "internal"
+            ]
+        },
+        "refresh_targets": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        },
+        "repository_root": {
+            "const": "."
+        },
+        "schema_version": {
+            "const": "1.0.0"
+        },
+        "shared_write_owners": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "ordered_units": {
+                        "allOf": [
+                            {
+                                "prefixItems": [
+                                    true,
+                                    true
+                                ]
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "minItems": 2,
+                                "uniqueItems": true
+                            }
+                        ]
+                    },
+                    "owner": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "path": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "ordered_units",
+                    "owner",
+                    "path"
+                ]
+            }
+        },
+        "source_selectors": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        },
+        "task_session_request_schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "size_bytes": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "path",
+                "sha256",
+                "size_bytes"
+            ]
+        },
+        "terminal_receipt_schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "size_bytes": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "path",
+                "sha256",
+                "size_bytes"
+            ]
+        },
+        "terminal_receipt_semantic_validator": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size_bytes": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size_bytes"
+                    ]
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "units": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "allowed_writes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "uniqueItems": true
+                            },
+                            "attempt": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "collision_policy": {
+                                        "enum": [
+                                            "fail-if-exists",
+                                            "append-only"
+                                        ]
+                                    },
+                                    "id_algorithm": {
+                                        "type": "string"
+                                    },
+                                    "required": {
+                                        "type": "boolean"
+                                    },
+                                    "retention_policy": {
+                                        "enum": [
+                                            "retain-receipt-only",
+                                            "retain-all",
+                                            "ephemeral"
+                                        ]
+                                    },
+                                    "teardown_on_failure": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "argv": {
+                                                    "allOf": [
+                                                        {
+                                                            "prefixItems": [
+                                                                true
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string",
+                                                                "minLength": 1
+                                                            },
+                                                            "minItems": 1
+                                                        }
+                                                    ]
+                                                },
+                                                "cwd": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "environment": {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "expected_exit_code": {
+                                                    "type": "integer"
+                                                },
+                                                "risk_class": {
+                                                    "enum": [
+                                                        "read-only",
+                                                        "bounded-write",
+                                                        "browser",
+                                                        "network",
+                                                        "destructive"
+                                                    ]
+                                                },
+                                                "runtime_identity": {
+                                                    "type": "object",
+                                                    "additionalProperties": false,
+                                                    "properties": {
+                                                        "executable": {
+                                                            "type": "string",
+                                                            "minLength": 1
+                                                        },
+                                                        "hash_policy": {
+                                                            "type": "string",
+                                                            "minLength": 1
+                                                        },
+                                                        "version_policy": {
+                                                            "type": "string",
+                                                            "minLength": 1
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "executable",
+                                                        "hash_policy",
+                                                        "version_policy"
+                                                    ]
+                                                },
+                                                "timeout_seconds": {
+                                                    "allOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "integer",
+                                                            "minimum": 1
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "argv",
+                                                "cwd",
+                                                "environment",
+                                                "expected_exit_code",
+                                                "risk_class",
+                                                "runtime_identity",
+                                                "timeout_seconds"
+                                            ]
+                                        }
+                                    },
+                                    "teardown_on_success": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "argv": {
+                                                    "allOf": [
+                                                        {
+                                                            "prefixItems": [
+                                                                true
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string",
+                                                                "minLength": 1
+                                                            },
+                                                            "minItems": 1
+                                                        }
+                                                    ]
+                                                },
+                                                "cwd": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "environment": {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "expected_exit_code": {
+                                                    "type": "integer"
+                                                },
+                                                "risk_class": {
+                                                    "enum": [
+                                                        "read-only",
+                                                        "bounded-write",
+                                                        "browser",
+                                                        "network",
+                                                        "destructive"
+                                                    ]
+                                                },
+                                                "runtime_identity": {
+                                                    "type": "object",
+                                                    "additionalProperties": false,
+                                                    "properties": {
+                                                        "executable": {
+                                                            "type": "string",
+                                                            "minLength": 1
+                                                        },
+                                                        "hash_policy": {
+                                                            "type": "string",
+                                                            "minLength": 1
+                                                        },
+                                                        "version_policy": {
+                                                            "type": "string",
+                                                            "minLength": 1
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "executable",
+                                                        "hash_policy",
+                                                        "version_policy"
+                                                    ]
+                                                },
+                                                "timeout_seconds": {
+                                                    "allOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "integer",
+                                                            "minimum": 1
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "argv",
+                                                "cwd",
+                                                "environment",
+                                                "expected_exit_code",
+                                                "risk_class",
+                                                "runtime_identity",
+                                                "timeout_seconds"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "collision_policy",
+                                    "id_algorithm",
+                                    "required",
+                                    "retention_policy",
+                                    "teardown_on_failure",
+                                    "teardown_on_success"
+                                ]
+                            },
+                            "closeout_receipt": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "contract_kind": {
+                                "enum": [
+                                    "full-task",
+                                    "row-only"
+                                ]
+                            },
+                            "contract_ref": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "path": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "sha256": {
+                                        "type": "string",
+                                        "pattern": "^[a-f0-9]{64}$"
+                                    },
+                                    "size_bytes": {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "path",
+                                    "sha256",
+                                    "size_bytes"
+                                ]
+                            },
+                            "dependencies": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "uniqueItems": true
+                            },
+                            "dependency_receipts": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "dependency_id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "expected_status": {
+                                            "const": "pass"
+                                        },
+                                        "expected_step_id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "expected_unit_id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "receipt_ref": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "path": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "sha256": {
+                                                    "type": "string",
+                                                    "pattern": "^[a-f0-9]{64}$"
+                                                },
+                                                "size_bytes": {
+                                                    "allOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "integer",
+                                                            "minimum": 0
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "path",
+                                                "sha256",
+                                                "size_bytes"
+                                            ]
+                                        },
+                                        "work_pack_sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        }
+                                    },
+                                    "required": [
+                                        "dependency_id",
+                                        "expected_status",
+                                        "expected_step_id",
+                                        "expected_unit_id",
+                                        "receipt_ref",
+                                        "work_pack_sha256"
+                                    ]
+                                }
+                            },
+                            "dispatch_step": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "execution_outputs": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "uniqueItems": true
+                            },
+                            "material_package": {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "package_ref": {
+                                                "type": "object",
+                                                "additionalProperties": false,
+                                                "properties": {
+                                                    "path": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "sha256": {
+                                                        "type": "string",
+                                                        "pattern": "^[a-f0-9]{64}$"
+                                                    },
+                                                    "size_bytes": {
+                                                        "allOf": [
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "integer",
+                                                                "minimum": 0
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "path",
+                                                    "sha256",
+                                                    "size_bytes"
+                                                ]
+                                            },
+                                            "receipt_ref": {
+                                                "type": "object",
+                                                "additionalProperties": false,
+                                                "properties": {
+                                                    "path": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "sha256": {
+                                                        "type": "string",
+                                                        "pattern": "^[a-f0-9]{64}$"
+                                                    },
+                                                    "size_bytes": {
+                                                        "allOf": [
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "integer",
+                                                                "minimum": 0
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "path",
+                                                    "sha256",
+                                                    "size_bytes"
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "package_ref",
+                                            "receipt_ref"
+                                        ]
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "material_writes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "uniqueItems": true
+                            },
+                            "requested_execution_mode": {
+                                "enum": [
+                                    "routed-mutation",
+                                    "reusable-mutation",
+                                    "standalone-nonmutating"
+                                ]
+                            },
+                            "state": {
+                                "enum": [
+                                    "planned",
+                                    "complete",
+                                    "blocked"
+                                ]
+                            },
+                            "successor": {
+                                "anyOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
+                                ]
+                            },
+                            "task_class": {
+                                "enum": [
+                                    "material-mutation",
+                                    "output-only",
+                                    "audit-only",
+                                    "read-only-validation"
+                                ]
+                            },
+                            "terminal_receipt": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "unit_id": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "validation_commands": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "argv": {
+                                            "allOf": [
+                                                {
+                                                    "prefixItems": [
+                                                        true
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "minItems": 1
+                                                }
+                                            ]
+                                        },
+                                        "cwd": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "environment": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "expected_exit_code": {
+                                            "type": "integer"
+                                        },
+                                        "risk_class": {
+                                            "enum": [
+                                                "read-only",
+                                                "bounded-write",
+                                                "browser",
+                                                "network",
+                                                "destructive"
+                                            ]
+                                        },
+                                        "runtime_identity": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "executable": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "hash_policy": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "version_policy": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                }
+                                            },
+                                            "required": [
+                                                "executable",
+                                                "hash_policy",
+                                                "version_policy"
+                                            ]
+                                        },
+                                        "timeout_seconds": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 1
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "argv",
+                                        "cwd",
+                                        "environment",
+                                        "expected_exit_code",
+                                        "risk_class",
+                                        "runtime_identity",
+                                        "timeout_seconds"
+                                    ]
+                                }
+                            }
+                        },
+                        "required": [
+                            "allowed_writes",
+                            "attempt",
+                            "closeout_receipt",
+                            "contract_kind",
+                            "contract_ref",
+                            "dependencies",
+                            "dependency_receipts",
+                            "dispatch_step",
+                            "execution_outputs",
+                            "material_writes",
+                            "requested_execution_mode",
+                            "state",
+                            "successor",
+                            "task_class",
+                            "terminal_receipt",
+                            "unit_id",
+                            "validation_commands"
+                        ]
+                    },
+                    "minItems": 1
+                }
+            ]
+        },
+        "work_pack": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "size_bytes": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "path",
+                "sha256",
+                "size_bytes"
+            ]
+        }
+    },
+    "required": [
+        "audit_id",
+        "authority_class",
+        "closeout_directory",
+        "control_artifacts",
+        "immutable_paths",
+        "next_owner",
+        "publication_class",
+        "refresh_targets",
+        "repository_root",
+        "schema_version",
+        "shared_write_owners",
+        "source_selectors",
+        "task_session_request_schema",
+        "terminal_receipt_schema",
+        "units",
+        "work_pack"
+    ]
+}

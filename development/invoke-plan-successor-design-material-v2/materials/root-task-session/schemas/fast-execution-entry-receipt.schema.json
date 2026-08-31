@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/fast-execution-entry-receipt/1-0-0",
+  "title": "FastExecutionEntryReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "decision",
+    "code",
+    "work_pack_id",
+    "work_pack_semantic_digest",
+    "selected_unit",
+    "entry_state",
+    "binding_id",
+    "binding_digest",
+    "route_fingerprint",
+    "owner_packet",
+    "authorization_source",
+    "authorization_prompt_required",
+    "permitted_next_action",
+    "logical_inputs_read",
+    "read_count",
+    "phase_count",
+    "phase_trace",
+    "mutation_count",
+    "blocker_detail",
+    "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "receipt_id": {"type": "string", "pattern": "^feg-[a-f0-9]{24}$"},
+    "decision": {"enum": ["proceed", "route-owner", "block"]},
+    "code": {"type": "string", "pattern": "^[A-Z0-9_]+$"},
+    "work_pack_id": {"type": ["string", "null"], "minLength": 1},
+    "work_pack_semantic_digest": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "selected_unit": {"type": ["string", "null"], "minLength": 1},
+    "entry_state": {"type": ["string", "null"], "minLength": 1},
+    "binding_id": {"type": ["string", "null"], "minLength": 1},
+    "binding_digest": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "route_fingerprint": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "owner_packet": {
+      "oneOf": [{"$ref": "#/$defs/route"}, {"type": "null"}]
+    },
+    "authorization_source": {"enum": ["work-pack-binding", "none"]},
+    "authorization_prompt_required": {"const": false},
+    "permitted_next_action": {
+      "enum": ["enter-context-builder", "return-owner-packet", "stop"]
+    },
+    "logical_inputs_read": {
+      "type": "array",
+      "prefixItems": [
+        {"const": "work-pack"},
+        {"const": "selected-unit"},
+        {"const": "execution-binding"},
+        {"const": "execution-entry-projection"}
+      ],
+      "items": false,
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "read_count": {"const": 4},
+    "phase_count": {"const": 1},
+    "phase_trace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entry_guard_entered",
+        "context_builder_entered",
+        "deep_material_check_entered",
+        "mutation_admission_entered",
+        "target_mutation_entered",
+        "owner_hops_dispatched"
+      ],
+      "properties": {
+        "entry_guard_entered": {"const": true},
+        "context_builder_entered": {"const": false},
+        "deep_material_check_entered": {"const": false},
+        "mutation_admission_entered": {"const": false},
+        "target_mutation_entered": {"const": false},
+        "owner_hops_dispatched": {"const": 0}
+      }
+    },
+    "mutation_count": {"const": 0},
+    "blocker_detail": {"type": ["string", "null"], "minLength": 1},
+    "authority_effect": {"const": "none"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"decision": {"const": "proceed"}}, "required": ["decision"]},
+      "then": {
+        "properties": {
+          "work_pack_id": {"type": "string", "minLength": 1},
+          "work_pack_semantic_digest": {"$ref": "#/$defs/sha256"},
+          "selected_unit": {"type": "string", "minLength": 1},
+          "binding_id": {"type": "string", "pattern": "^wpeb-[a-f0-9]{24}$"},
+          "binding_digest": {"$ref": "#/$defs/sha256"},
+          "route_fingerprint": {"$ref": "#/$defs/sha256"},
+          "owner_packet": {"type": "null"},
+          "authorization_source": {"const": "work-pack-binding"},
+          "permitted_next_action": {"const": "enter-context-builder"},
+          "blocker_detail": {"type": "null"}
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "code": {"const": "CONTEXT_READY"},
+              "entry_state": {"const": "context-ready"}
+            }
+          },
+          {
+            "properties": {
+              "code": {"const": "TASK_READY"},
+              "entry_state": {"const": "task-ready"}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "if": {"properties": {"decision": {"const": "route-owner"}}, "required": ["decision"]},
+      "then": {
+        "properties": {
+          "code": {"const": "OWNER_PREREQUISITE"},
+          "owner_packet": {"$ref": "#/$defs/route"},
+          "authorization_source": {"const": "work-pack-binding"},
+          "permitted_next_action": {"const": "return-owner-packet"},
+          "blocker_detail": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"decision": {"const": "block"}}, "required": ["decision"]},
+      "then": {
+        "properties": {
+          "owner_packet": {"type": "null"},
+          "authorization_source": {"const": "none"},
+          "permitted_next_action": {"const": "stop"},
+          "blocker_detail": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route_id",
+        "frontier_swu",
+        "capability",
+        "mode",
+        "target",
+        "write_scope",
+        "effect_class",
+        "required_inputs",
+        "expected_receipt"
+      ],
+      "properties": {
+        "route_id": {"type": "string", "minLength": 1},
+        "frontier_swu": {"type": "string", "minLength": 1},
+        "capability": {"type": "string", "minLength": 1},
+        "mode": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1},
+        "write_scope": {"type": "array", "minItems": 1, "uniqueItems": true},
+        "effect_class": {"type": "string", "minLength": 1},
+        "required_inputs": {"type": "array", "minItems": 1, "uniqueItems": true},
+        "expected_receipt": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

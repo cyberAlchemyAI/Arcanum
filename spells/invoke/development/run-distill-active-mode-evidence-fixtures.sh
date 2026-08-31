@@ -21,6 +21,7 @@ table = load_capabilities(pathlib.Path(sys.argv[2]))
 fixture_dir = pathlib.Path(sys.argv[3])
 cases = [
     "mode-evidence-define-pass.json",
+    "mode-evidence-define-missing-admission.json",
     "mode-evidence-design-pass.json",
     "mode-evidence-plan-pass.json",
     "mode-evidence-handoff-pass.json",

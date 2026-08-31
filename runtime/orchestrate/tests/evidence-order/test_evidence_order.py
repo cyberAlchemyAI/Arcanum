@@ -68,6 +68,7 @@ class EvidenceOrderTests(unittest.TestCase):
         self.assertTrue(
             {
                 "agent_wait_registered",
+                "agent_binding_corrected",
                 "wait_attempted",
                 "agent_closed",
                 "wait_timed_out",
@@ -86,6 +87,74 @@ class EvidenceOrderTests(unittest.TestCase):
         receipt = validator.validate_events([event], "unknown-event.jsonl")
         Draft202012Validator(self.receipt_schema).validate(receipt)
         self.assertEqual([error["code"] for error in receipt["errors"]], ["event_schema_violation"])
+
+    def test_v03_terminal_resolution_is_preserved_and_cannot_unlock_work(self) -> None:
+        events = validator.load_events(FIXTURES / "valid-ordered.jsonl")
+        resolved = {
+            "schema_version": "arcanum.native-dispatch-runner.run-event.v0.3",
+            "sequence": 16,
+            "event": "gate_decided",
+            "dispatch_id": "dispatch-evidence-order",
+            "run_id": "run-valid",
+            "wave_id": "wave-1",
+            "action_id": None,
+            "agent_id": None,
+            "operation": "orchestrate.reduce",
+            "gate_id": "gate-wave-1",
+            "decision": "gate_resolved",
+            "domain_outcome": {
+                "role_id": "validity-skeptic",
+                "source_field": "proposal_status",
+                "value": "invalid",
+                "classification": "resolved",
+            },
+            "required_action_ids": ["spawn-0002"],
+            "admitted_receipt_action_ids": ["spawn-0002"],
+        }
+        Draft202012Validator(self.event_schema).validate(resolved)
+        receipt = validator.validate_events([*events, resolved], "resolved.jsonl")
+        self.assertTrue(receipt["valid"], receipt["errors"])
+
+        illegal_successor = {
+            "schema_version": "arcanum.native-dispatch-runner.run-event.v0.1",
+            "sequence": 17,
+            "event": "action_attempted",
+            "dispatch_id": "dispatch-evidence-order",
+            "run_id": "run-valid",
+            "wave_id": "wave-2",
+            "action_id": "spawn-0003",
+            "agent_id": None,
+            "operation": "collaboration.spawn_agent",
+            "depends_on_gate_id": "gate-wave-1",
+        }
+        blocked = validator.validate_events([*events, resolved, illegal_successor], "resolved-successor.jsonl")
+        self.assertFalse(blocked["valid"])
+        self.assertTrue(any("gate" in error["code"] for error in blocked["errors"]), blocked["errors"])
+
+    def test_old_event_versions_reject_v03_domain_fields_and_decisions(self) -> None:
+        event = {
+            "schema_version": "arcanum.native-dispatch-runner.run-event.v0.1",
+            "sequence": 1,
+            "event": "gate_decided",
+            "dispatch_id": "dispatch-old",
+            "run_id": "run-old",
+            "wave_id": "wave-old",
+            "action_id": None,
+            "agent_id": None,
+            "operation": "orchestrate.reduce",
+            "gate_id": "gate-old",
+            "decision": "gate_resolved",
+            "domain_outcome": {
+                "role_id": "role-old", "source_field": "status",
+                "value": "invalid", "classification": "resolved",
+            },
+            "required_action_ids": ["spawn-0001"],
+            "admitted_receipt_action_ids": ["spawn-0001"],
+        }
+        schema_errors = list(Draft202012Validator(self.event_schema).iter_errors(event))
+        self.assertTrue(schema_errors)
+        receipt = validator.validate_events([event], "old-version-domain.jsonl")
+        self.assertEqual(receipt["errors"][0]["code"], "event_schema_violation")
 
     def test_cli_writes_receipt_and_returns_fail_closed_status(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

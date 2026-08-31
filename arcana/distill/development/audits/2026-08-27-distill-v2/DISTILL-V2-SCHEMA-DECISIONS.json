@@ -1,0 +1,82 @@
+{
+  "schema_version": "arcanum.distill-v2-schema-decisions.v1",
+  "decision_set_id": "DISTILL-V2-SCHEMA-DECISIONS-2026-08-27",
+  "target": "arcanum/arcana/distill v2 machine contract",
+  "status": "blocked-pending-owner-decisions",
+  "authority_effect": "none",
+  "request_emitted": false,
+  "admissibility_request": "DISTILL-V2-SCHEMA-OPTIONS.json",
+  "admissibility_receipt": "DISTILL-V2-SCHEMA-OPTIONS-RECEIPT.json",
+  "admissible_routing": "gate",
+  "decisions": [
+    {
+      "id": "DISTILL-V2-D01",
+      "question": "What version name should the first Distill-owned semantic machine family use?",
+      "status": "selected-by-user-direction",
+      "selected": "v2",
+      "rationale": "The user explicitly requested a Distill v2. Invoke adapter schema_version 1.0.0 remains a separate namespace, not a predecessor of this semantic family."
+    },
+    {
+      "id": "DISTILL-V2-D02",
+      "question": "Which capability owns semantic contracts versus adapter and handoff contracts?",
+      "status": "open",
+      "recommended": "Distill owns profile, source, semantic trace, result, projection, and stage receipt; Invoke owns request, evidence, provenance, and mutation-handoff adapters.",
+      "blocking_effect": "Blocks schema path and cross-capability reference freeze."
+    },
+    {
+      "id": "DISTILL-V2-D03",
+      "question": "What is the canonical technique identifier format?",
+      "status": "open",
+      "recommended": "Use underscore identifiers from the canonical technique registry and reject historical hyphenated IDs for new v2 production unless an explicit compatibility mapper is separately selected.",
+      "blocking_effect": "Blocks profile constants, source technique selection, and trace validation."
+    },
+    {
+      "id": "DISTILL-V2-D04",
+      "question": "What exact finite budgets and override ceilings apply to every mode?",
+      "status": "open",
+      "recommended": "Freeze current defaults, then select explicit maximum tracks, rounds, and role invocations for Tournament, Deep, and Validate rather than encoding configurable prose.",
+      "blocking_effect": "Blocks ModeProfile constants and budget negative fixtures."
+    },
+    {
+      "id": "DISTILL-V2-D05",
+      "question": "What execution-path vocabulary is canonical?",
+      "status": "open",
+      "recommended": "Use true_subagent and role_simulation in semantic and runtime machine contracts; permit mixed only as a telemetry projection if it can be derived from exact events.",
+      "blocking_effect": "Blocks trace-event and stage-receipt enums."
+    },
+    {
+      "id": "DISTILL-V2-D06",
+      "question": "What exact artifact-reference shape is canonical?",
+      "status": "open",
+      "recommended": "Use repository-relative path, sha256, and size_bytes; reject absolute paths, traversal, and URI schemes.",
+      "blocking_effect": "Blocks source, result, receipt, and adapter bridge definitions."
+    },
+    {
+      "id": "DISTILL-V2-D07",
+      "question": "How do verdicts constrain selected units and next routes?",
+      "status": "open",
+      "recommended": "Permit a nullable selected unit only for block; prohibit implementation and task-session routes for block; require each flag to name its unresolved tension and route status.",
+      "blocking_effect": "Blocks ResultEnvelope conditional rules and semantic validator fixtures."
+    },
+    {
+      "id": "DISTILL-V2-D08",
+      "question": "Do ordinary direct and evidence-gated runs share one semantic source and result family?",
+      "status": "open",
+      "recommended": "Use one family with optional evidence context; evidence state never changes the substantive Distill verdict.",
+      "blocking_effect": "Blocks source evidence-context and result evidence-status conditionals."
+    }
+  ],
+  "candidate_schema_paths": [
+    "arcanum/arcana/distill/schemas/distill-profile-v2.schema.json",
+    "arcanum/arcana/distill/schemas/distill-source-v2.schema.json",
+    "arcanum/arcana/distill/schemas/distill-trace-event-v2.schema.json",
+    "arcanum/arcana/distill/schemas/distill-result-v2.schema.json",
+    "arcanum/arcana/distill/schemas/distill-stage-receipt-v2.schema.json"
+  ],
+  "effects": {
+    "schema_bytes_frozen": false,
+    "owner_request_emitted": false,
+    "acceptance_granted": false,
+    "implementation_authorized": false
+  }
+}

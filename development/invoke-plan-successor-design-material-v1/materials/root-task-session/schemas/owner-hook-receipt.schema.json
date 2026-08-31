@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/owner-hook-receipt/1-0-0",
+  "title": "TaskSessionOwnerHookReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "request_id",
+    "adapter_id",
+    "phase",
+    "owner_identity",
+    "manifest_ref",
+    "request_ref",
+    "input_refs",
+    "idempotency_key",
+    "result",
+    "output_refs",
+    "diagnostics",
+    "terminal_sequence",
+    "receipt_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.owner-hook-receipt.v1"
+    },
+    "receipt_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "request_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "adapter_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "phase": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "owner_identity": {
+      "$ref": "#/$defs/ownerIdentity"
+    },
+    "manifest_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "request_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "input_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/exactArtifactRef"
+      }
+    },
+    "idempotency_key": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "result": {
+      "enum": [
+        "pass",
+        "no-op",
+        "block"
+      ]
+    },
+    "output_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/exactArtifactRef"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "terminal_sequence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_path",
+        "final_owner_write"
+      ],
+      "properties": {
+        "receipt_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "final_owner_write": {
+          "const": true
+        }
+      }
+    },
+    "receipt_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownerIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "subject"
+      ],
+      "properties": {
+        "capability": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "subject": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^\\u0000]+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

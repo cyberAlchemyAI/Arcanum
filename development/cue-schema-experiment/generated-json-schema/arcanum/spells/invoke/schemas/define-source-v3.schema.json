@@ -1,0 +1,1555 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "const": "https://arcanum.dev/schemas/invoke/define-source/v3"
+        },
+        "authority_effect": {
+            "const": "none"
+        },
+        "definition_registry": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "authority_bindings": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "authority_ref": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "path": {
+                                        "type": "string"
+                                    },
+                                    "selector": {
+                                        "type": "string",
+                                        "pattern": ".*\\S.*"
+                                    },
+                                    "sha256": {
+                                        "type": "string",
+                                        "pattern": "^[a-f0-9]{64}$"
+                                    },
+                                    "size": {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        ]
+                                    },
+                                    "visibility": {
+                                        "enum": [
+                                            "public",
+                                            "private"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "path",
+                                    "selector",
+                                    "sha256",
+                                    "size",
+                                    "visibility"
+                                ]
+                            },
+                            "authority_scope": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "kind": {
+                                        "enum": [
+                                            "repository",
+                                            "project",
+                                            "feature",
+                                            "artifact"
+                                        ]
+                                    },
+                                    "ref": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
+                                },
+                                "required": [
+                                    "kind",
+                                    "ref"
+                                ]
+                            },
+                            "authority_status": {
+                                "const": "active"
+                            },
+                            "binding_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "definition_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z][A-Za-z0-9._-]{1,127}$"
+                            },
+                            "probe_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "role": {
+                                "enum": [
+                                    "reuse",
+                                    "specialization-basis"
+                                ]
+                            },
+                            "term": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            }
+                        },
+                        "required": [
+                            "authority_ref",
+                            "authority_scope",
+                            "authority_status",
+                            "binding_id",
+                            "definition_id",
+                            "probe_id",
+                            "role",
+                            "term"
+                        ]
+                    },
+                    "uniqueItems": true
+                },
+                "authority_scope": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "kind": {
+                            "enum": [
+                                "repository",
+                                "project",
+                                "feature",
+                                "artifact"
+                            ]
+                        },
+                        "ref": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "required": [
+                        "kind",
+                        "ref"
+                    ]
+                },
+                "definitions": {
+                    "type": "array",
+                    "items": {
+                        "allOf": [
+                            {
+                                "if": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "const": "superseded"
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
+                                },
+                                "then": {
+                                    "type": "object",
+                                    "properties": {
+                                        "superseded_by": {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z][A-Za-z0-9._-]{1,127}$"
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "if": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "enum": [
+                                                "candidate",
+                                                "active",
+                                                "deferred"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
+                                },
+                                "then": {
+                                    "type": "object",
+                                    "properties": {
+                                        "superseded_by": {
+                                            "type": "null"
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "aliases": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "pattern": ".*\\S.*"
+                                                }
+                                            },
+                                            {
+                                                "type": "object"
+                                            }
+                                        ]
+                                    },
+                                    "deferred_as": {
+                                        "type": "null"
+                                    },
+                                    "relations": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "array",
+                                                "items": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "type": {
+                                                                    "anyOf": [
+                                                                        {
+                                                                            "const": "references"
+                                                                        },
+                                                                        {
+                                                                            "const": "depends-on"
+                                                                        },
+                                                                        {
+                                                                            "const": "contrasts-with"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "type": "object"
+                                            }
+                                        ]
+                                    },
+                                    "source_refs": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "array",
+                                                "items": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "path": {
+                                                                    "type": "string"
+                                                                },
+                                                                "sha256": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[a-f0-9]{64}$"
+                                                                },
+                                                                "size": {
+                                                                    "allOf": [
+                                                                        {
+                                                                            "type": "number"
+                                                                        },
+                                                                        {
+                                                                            "type": "integer",
+                                                                            "minimum": 0
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "type": "object"
+                                            }
+                                        ]
+                                    },
+                                    "status": {
+                                        "const": "candidate"
+                                    },
+                                    "superseded_by": {
+                                        "type": "null"
+                                    },
+                                    "supersedes": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "array",
+                                                "maxItems": 0
+                                            },
+                                            {
+                                                "type": "object"
+                                            }
+                                        ]
+                                    },
+                                    "term": {
+                                        "type": "string",
+                                        "pattern": ".*\\S.*"
+                                    },
+                                    "voices": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "array"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "domain_context": {
+                                                        "type": "string",
+                                                        "pattern": ".*\\S.*"
+                                                    },
+                                                    "formal": {
+                                                        "oneOf": [
+                                                            {
+                                                                "type": "string",
+                                                                "pattern": ".*\\S.*"
+                                                            },
+                                                            {
+                                                                "type": "null"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "normative": {
+                                                        "type": "string",
+                                                        "pattern": ".*\\S.*"
+                                                    },
+                                                    "operational": {
+                                                        "oneOf": [
+                                                            {
+                                                                "type": "string",
+                                                                "pattern": ".*\\S.*"
+                                                            },
+                                                            {
+                                                                "type": "null"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "plain_language": {
+                                                        "type": "string",
+                                                        "pattern": ".*\\S.*"
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                "else": {
+                                    "type": "object",
+                                    "properties": {
+                                        "deferred_as": {
+                                            "type": "null"
+                                        }
+                                    }
+                                },
+                                "if": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "const": "deferred"
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
+                                },
+                                "then": {
+                                    "type": "object",
+                                    "properties": {
+                                        "deferred_as": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "uniqueItems": true
+                },
+                "owner_route": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "registry_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9._-]{1,127}$"
+                },
+                "title": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "visibility": {
+                    "enum": [
+                        "public",
+                        "private"
+                    ]
+                }
+            },
+            "anyOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "definitions": {
+                            "anyOf": [
+                                {
+                                    "type": "null"
+                                },
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "array",
+                                    "prefixItems": [
+                                        true
+                                    ],
+                                    "minItems": 1
+                                },
+                                {
+                                    "type": "object"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "authority_bindings": {
+                            "anyOf": [
+                                {
+                                    "type": "null"
+                                },
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "array",
+                                    "prefixItems": [
+                                        true
+                                    ],
+                                    "minItems": 1
+                                },
+                                {
+                                    "type": "object"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "required": [
+                "authority_bindings",
+                "authority_scope",
+                "definitions",
+                "owner_route",
+                "registry_id",
+                "title",
+                "visibility"
+            ]
+        },
+        "dispatch_trace": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "techniques": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "techniques"
+            ]
+        },
+        "distill": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "classification": {
+                            "const": "required"
+                        },
+                        "evidence": {
+                            "type": "string",
+                            "pattern": ".*\\S.*"
+                        },
+                        "verdict": {
+                            "const": "pass"
+                        }
+                    },
+                    "required": [
+                        "classification",
+                        "evidence",
+                        "verdict"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "classification": {
+                            "const": "not-required"
+                        },
+                        "rationale": {
+                            "type": "string",
+                            "minLength": 8,
+                            "pattern": ".*\\S.*"
+                        }
+                    },
+                    "required": [
+                        "classification",
+                        "rationale"
+                    ]
+                }
+            ]
+        },
+        "identity_denominator": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "classification": {
+                            "const": "required"
+                        },
+                        "request_ref": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "path",
+                                "sha256",
+                                "size"
+                            ]
+                        },
+                        "result_ref": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "path",
+                                "sha256",
+                                "size"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "classification",
+                        "request_ref",
+                        "result_ref"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "classification": {
+                            "const": "not-applicable"
+                        },
+                        "rationale": {
+                            "type": "string",
+                            "minLength": 8,
+                            "pattern": ".*\\S.*"
+                        }
+                    },
+                    "required": [
+                        "classification",
+                        "rationale"
+                    ]
+                }
+            ]
+        },
+        "layering": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "decision": {
+                            "type": "string",
+                            "pattern": ".*\\S.*"
+                        },
+                        "kind": {
+                            "const": "seed"
+                        },
+                        "minimum_unit": {
+                            "type": "string",
+                            "pattern": ".*\\S.*"
+                        }
+                    },
+                    "required": [
+                        "decision",
+                        "kind",
+                        "minimum_unit"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "kind": {
+                            "const": "gap"
+                        },
+                        "rationale": {
+                            "type": "string",
+                            "minLength": 8,
+                            "pattern": ".*\\S.*"
+                        }
+                    },
+                    "required": [
+                        "kind",
+                        "rationale"
+                    ]
+                }
+            ]
+        },
+        "next_route": {
+            "enum": [
+                "design",
+                "spellcraft",
+                "sigil-development",
+                "deferred"
+            ]
+        },
+        "output_contracts": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "definitions": {
+                    "const": "DEFINITIONS.json"
+                },
+                "definitions_view": {
+                    "const": "DEFINITIONS.md"
+                },
+                "dispatch_trace": {
+                    "const": "DISPATCH-TRACE.json"
+                },
+                "distill": {
+                    "const": "DISTILL-RECEIPT.json"
+                },
+                "glossary": {
+                    "const": "GLOSSARY.md"
+                },
+                "identity_denominator": {
+                    "const": "IDENTITY-DENOMINATOR-RECEIPT.json"
+                },
+                "layering": {
+                    "enum": [
+                        "IMPLEMENTATION-LAYERING.md",
+                        "LAYERING-GAP.md"
+                    ]
+                },
+                "semantic_closure_receipt": {
+                    "const": "DEFINE-SEMANTIC-CLOSURE-RECEIPT.json"
+                },
+                "semantic_context": {
+                    "const": "DEFINE-SEMANTIC-CONTEXT.json"
+                },
+                "spec": {
+                    "const": "SPEC.md"
+                },
+                "stage_receipt": {
+                    "const": "INVOKE-DEFINE-STAGE-RECEIPT.json"
+                },
+                "template_selection": {
+                    "const": "TEMPLATE-SELECTION-RECEIPT.json"
+                },
+                "transport": {
+                    "const": "DEFINE-TRANSPORT-REPORT.json"
+                }
+            },
+            "required": [
+                "definitions",
+                "definitions_view",
+                "dispatch_trace",
+                "distill",
+                "glossary",
+                "identity_denominator",
+                "layering",
+                "semantic_closure_receipt",
+                "semantic_context",
+                "spec",
+                "stage_receipt",
+                "template_selection",
+                "transport"
+            ]
+        },
+        "profile_id": {
+            "const": "invoke.generic-definitions-baseline.v3"
+        },
+        "schema_version": {
+            "const": "invoke.define-source.v3"
+        },
+        "semantic_applications": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "allOf": [
+                            {
+                                "if": {
+                                    "type": "object",
+                                    "properties": {
+                                        "disposition": {
+                                            "const": "new-scoped-term"
+                                        }
+                                    },
+                                    "required": [
+                                        "disposition"
+                                    ]
+                                },
+                                "then": {
+                                    "type": "object",
+                                    "properties": {
+                                        "authority_binding_ids": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "null"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "maxItems": 0
+                                                },
+                                                {
+                                                    "type": "object"
+                                                }
+                                            ]
+                                        },
+                                        "definition_ids": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "null"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "prefixItems": [
+                                                        true
+                                                    ],
+                                                    "maxItems": 1,
+                                                    "minItems": 1
+                                                },
+                                                {
+                                                    "type": "object"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "if": {
+                                    "type": "object",
+                                    "properties": {
+                                        "disposition": {
+                                            "const": "specialize-existing"
+                                        }
+                                    },
+                                    "required": [
+                                        "disposition"
+                                    ]
+                                },
+                                "then": {
+                                    "type": "object",
+                                    "properties": {
+                                        "authority_binding_ids": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "null"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "prefixItems": [
+                                                        true
+                                                    ],
+                                                    "maxItems": 1,
+                                                    "minItems": 1
+                                                },
+                                                {
+                                                    "type": "object"
+                                                }
+                                            ]
+                                        },
+                                        "definition_ids": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "null"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "prefixItems": [
+                                                        true
+                                                    ],
+                                                    "maxItems": 1,
+                                                    "minItems": 1
+                                                },
+                                                {
+                                                    "type": "object"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "authority_binding_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                        },
+                                        "uniqueItems": true
+                                    },
+                                    "definition_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                        },
+                                        "uniqueItems": true
+                                    },
+                                    "disposition": {
+                                        "enum": [
+                                            "reuse-existing",
+                                            "new-scoped-term",
+                                            "specialize-existing"
+                                        ]
+                                    },
+                                    "probe_id": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    },
+                                    "rationale": {
+                                        "type": "string",
+                                        "pattern": ".*\\S.*"
+                                    }
+                                },
+                                "if": {
+                                    "type": "object",
+                                    "properties": {
+                                        "disposition": {
+                                            "const": "reuse-existing"
+                                        }
+                                    },
+                                    "required": [
+                                        "disposition"
+                                    ]
+                                },
+                                "then": {
+                                    "type": "object",
+                                    "properties": {
+                                        "authority_binding_ids": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "null"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "prefixItems": [
+                                                        true
+                                                    ],
+                                                    "maxItems": 1,
+                                                    "minItems": 1
+                                                },
+                                                {
+                                                    "type": "object"
+                                                }
+                                            ]
+                                        },
+                                        "definition_ids": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "null"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "maxItems": 0
+                                                },
+                                                {
+                                                    "type": "object"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "authority_binding_ids",
+                                    "definition_ids",
+                                    "disposition",
+                                    "probe_id",
+                                    "rationale"
+                                ]
+                            }
+                        ]
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        },
+        "source_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+        },
+        "spec_declarations": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "statement": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "title": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "statement",
+                            "title"
+                        ]
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        },
+        "template_selection": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "eligible": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "contains": {
+                                "const": "invoke.generic-definitions-baseline.v3"
+                            },
+                            "minContains": 1,
+                            "items": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                },
+                "profile_id": {
+                    "const": "invoke.generic-definitions-baseline.v3"
+                },
+                "selected": {
+                    "const": "invoke.generic-definitions-baseline.v3"
+                },
+                "tie": {
+                    "const": false
+                }
+            },
+            "required": [
+                "eligible",
+                "profile_id",
+                "selected",
+                "tie"
+            ]
+        },
+        "transport_policy": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "append_existing_only": {
+                    "const": true
+                },
+                "targets": {
+                    "type": "array",
+                    "maxItems": 0
+                },
+                "upstream_mutation": {
+                    "const": false
+                }
+            },
+            "required": [
+                "append_existing_only",
+                "targets",
+                "upstream_mutation"
+            ]
+        },
+        "upstream_bindings": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "semantic_closure_receipt_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                },
+                "semantic_context_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                }
+            },
+            "required": [
+                "semantic_closure_receipt_ref",
+                "semantic_context_ref"
+            ]
+        }
+    },
+    "if": {
+        "type": "object",
+        "properties": {
+            "definition_registry": {
+                "anyOf": [
+                    {
+                        "type": "null"
+                    },
+                    {
+                        "type": "boolean"
+                    },
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "array"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "visibility": {
+                                "const": "public"
+                            }
+                        },
+                        "required": [
+                            "visibility"
+                        ]
+                    }
+                ]
+            }
+        },
+        "required": [
+            "definition_registry"
+        ]
+    },
+    "then": {
+        "type": "object",
+        "properties": {
+            "definition_registry": {
+                "anyOf": [
+                    {
+                        "type": "null"
+                    },
+                    {
+                        "type": "boolean"
+                    },
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "array"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "authority_bindings": {
+                                "anyOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "null"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "authority_ref": {
+                                                            "anyOf": [
+                                                                {
+                                                                    "type": "null"
+                                                                },
+                                                                {
+                                                                    "type": "boolean"
+                                                                },
+                                                                {
+                                                                    "type": "number"
+                                                                },
+                                                                {
+                                                                    "type": "string"
+                                                                },
+                                                                {
+                                                                    "type": "array"
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "visibility": {
+                                                                            "const": "public"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "visibility"
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "type": "object"
+                                    }
+                                ]
+                            },
+                            "definitions": {
+                                "anyOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "null"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "source_refs": {
+                                                            "anyOf": [
+                                                                {
+                                                                    "type": "null"
+                                                                },
+                                                                {
+                                                                    "type": "boolean"
+                                                                },
+                                                                {
+                                                                    "type": "number"
+                                                                },
+                                                                {
+                                                                    "type": "string"
+                                                                },
+                                                                {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "anyOf": [
+                                                                            {
+                                                                                "type": "null"
+                                                                            },
+                                                                            {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            {
+                                                                                "type": "number"
+                                                                            },
+                                                                            {
+                                                                                "type": "string"
+                                                                            },
+                                                                            {
+                                                                                "type": "array"
+                                                                            },
+                                                                            {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "visibility": {
+                                                                                        "const": "public"
+                                                                                    }
+                                                                                },
+                                                                                "required": [
+                                                                                    "visibility"
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "type": "object"
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "type": "object"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "required": [
+        "$schema",
+        "authority_effect",
+        "definition_registry",
+        "dispatch_trace",
+        "distill",
+        "identity_denominator",
+        "layering",
+        "next_route",
+        "output_contracts",
+        "profile_id",
+        "schema_version",
+        "semantic_applications",
+        "source_id",
+        "spec_declarations",
+        "template_selection",
+        "transport_policy",
+        "upstream_bindings"
+    ]
+}

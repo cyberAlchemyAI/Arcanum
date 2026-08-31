@@ -15,13 +15,20 @@
     "operation"
   ],
   "properties": {
-    "schema_version": {"const": "arcanum.native-dispatch-runner.run-event.v0.1"},
+    "schema_version": {
+      "enum": [
+        "arcanum.native-dispatch-runner.run-event.v0.1",
+        "arcanum.native-dispatch-runner.run-event.v0.2",
+        "arcanum.native-dispatch-runner.run-event.v0.3"
+      ]
+    },
     "sequence": {"type": "integer", "minimum": 1},
     "event": {
       "enum": [
         "action_attempted",
         "host_spawn_returned",
         "host_spawn_failed",
+        "agent_binding_corrected",
         "agent_wait_registered",
         "wait_attempted",
         "agent_terminal",
@@ -39,10 +46,31 @@
     "action_id": {"type": ["string", "null"]},
     "agent_id": {"type": ["string", "null"]},
     "operation": {"type": "string", "minLength": 1},
+    "prior_agent_id": {"type": "string", "minLength": 1},
+    "prepared_task_name": {"type": "string", "minLength": 1},
+    "supersedes_sequences": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {"type": "integer", "minimum": 1}
+    },
+    "reason_code": {"const": "host_agent_id_transcription_error"},
     "depends_on_gate_id": {"type": ["string", "null"]},
     "receipt_status": {"enum": ["pass", "block", "fail", "timed_out"]},
     "gate_id": {"type": "string", "minLength": 1},
-    "decision": {"enum": ["gate_pass", "gate_block"]},
+    "decision": {"enum": ["gate_pass", "gate_block", "gate_resolved"]},
+    "domain_outcome": {
+      "type": ["object", "null"],
+      "properties": {
+        "role_id": {"type": "string", "minLength": 1},
+        "source_field": {"type": "string", "minLength": 1},
+        "value": {"type": "string", "minLength": 1},
+        "classification": {"enum": ["pass", "resolved"]}
+      },
+      "required": ["role_id", "source_field", "value", "classification"],
+      "additionalProperties": false
+    },
     "required_action_ids": {
       "type": "array",
       "minItems": 1,
@@ -90,6 +118,22 @@
       }
     },
     {
+      "if": {"properties": {"event": {"const": "agent_binding_corrected"}}},
+      "then": {
+        "properties": {
+          "schema_version": {"const": "arcanum.native-dispatch-runner.run-event.v0.2"},
+          "action_id": {"type": "string", "minLength": 1},
+          "agent_id": {"type": "string", "minLength": 1}
+        },
+        "required": [
+          "prior_agent_id",
+          "prepared_task_name",
+          "supersedes_sequences",
+          "reason_code"
+        ]
+      }
+    },
+    {
       "if": {"properties": {"event": {"const": "wait_attempted"}}},
       "then": {
         "properties": {"action_id": {"type": "null"}, "agent_id": {"type": "null"}}
@@ -117,6 +161,17 @@
       "then": {
         "properties": {"action_id": {"type": "null"}, "agent_id": {"type": "null"}},
         "required": ["gate_id", "decision", "required_action_ids", "admitted_receipt_action_ids"]
+      }
+    },
+    {
+      "if": {"properties": {"schema_version": {"const": "arcanum.native-dispatch-runner.run-event.v0.3"}}},
+      "then": {
+        "properties": {"event": {"const": "gate_decided"}},
+        "required": ["domain_outcome"]
+      },
+      "else": {
+        "not": {"required": ["domain_outcome"]},
+        "properties": {"decision": {"enum": ["gate_pass", "gate_block"]}}
       }
     }
   ],

@@ -1,0 +1,704 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+        "analogy_labels": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "claim": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "label": {
+                        "const": "analogy"
+                    },
+                    "register": {
+                        "enum": [
+                            "lean",
+                            "reflection-tower",
+                            "residue",
+                            "cyberalchemy",
+                            "categorical",
+                            "thermodynamic"
+                        ]
+                    }
+                },
+                "required": [
+                    "claim",
+                    "label",
+                    "register"
+                ]
+            }
+        },
+        "authority": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "deploy": {
+                    "type": "string"
+                },
+                "evidence": {
+                    "type": "string"
+                },
+                "promotion": {
+                    "type": "string"
+                },
+                "secrets": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "validation": {
+                    "type": "string"
+                }
+            }
+        },
+        "boundaries": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "applies_to_services": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "boundary_id": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "contract": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "from_owner": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "enum": [
+                            "network",
+                            "secret",
+                            "data_store",
+                            "tenant",
+                            "policy",
+                            "environment"
+                        ]
+                    },
+                    "on_violation": {
+                        "enum": [
+                            "block",
+                            "flag",
+                            "defer",
+                            "ask",
+                            "reroute"
+                        ]
+                    },
+                    "reversal": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "backup": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "schedule": {
+                                        "type": "string"
+                                    },
+                                    "target": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "migration": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "forward": {
+                                        "type": "string"
+                                    },
+                                    "reverse": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "retention": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "namespace": {
+                                        "type": "string"
+                                    },
+                                    "policy": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "rollback": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "method": {
+                                        "type": "string"
+                                    },
+                                    "target": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "to_owner": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "boundary_id",
+                    "contract",
+                    "kind",
+                    "on_violation"
+                ]
+            }
+        },
+        "doc_status": {
+            "enum": [
+                "draft",
+                "active",
+                "deprecated"
+            ]
+        },
+        "environments": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "branch": {
+                                "type": "string"
+                            },
+                            "deploy_trigger": {
+                                "enum": [
+                                    "branch",
+                                    "push",
+                                    "manual"
+                                ]
+                            },
+                            "name": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "purpose": {
+                                "type": "string"
+                            },
+                            "url": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "name"
+                        ]
+                    },
+                    "minItems": 1
+                }
+            ]
+        },
+        "gates": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "condition": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "gate_id": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "kind": {
+                                "enum": [
+                                    "validation",
+                                    "promotion_guardrail",
+                                    "human_approval"
+                                ]
+                            },
+                            "on_fail": {
+                                "enum": [
+                                    "block",
+                                    "flag",
+                                    "defer",
+                                    "ask",
+                                    "reroute"
+                                ]
+                            },
+                            "owner": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        },
+                        "required": [
+                            "condition",
+                            "gate_id",
+                            "kind",
+                            "on_fail",
+                            "owner"
+                        ]
+                    },
+                    "minItems": 1
+                }
+            ]
+        },
+        "infra_spec_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "observability": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "scrape_targets": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "signal_refs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "slo_refs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "project": {
+            "type": "string",
+            "minLength": 1
+        },
+        "promotion_splits": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "on_violation": {
+                        "enum": [
+                            "block",
+                            "flag",
+                            "defer",
+                            "ask",
+                            "reroute"
+                        ]
+                    },
+                    "rule": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "source": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "target": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "on_violation",
+                    "rule",
+                    "source",
+                    "target"
+                ]
+            }
+        },
+        "promotion_status": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "evidence_refs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "stage": {
+                    "enum": [
+                        "specified",
+                        "implemented",
+                        "deployed",
+                        "observed",
+                        "validated",
+                        "reflected",
+                        "promoted"
+                    ]
+                }
+            },
+            "required": [
+                "stage"
+            ]
+        },
+        "receipts": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "on_missing": {
+                        "enum": [
+                            "block",
+                            "flag",
+                            "defer",
+                            "ask",
+                            "reroute"
+                        ]
+                    },
+                    "producer": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "receipt_id": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "required_fields": {
+                        "allOf": [
+                            {
+                                "prefixItems": [
+                                    true
+                                ]
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "enum": [
+                                        "run_id",
+                                        "artifacts",
+                                        "validation_result",
+                                        "status",
+                                        "residue",
+                                        "audit_reference"
+                                    ]
+                                },
+                                "minItems": 1
+                            }
+                        ]
+                    },
+                    "stores": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "on_missing",
+                    "producer",
+                    "receipt_id",
+                    "required_fields"
+                ]
+            }
+        },
+        "residue": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "kind": {
+                                "enum": [
+                                    "failure_mode",
+                                    "unowned_state",
+                                    "drift",
+                                    "missing_receipt"
+                                ]
+                            },
+                            "owner": {
+                                "type": "string"
+                            },
+                            "severity": {
+                                "enum": [
+                                    "low",
+                                    "medium",
+                                    "high",
+                                    "severe"
+                                ]
+                            },
+                            "summary": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        },
+                        "required": [
+                            "kind",
+                            "severity",
+                            "summary"
+                        ]
+                    },
+                    "minItems": 1
+                }
+            ]
+        },
+        "runtime_profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "enum": [
+                        "dev",
+                        "single-vps",
+                        "split-vps",
+                        "ha"
+                    ]
+                }
+            },
+            "required": [
+                "name"
+            ]
+        },
+        "schema_version": {
+            "type": "string",
+            "minLength": 1
+        },
+        "services": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "dependencies": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "direction": {
+                                            "enum": [
+                                                "inbound",
+                                                "outbound",
+                                                "internal"
+                                            ]
+                                        },
+                                        "must_not_depend_on": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "target": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "direction",
+                                        "target"
+                                    ]
+                                }
+                            },
+                            "deployment": {
+                                "type": "object",
+                                "properties": {
+                                    "exposed": {
+                                        "type": "boolean"
+                                    },
+                                    "generated": {
+                                        "type": "boolean"
+                                    },
+                                    "image": {
+                                        "type": "string"
+                                    },
+                                    "instance_evidence": {
+                                        "enum": [
+                                            "present",
+                                            "absent"
+                                        ]
+                                    },
+                                    "internal_port": {
+                                        "type": "integer"
+                                    },
+                                    "registry": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "name": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "owner": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "reversal": {
+                                "type": "object",
+                                "properties": {
+                                    "backup": {
+                                        "type": "object",
+                                        "properties": {
+                                            "schedule": {
+                                                "type": "string"
+                                            },
+                                            "target": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "migration": {
+                                        "type": "object",
+                                        "properties": {
+                                            "forward": {
+                                                "type": "string"
+                                            },
+                                            "reverse": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "retention": {
+                                        "type": "object",
+                                        "properties": {
+                                            "namespace": {
+                                                "type": "string"
+                                            },
+                                            "policy": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "rollback": {
+                                        "type": "object",
+                                        "properties": {
+                                            "method": {
+                                                "type": "string"
+                                            },
+                                            "target": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "owner"
+                        ]
+                    },
+                    "minItems": 1
+                }
+            ]
+        },
+        "state_namespaces": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "namespace": {
+                        "enum": [
+                            "source",
+                            "runtime",
+                            "generated",
+                            "local",
+                            "private",
+                            "evidence"
+                        ]
+                    },
+                    "owner": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "retention": {
+                        "type": "string"
+                    },
+                    "write_policy": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "namespace",
+                    "owner",
+                    "write_policy"
+                ]
+            }
+        },
+        "status_class": {
+            "const": "candidate"
+        }
+    },
+    "not": {
+        "anyOf": [
+            {
+                "type": "null"
+            },
+            {
+                "type": "boolean"
+            },
+            {
+                "type": "number"
+            },
+            {
+                "type": "string"
+            },
+            {
+                "type": "array"
+            },
+            {
+                "type": "object",
+                "properties": {
+                    "status": true
+                },
+                "required": [
+                    "status"
+                ]
+            }
+        ]
+    },
+    "required": [
+        "environments",
+        "gates",
+        "infra_spec_id",
+        "project",
+        "promotion_status",
+        "residue",
+        "runtime_profile",
+        "schema_version",
+        "services",
+        "status_class"
+    ]
+}

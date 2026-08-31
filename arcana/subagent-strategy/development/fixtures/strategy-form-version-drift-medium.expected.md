@@ -8,7 +8,7 @@
 - Trigger decision: dispatch
 - Trigger evidence: synthesis and independent checking
 - Preflight: pass; the canonical repository-local form owner supersedes the stale personal projection
-- Confirmation readiness: pass after one pre-confirmation rematerialization; expected and observed schema are `0.7.0`; stale `0.6.0` projection warning preserved; exact digest returned; no ledger mutation
+- Confirmation readiness: pass after one pre-confirmation rematerialization; expected and observed schema are `0.6.1`; stale `0.6.0` projection warning preserved; exact digest returned; no ledger mutation
 - Confirmation requests: 1 total, 0 avoidable, 0 preventable post-confirmation revisions
 - Groups / lanes: one tensioned review group plus independent final approval
 - Subagents: differentiated reviewers with expected change-request outputs

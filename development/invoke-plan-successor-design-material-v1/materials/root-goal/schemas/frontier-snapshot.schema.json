@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/spells/goal/frontier-snapshot.schema.json",
+  "title": "Goal Frontier Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "snapshot_id",
+    "goal_context_id",
+    "source_ref",
+    "captured_at",
+    "nodes"
+  ],
+  "properties": {
+    "snapshot_id": {
+      "type": "string"
+    },
+    "goal_context_id": {
+      "type": "string"
+    },
+    "source_ref": {
+      "type": "string"
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "node_id",
+          "kind",
+          "status",
+          "summary"
+        ],
+        "properties": {
+          "node_id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "evidence_ref": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "active_blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "active_gaps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  }
+}

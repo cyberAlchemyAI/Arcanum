@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/work-pack-readiness-audit/selection-receipt/1-0-0",
+  "title": "PlanSelectionReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "selectionVerdict",
+    "terminalCode",
+    "requestDigest",
+    "manifestDigest",
+    "planEpochId",
+    "canonicalSemanticDigest",
+    "taskId",
+    "swuId",
+    "unitContractDigest",
+    "dependencyReceiptDigests",
+    "lifecycleEligibilityDigest",
+    "explicitConfirmationDigest",
+    "selectionIntentSource",
+    "selectionIntentDigest",
+    "authorityEffect",
+    "mutationReady",
+    "reasons"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"},
+    "selectionVerdict": {"enum": ["select", "block"]},
+    "terminalCode": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]+$"},
+    "requestDigest": {"$ref": "#/$defs/nullableSha256"},
+    "manifestDigest": {"$ref": "#/$defs/nullableSha256"},
+    "planEpochId": {"type": ["string", "null"], "pattern": "^epoch-[a-f0-9]{24}$"},
+    "canonicalSemanticDigest": {"$ref": "#/$defs/nullableSha256"},
+    "taskId": {"type": ["string", "null"], "minLength": 1},
+    "swuId": {"type": ["string", "null"], "minLength": 1},
+    "unitContractDigest": {"$ref": "#/$defs/nullableSha256"},
+    "dependencyReceiptDigests": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sha256"}
+    },
+    "lifecycleEligibilityDigest": {"$ref": "#/$defs/nullableSha256"},
+    "explicitConfirmationDigest": {"$ref": "#/$defs/nullableSha256"},
+    "selectionIntentSource": {
+      "enum": ["execution-intent-binding", "explicit-confirmation", "invalid"]
+    },
+    "selectionIntentDigest": {"$ref": "#/$defs/nullableSha256"},
+    "authorityEffect": {"const": "none"},
+    "mutationReady": {"const": false},
+    "reasons": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"selectionVerdict": {"const": "select"}}},
+      "then": {
+        "properties": {
+          "terminalCode": {"const": "SELECTION_READY"},
+          "requestDigest": {"$ref": "#/$defs/sha256"},
+          "manifestDigest": {"$ref": "#/$defs/sha256"},
+          "planEpochId": {"type": "string"},
+          "canonicalSemanticDigest": {"$ref": "#/$defs/sha256"},
+          "taskId": {"type": "string"},
+          "swuId": {"type": "string"},
+          "unitContractDigest": {"$ref": "#/$defs/sha256"},
+          "lifecycleEligibilityDigest": {"$ref": "#/$defs/sha256"},
+          "selectionIntentSource": {
+            "enum": ["execution-intent-binding", "explicit-confirmation"]
+          },
+          "selectionIntentDigest": {"$ref": "#/$defs/sha256"},
+          "reasons": {"maxItems": 0}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"selectionVerdict": {"const": "block"}}},
+      "then": {"properties": {"reasons": {"minItems": 1}}}
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "nullableSha256": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    }
+  }
+}

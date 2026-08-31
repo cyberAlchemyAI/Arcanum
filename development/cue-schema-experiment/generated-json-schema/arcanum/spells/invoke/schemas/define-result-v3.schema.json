@@ -1,0 +1,978 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "const": "https://arcanum.dev/schemas/invoke/define-result/v3"
+        },
+        "authority_effect": {
+            "const": "none"
+        },
+        "mode": {
+            "const": "define"
+        },
+        "next_route": {
+            "enum": [
+                "design",
+                "spellcraft",
+                "sigil-development",
+                "deferred"
+            ]
+        },
+        "outputs": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "prefixItems": [
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "semantic-context"
+                                        },
+                                        "path": {
+                                            "const": "DEFINE-SEMANTIC-CONTEXT.json"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "semantic-closure-receipt"
+                                        },
+                                        "path": {
+                                            "const": "DEFINE-SEMANTIC-CLOSURE-RECEIPT.json"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "spec"
+                                        },
+                                        "path": {
+                                            "const": "SPEC.md"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "definitions"
+                                        },
+                                        "path": {
+                                            "const": "DEFINITIONS.json"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "definitions-view"
+                                        },
+                                        "path": {
+                                            "const": "DEFINITIONS.md"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "glossary"
+                                        },
+                                        "path": {
+                                            "const": "GLOSSARY.md"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "layering"
+                                        },
+                                        "path": {
+                                            "enum": [
+                                                "IMPLEMENTATION-LAYERING.md",
+                                                "LAYERING-GAP.md"
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "template-selection"
+                                        },
+                                        "path": {
+                                            "const": "TEMPLATE-SELECTION-RECEIPT.json"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "dispatch-trace"
+                                        },
+                                        "path": {
+                                            "const": "DISPATCH-TRACE.json"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "distill"
+                                        },
+                                        "path": {
+                                            "const": "DISTILL-RECEIPT.json"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "identity-denominator"
+                                        },
+                                        "path": {
+                                            "const": "IDENTITY-DENOMINATOR-RECEIPT.json"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "transport"
+                                        },
+                                        "path": {
+                                            "const": "DEFINE-TRANSPORT-REPORT.json"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "maxItems": 12,
+                    "minItems": 12
+                }
+            ]
+        },
+        "owner_capability": {
+            "const": "invoke"
+        },
+        "producer": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "identity": {
+                    "const": "invoke.compile-define-source.v3"
+                },
+                "path": {
+                    "const": "arcanum/spells/invoke/scripts/compile_define_source_v3.py"
+                },
+                "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                }
+            },
+            "required": [
+                "identity",
+                "path",
+                "sha256"
+            ]
+        },
+        "profile_id": {
+            "const": "invoke.generic-definitions-baseline.v3"
+        },
+        "receipt_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+        },
+        "receipt_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+        },
+        "result": {
+            "const": "pass"
+        },
+        "schema_bindings": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "definitions_v1_schema_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                },
+                "definitions_v2_schema_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                },
+                "profile_schema_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                },
+                "result_schema_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                },
+                "source_schema_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                }
+            },
+            "required": [
+                "definitions_v1_schema_ref",
+                "definitions_v2_schema_ref",
+                "profile_schema_ref",
+                "result_schema_ref",
+                "source_schema_ref"
+            ]
+        },
+        "schema_version": {
+            "const": "invoke.define-stage-receipt.v3"
+        },
+        "semantic_evidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "closure_receipt_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                },
+                "context_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                }
+            },
+            "required": [
+                "closure_receipt_ref",
+                "context_ref"
+            ]
+        },
+        "semantic_outcome": {
+            "enum": [
+                "candidate-definitions",
+                "reference-only",
+                "mixed"
+            ]
+        },
+        "source_ref": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "size": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "path",
+                "sha256",
+                "size"
+            ]
+        },
+        "structural_schema_refs": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "definition_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "sha256": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "size": {
+                        "allOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "integer",
+                                "minimum": 0
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "definition_id",
+                    "path",
+                    "sha256",
+                    "size"
+                ]
+            },
+            "uniqueItems": true
+        }
+    },
+    "required": [
+        "$schema",
+        "authority_effect",
+        "mode",
+        "next_route",
+        "outputs",
+        "owner_capability",
+        "producer",
+        "profile_id",
+        "receipt_digest",
+        "receipt_id",
+        "result",
+        "schema_bindings",
+        "schema_version",
+        "semantic_evidence",
+        "semantic_outcome",
+        "source_ref",
+        "structural_schema_refs"
+    ]
+}

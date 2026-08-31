@@ -1,0 +1,1246 @@
+{
+  "boundary_evidence": {
+    "authority": {
+      "evidence": "experiment-harness",
+      "execution": "orchestrate",
+      "lifecycle": "invoke",
+      "promotion": "owning Invoke and Whisper lifecycle gates",
+      "validation": "experiment-harness and canonical Invoke compiler"
+    },
+    "boundaries": [
+      {
+        "applies_to_steps": [
+          "run-blinded-trials"
+        ],
+        "boundary_id": "trial-read-isolation",
+        "contract": "Each trial receives one guide, three cases, and its own manifest; other candidates, oracles, implementation contracts, and results remain forbidden reads.",
+        "from_owner": "experiment-harness",
+        "kind": "artifact_import",
+        "on_violation": "block",
+        "to_owner": "trial agents"
+      },
+      {
+        "applies_to_steps": [
+          "run-blinded-trials"
+        ],
+        "boundary_id": "first-attempt-receipt",
+        "contract": "Agents return source paths and receipts; the parent alone compiles and scores immutable first-attempt bytes.",
+        "from_owner": "trial agents",
+        "kind": "evidence_return",
+        "on_violation": "block",
+        "to_owner": "experiment-harness"
+      }
+    ],
+    "receipts": [
+      {
+        "on_missing": "block",
+        "producer": "six blinded trial agents",
+        "receipt_id": "trial-receipts",
+        "required_fields": [
+          "dispatch_id",
+          "step_id",
+          "capability_ref",
+          "status",
+          "artifacts",
+          "validation",
+          "blockers",
+          "residue",
+          "handoff_note"
+        ],
+        "stores": [
+          "receipts/trial-alpha-01.json",
+          "receipts/trial-beta-01.json",
+          "receipts/trial-gamma-01.json",
+          "receipts/trial-alpha-02.json",
+          "receipts/trial-beta-02.json",
+          "receipts/trial-gamma-02.json"
+        ]
+      }
+    ]
+  },
+  "dispatch_id": "invoke-define-v2-documentation-order-tournament-v1",
+  "gates": [
+    {
+      "condition": "The human confirms the exact hypothesis, candidates, cases, first-attempt rule, outcome rule, and six-trial strategy before any spawn.",
+      "gate_id": "criterion-frozen",
+      "kind": "human_approval",
+      "on_fail": "block",
+      "owner": "human"
+    },
+    {
+      "applies_after_wave": "replicate-01",
+      "condition": "All three replicate-01 trials are joined and closed with complete, non-contaminated receipts before replicate-02 starts.",
+      "gate_id": "wave-01-complete",
+      "kind": "validation",
+      "on_fail": "block",
+      "owner": "orchestrate",
+      "requires_role_receipts": [
+        "receipts/trial-alpha-01.json",
+        "receipts/trial-beta-01.json",
+        "receipts/trial-gamma-01.json"
+      ]
+    },
+    {
+      "condition": "The parent compiles each returned source exactly once and scores all frozen bytes with the unchanged oracle and scorer.",
+      "gate_id": "score-frozen-bytes",
+      "kind": "validation",
+      "on_fail": "block",
+      "owner": "experiment-harness"
+    },
+    {
+      "condition": "Tournament evidence remains development evidence and cannot directly promote the guide, transport, registry, or any generated definition.",
+      "gate_id": "no-promotion",
+      "kind": "promotion_guardrail",
+      "on_fail": "block",
+      "owner": "invoke"
+    }
+  ],
+  "intent": {
+    "arcanum_vocabulary": [
+      "invoke",
+      "whisper",
+      "experiment-harness",
+      "dispatch-spec",
+      "orchestrate"
+    ],
+    "objective": "Compare schema-order, tutorial-first, and ownership-first guides using six isolated agents, three satisfiable authoring cases, the canonical compiler, and a frozen deterministic scorer.",
+    "raw": "Run a real blinded tournament to determine whether documentation order changes first-attempt Invoke Define v2 authoring quality.",
+    "target_artifact": "spells/invoke/development/define-v2-documentation/tournament/SCORECARD.json"
+  },
+  "mode": "tournament",
+  "observability": {
+    "dispatch_id_required": true,
+    "signal_grouping": "dispatch_id, wave_id, role_id, and trial_id",
+    "trace_events": [
+      "criterion_frozen",
+      "trial_spawned",
+      "trial_joined",
+      "trial_closed",
+      "wave_gate_decided",
+      "frozen_sources_scored",
+      "tournament_adjudicated"
+    ]
+  },
+  "promotion_guardrails": [
+    "A winning guide remains a documentation candidate until its owning lifecycle accepts it.",
+    "Trial compile passes establish producer acceptance of sources, not semantic truth or active definition authority.",
+    "The candidate Whisper transport remains unproven by this bounded tournament."
+  ],
+  "steps": [
+    {
+      "capability_ref": "experiment-harness",
+      "capability_status": "local-extension",
+      "convergence_criteria": [
+        "all six agents return terminal receipts",
+        "each completed trial returns exactly three first-attempt source paths",
+        "no receipt discloses a forbidden read or compiler-assisted repair",
+        "the unchanged deterministic scorer produces one re-derivable verdict"
+      ],
+      "evidence_artifact": "spells/invoke/development/define-v2-documentation/tournament/SCORECARD.json",
+      "inputs": [
+        {
+          "kind": "intent",
+          "ref": "intent.raw"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/development/define-v2-documentation/tournament/guides/guide-alpha.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/TRIAL.json"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/development/define-v2-documentation/tournament/guides/guide-beta.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/TRIAL.json"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/development/define-v2-documentation/tournament/guides/guide-gamma.md"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/TRIAL.json"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/TRIAL.json"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/TRIAL.json"
+        },
+        {
+          "kind": "artifact",
+          "ref": "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/TRIAL.json"
+        }
+      ],
+      "join_policy": "all",
+      "mode": "run-all",
+      "name": "Run six isolated first-attempt documentation trials",
+      "outputs": [
+        {
+          "kind": "receipt",
+          "ref": "receipts/trial-alpha-01.json"
+        },
+        {
+          "kind": "receipt",
+          "ref": "receipts/trial-beta-01.json"
+        },
+        {
+          "kind": "receipt",
+          "ref": "receipts/trial-gamma-01.json"
+        },
+        {
+          "kind": "receipt",
+          "ref": "receipts/trial-alpha-02.json"
+        },
+        {
+          "kind": "receipt",
+          "ref": "receipts/trial-beta-02.json"
+        },
+        {
+          "kind": "receipt",
+          "ref": "receipts/trial-gamma-02.json"
+        }
+      ],
+      "parallel": true,
+      "pattern": "tournament",
+      "roles": [
+        "trial-alpha-01",
+        "trial-beta-01",
+        "trial-gamma-01",
+        "trial-alpha-02",
+        "trial-beta-02",
+        "trial-gamma-02"
+      ],
+      "step_id": "run-blinded-trials",
+      "stop_conditions": [
+        "stop if the criterion is not frozen before the first spawn",
+        "stop if any briefing digest, guide manifest, oracle, compiler, or scorer changed after freeze",
+        "stop if any agent reads a forbidden scope or repairs a source after parent compilation",
+        "stop if a wave is incomplete; do not substitute a new trial implicitly"
+      ],
+      "techniques": [
+        "tournament",
+        "toy_game",
+        "validation_loop",
+        "role_projection_boundary",
+        "execution_receipt_handoff",
+        "concrete_path_evidence",
+        "owner_boundary_check"
+      ]
+    }
+  ],
+  "subagent_lifecycle": {
+    "agents": [],
+    "status": "none"
+  },
+  "subagent_strategy": {
+    "authorization": "requires_user_permission",
+    "binding_mode": "capability-bound",
+    "context": [
+      "All candidates contain identical rendered section bytes; only order changes.",
+      "Each trial authors the same three satisfiable public Define v2 cases.",
+      "The parent alone compiles and scores frozen first-attempt bytes."
+    ],
+    "execution_owner": "orchestrate",
+    "execution_waves": [
+      {
+        "gate_after": "wave-01-complete",
+        "join_policy": "all",
+        "on_incomplete": "block",
+        "parallel": true,
+        "role_ids": [
+          "trial-alpha-01",
+          "trial-beta-01",
+          "trial-gamma-01"
+        ],
+        "wave_id": "replicate-01"
+      },
+      {
+        "depends_on_waves": [
+          "replicate-01"
+        ],
+        "join_policy": "all",
+        "on_incomplete": "block",
+        "parallel": true,
+        "role_ids": [
+          "trial-alpha-02",
+          "trial-beta-02",
+          "trial-gamma-02"
+        ],
+        "wave_id": "replicate-02"
+      }
+    ],
+    "explanation": "Two replicas per candidate provide directional behavioral evidence while two balanced waves respect the host concurrency limit.",
+    "join_policy": "all",
+    "parallelism": "tournament",
+    "permission_prompt": "Confirm the frozen criterion and run six blinded trials: two agents per guide, each authoring all three cases, followed by one root-owned first-attempt score?",
+    "receipt_requirements": [
+      "agent_id",
+      "role_id",
+      "spawn_status",
+      "join_status",
+      "close_status",
+      "dispatch_id",
+      "step_id",
+      "capability_ref",
+      "capability_target",
+      "capability_mode",
+      "wave_id",
+      "write_scope",
+      "status",
+      "artifacts",
+      "validation",
+      "observer_status",
+      "blockers",
+      "residue",
+      "reroute",
+      "handoff_note"
+    ],
+    "roles": [
+      {
+        "agent_count": 1,
+        "applies_to_steps": [
+          "run-blinded-trials"
+        ],
+        "briefing_binding": {
+          "briefing": {
+            "agent_identity": "Blinded documentation trial trial-alpha-01",
+            "angle": "Use only opaque candidate alpha to author the same three first-attempt sources.",
+            "authority_ceiling": {
+              "allowed_actions": [
+                "read_declared_inputs",
+                "compute_exact_evidence",
+                "write_declared_source_proposals",
+                "return_trial_receipt"
+              ],
+              "forbidden_actions": [
+                "read_forbidden_inputs",
+                "run_define_compiler_or_validator",
+                "repair_after_scoring",
+                "acceptance",
+                "promotion",
+                "publication",
+                "deployment",
+                "production_claim"
+              ],
+              "summary": "Author only three candidate-local first-attempt source proposals for one blinded trial."
+            },
+            "instructions": "Run the blinded Invoke Define v2 documentation trial trial-alpha-01. Read only the assigned guide guide-alpha.md, the three declared case directories, and this trial's manifest and source directory. Treat the three cases as the explicit all-case experiment set. Use ordinary local tools to inspect allowed files and compute exact repository-relative paths, SHA-256 digests, byte sizes, selectors, and line bounds. Do not read any other candidate, oracle, scorer, renderer, dispatch artifact, Invoke schema, compiler, validator, test, or prior trial. Do not run the Invoke compiler or validators. Author exactly case-01.json, case-02.json, and case-03.json in the declared write scope. Stop after the first complete source bytes; do not repair them from compiler feedback. If any forbidden read occurs, return task_status=blocked and name it in blockers. Return the required receipt fields and do not claim semantic truth, acceptance, promotion, publication, deployment, or production readiness.",
+            "read_policy": {
+              "allowed_read_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-alpha.md",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/TRIAL.json",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources"
+              ],
+              "forbidden_read_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/content",
+                "spells/invoke/development/define-v2-documentation/tournament/oracle",
+                "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+                "spells/invoke/development/define-v2-documentation/tournament/render_candidates.py",
+                "spells/invoke/development/define-v2-documentation/tournament/build_oracle_sources.py",
+                "spells/invoke/development/define-v2-documentation/tournament/prepare_dispatch.py",
+                "spells/invoke/development/define-v2-documentation/tournament/score_tournament.py",
+                "spells/invoke/schemas",
+                "spells/invoke/scripts/compile_define_source_v2.py",
+                "spells/invoke/scripts/validate_definitions_artifact.py",
+                "spells/invoke/development/test_compile_define_source_v2.py",
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-beta.md",
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-gamma.md",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02"
+              ],
+              "input_refs": [
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-alpha.md",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/TRIAL.json"
+              ],
+              "required_input_refs_readable": true
+            },
+            "receipt_shape": {
+              "completion_requires_all_fields": true,
+              "required_fields": [
+                "task_status",
+                "domain_gate_status",
+                "artifacts",
+                "validation",
+                "blockers",
+                "residue",
+                "handoff_note"
+              ]
+            },
+            "status_semantics": {
+              "domain_gate_is_separate": true,
+              "domain_gate_status_field": "domain_gate_status",
+              "task_blocked_value": "blocked",
+              "task_complete_value": "completed",
+              "task_status_field": "task_status"
+            },
+            "write_policy": {
+              "forbidden_write_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/content",
+                "spells/invoke/development/define-v2-documentation/tournament/oracle",
+                "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+                "spells/invoke/development/define-v2-documentation/tournament/guides",
+                "spells/invoke/development/define-v2-documentation/tournament/cases",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources",
+                "spells/invoke/schemas",
+                "spells/invoke/scripts"
+              ],
+              "mutation_policy": "proposal-only",
+              "write_scope": [
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources"
+              ]
+            }
+          },
+          "briefing_sha256": "c660d4f1c57b275135fbe357965d0d84854cf68d32f0af7d3e742a1b21e6dddc",
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {
+            "artifact_path": "briefings.json",
+            "artifact_sha256": "86fc6267adbd9ee00825d8a443c4f6e2dea6970e7437ddb090676142556d70db",
+            "selected_payload_sha256": "c660d4f1c57b275135fbe357965d0d84854cf68d32f0af7d3e742a1b21e6dddc",
+            "selector": "/roles/trial-alpha-01"
+          }
+        },
+        "capability_mode": "run-all",
+        "capability_ref": "experiment-harness",
+        "capability_target": "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01",
+        "depends_on_roles": [],
+        "forbidden_write_scopes": [
+          "spells/invoke/development/define-v2-documentation/tournament/content",
+          "spells/invoke/development/define-v2-documentation/tournament/oracle",
+          "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+          "spells/invoke/development/define-v2-documentation/tournament/guides",
+          "spells/invoke/development/define-v2-documentation/tournament/cases",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources",
+          "spells/invoke/schemas",
+          "spells/invoke/scripts"
+        ],
+        "input_refs": [
+          "spells/invoke/development/define-v2-documentation/tournament/guides/guide-alpha.md",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/TRIAL.json"
+        ],
+        "mutation_policy": "proposal-only",
+        "output_refs": [
+          "receipts/trial-alpha-01.json"
+        ],
+        "owns": "The source proposals and receipt for trial-alpha-01 only.",
+        "purpose": "Produce three first-attempt Define v2 sources using opaque guide alpha.",
+        "role_id": "trial-alpha-01",
+        "write_scope": [
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources"
+        ]
+      },
+      {
+        "agent_count": 1,
+        "applies_to_steps": [
+          "run-blinded-trials"
+        ],
+        "briefing_binding": {
+          "briefing": {
+            "agent_identity": "Blinded documentation trial trial-beta-01",
+            "angle": "Use only opaque candidate beta to author the same three first-attempt sources.",
+            "authority_ceiling": {
+              "allowed_actions": [
+                "read_declared_inputs",
+                "compute_exact_evidence",
+                "write_declared_source_proposals",
+                "return_trial_receipt"
+              ],
+              "forbidden_actions": [
+                "read_forbidden_inputs",
+                "run_define_compiler_or_validator",
+                "repair_after_scoring",
+                "acceptance",
+                "promotion",
+                "publication",
+                "deployment",
+                "production_claim"
+              ],
+              "summary": "Author only three candidate-local first-attempt source proposals for one blinded trial."
+            },
+            "instructions": "Run the blinded Invoke Define v2 documentation trial trial-beta-01. Read only the assigned guide guide-beta.md, the three declared case directories, and this trial's manifest and source directory. Treat the three cases as the explicit all-case experiment set. Use ordinary local tools to inspect allowed files and compute exact repository-relative paths, SHA-256 digests, byte sizes, selectors, and line bounds. Do not read any other candidate, oracle, scorer, renderer, dispatch artifact, Invoke schema, compiler, validator, test, or prior trial. Do not run the Invoke compiler or validators. Author exactly case-01.json, case-02.json, and case-03.json in the declared write scope. Stop after the first complete source bytes; do not repair them from compiler feedback. If any forbidden read occurs, return task_status=blocked and name it in blockers. Return the required receipt fields and do not claim semantic truth, acceptance, promotion, publication, deployment, or production readiness.",
+            "read_policy": {
+              "allowed_read_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-beta.md",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/TRIAL.json",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources"
+              ],
+              "forbidden_read_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/content",
+                "spells/invoke/development/define-v2-documentation/tournament/oracle",
+                "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+                "spells/invoke/development/define-v2-documentation/tournament/render_candidates.py",
+                "spells/invoke/development/define-v2-documentation/tournament/build_oracle_sources.py",
+                "spells/invoke/development/define-v2-documentation/tournament/prepare_dispatch.py",
+                "spells/invoke/development/define-v2-documentation/tournament/score_tournament.py",
+                "spells/invoke/schemas",
+                "spells/invoke/scripts/compile_define_source_v2.py",
+                "spells/invoke/scripts/validate_definitions_artifact.py",
+                "spells/invoke/development/test_compile_define_source_v2.py",
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-alpha.md",
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-gamma.md",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02"
+              ],
+              "input_refs": [
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-beta.md",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/TRIAL.json"
+              ],
+              "required_input_refs_readable": true
+            },
+            "receipt_shape": {
+              "completion_requires_all_fields": true,
+              "required_fields": [
+                "task_status",
+                "domain_gate_status",
+                "artifacts",
+                "validation",
+                "blockers",
+                "residue",
+                "handoff_note"
+              ]
+            },
+            "status_semantics": {
+              "domain_gate_is_separate": true,
+              "domain_gate_status_field": "domain_gate_status",
+              "task_blocked_value": "blocked",
+              "task_complete_value": "completed",
+              "task_status_field": "task_status"
+            },
+            "write_policy": {
+              "forbidden_write_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/content",
+                "spells/invoke/development/define-v2-documentation/tournament/oracle",
+                "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+                "spells/invoke/development/define-v2-documentation/tournament/guides",
+                "spells/invoke/development/define-v2-documentation/tournament/cases",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources",
+                "spells/invoke/schemas",
+                "spells/invoke/scripts"
+              ],
+              "mutation_policy": "proposal-only",
+              "write_scope": [
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources"
+              ]
+            }
+          },
+          "briefing_sha256": "3bcea1e69a173c00afb66e6b1427547af4d103b1ac24b545128244a14a75d0a9",
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {
+            "artifact_path": "briefings.json",
+            "artifact_sha256": "86fc6267adbd9ee00825d8a443c4f6e2dea6970e7437ddb090676142556d70db",
+            "selected_payload_sha256": "3bcea1e69a173c00afb66e6b1427547af4d103b1ac24b545128244a14a75d0a9",
+            "selector": "/roles/trial-beta-01"
+          }
+        },
+        "capability_mode": "run-all",
+        "capability_ref": "experiment-harness",
+        "capability_target": "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01",
+        "depends_on_roles": [],
+        "forbidden_write_scopes": [
+          "spells/invoke/development/define-v2-documentation/tournament/content",
+          "spells/invoke/development/define-v2-documentation/tournament/oracle",
+          "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+          "spells/invoke/development/define-v2-documentation/tournament/guides",
+          "spells/invoke/development/define-v2-documentation/tournament/cases",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources",
+          "spells/invoke/schemas",
+          "spells/invoke/scripts"
+        ],
+        "input_refs": [
+          "spells/invoke/development/define-v2-documentation/tournament/guides/guide-beta.md",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/TRIAL.json"
+        ],
+        "mutation_policy": "proposal-only",
+        "output_refs": [
+          "receipts/trial-beta-01.json"
+        ],
+        "owns": "The source proposals and receipt for trial-beta-01 only.",
+        "purpose": "Produce three first-attempt Define v2 sources using opaque guide beta.",
+        "role_id": "trial-beta-01",
+        "write_scope": [
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources"
+        ]
+      },
+      {
+        "agent_count": 1,
+        "applies_to_steps": [
+          "run-blinded-trials"
+        ],
+        "briefing_binding": {
+          "briefing": {
+            "agent_identity": "Blinded documentation trial trial-gamma-01",
+            "angle": "Use only opaque candidate gamma to author the same three first-attempt sources.",
+            "authority_ceiling": {
+              "allowed_actions": [
+                "read_declared_inputs",
+                "compute_exact_evidence",
+                "write_declared_source_proposals",
+                "return_trial_receipt"
+              ],
+              "forbidden_actions": [
+                "read_forbidden_inputs",
+                "run_define_compiler_or_validator",
+                "repair_after_scoring",
+                "acceptance",
+                "promotion",
+                "publication",
+                "deployment",
+                "production_claim"
+              ],
+              "summary": "Author only three candidate-local first-attempt source proposals for one blinded trial."
+            },
+            "instructions": "Run the blinded Invoke Define v2 documentation trial trial-gamma-01. Read only the assigned guide guide-gamma.md, the three declared case directories, and this trial's manifest and source directory. Treat the three cases as the explicit all-case experiment set. Use ordinary local tools to inspect allowed files and compute exact repository-relative paths, SHA-256 digests, byte sizes, selectors, and line bounds. Do not read any other candidate, oracle, scorer, renderer, dispatch artifact, Invoke schema, compiler, validator, test, or prior trial. Do not run the Invoke compiler or validators. Author exactly case-01.json, case-02.json, and case-03.json in the declared write scope. Stop after the first complete source bytes; do not repair them from compiler feedback. If any forbidden read occurs, return task_status=blocked and name it in blockers. Return the required receipt fields and do not claim semantic truth, acceptance, promotion, publication, deployment, or production readiness.",
+            "read_policy": {
+              "allowed_read_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-gamma.md",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/TRIAL.json",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources"
+              ],
+              "forbidden_read_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/content",
+                "spells/invoke/development/define-v2-documentation/tournament/oracle",
+                "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+                "spells/invoke/development/define-v2-documentation/tournament/render_candidates.py",
+                "spells/invoke/development/define-v2-documentation/tournament/build_oracle_sources.py",
+                "spells/invoke/development/define-v2-documentation/tournament/prepare_dispatch.py",
+                "spells/invoke/development/define-v2-documentation/tournament/score_tournament.py",
+                "spells/invoke/schemas",
+                "spells/invoke/scripts/compile_define_source_v2.py",
+                "spells/invoke/scripts/validate_definitions_artifact.py",
+                "spells/invoke/development/test_compile_define_source_v2.py",
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-alpha.md",
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-beta.md",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02"
+              ],
+              "input_refs": [
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-gamma.md",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/TRIAL.json"
+              ],
+              "required_input_refs_readable": true
+            },
+            "receipt_shape": {
+              "completion_requires_all_fields": true,
+              "required_fields": [
+                "task_status",
+                "domain_gate_status",
+                "artifacts",
+                "validation",
+                "blockers",
+                "residue",
+                "handoff_note"
+              ]
+            },
+            "status_semantics": {
+              "domain_gate_is_separate": true,
+              "domain_gate_status_field": "domain_gate_status",
+              "task_blocked_value": "blocked",
+              "task_complete_value": "completed",
+              "task_status_field": "task_status"
+            },
+            "write_policy": {
+              "forbidden_write_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/content",
+                "spells/invoke/development/define-v2-documentation/tournament/oracle",
+                "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+                "spells/invoke/development/define-v2-documentation/tournament/guides",
+                "spells/invoke/development/define-v2-documentation/tournament/cases",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources",
+                "spells/invoke/schemas",
+                "spells/invoke/scripts"
+              ],
+              "mutation_policy": "proposal-only",
+              "write_scope": [
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources"
+              ]
+            }
+          },
+          "briefing_sha256": "c1a59b1904bf738ee1d4e459b8a43543e6ce4053af07188a9d636f21cdcb9626",
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {
+            "artifact_path": "briefings.json",
+            "artifact_sha256": "86fc6267adbd9ee00825d8a443c4f6e2dea6970e7437ddb090676142556d70db",
+            "selected_payload_sha256": "c1a59b1904bf738ee1d4e459b8a43543e6ce4053af07188a9d636f21cdcb9626",
+            "selector": "/roles/trial-gamma-01"
+          }
+        },
+        "capability_mode": "run-all",
+        "capability_ref": "experiment-harness",
+        "capability_target": "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01",
+        "depends_on_roles": [],
+        "forbidden_write_scopes": [
+          "spells/invoke/development/define-v2-documentation/tournament/content",
+          "spells/invoke/development/define-v2-documentation/tournament/oracle",
+          "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+          "spells/invoke/development/define-v2-documentation/tournament/guides",
+          "spells/invoke/development/define-v2-documentation/tournament/cases",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources",
+          "spells/invoke/schemas",
+          "spells/invoke/scripts"
+        ],
+        "input_refs": [
+          "spells/invoke/development/define-v2-documentation/tournament/guides/guide-gamma.md",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/TRIAL.json"
+        ],
+        "mutation_policy": "proposal-only",
+        "output_refs": [
+          "receipts/trial-gamma-01.json"
+        ],
+        "owns": "The source proposals and receipt for trial-gamma-01 only.",
+        "purpose": "Produce three first-attempt Define v2 sources using opaque guide gamma.",
+        "role_id": "trial-gamma-01",
+        "write_scope": [
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources"
+        ]
+      },
+      {
+        "agent_count": 1,
+        "applies_to_steps": [
+          "run-blinded-trials"
+        ],
+        "briefing_binding": {
+          "briefing": {
+            "agent_identity": "Blinded documentation trial trial-alpha-02",
+            "angle": "Use only opaque candidate alpha to author the same three first-attempt sources.",
+            "authority_ceiling": {
+              "allowed_actions": [
+                "read_declared_inputs",
+                "compute_exact_evidence",
+                "write_declared_source_proposals",
+                "return_trial_receipt"
+              ],
+              "forbidden_actions": [
+                "read_forbidden_inputs",
+                "run_define_compiler_or_validator",
+                "repair_after_scoring",
+                "acceptance",
+                "promotion",
+                "publication",
+                "deployment",
+                "production_claim"
+              ],
+              "summary": "Author only three candidate-local first-attempt source proposals for one blinded trial."
+            },
+            "instructions": "Run the blinded Invoke Define v2 documentation trial trial-alpha-02. Read only the assigned guide guide-alpha.md, the three declared case directories, and this trial's manifest and source directory. Treat the three cases as the explicit all-case experiment set. Use ordinary local tools to inspect allowed files and compute exact repository-relative paths, SHA-256 digests, byte sizes, selectors, and line bounds. Do not read any other candidate, oracle, scorer, renderer, dispatch artifact, Invoke schema, compiler, validator, test, or prior trial. Do not run the Invoke compiler or validators. Author exactly case-01.json, case-02.json, and case-03.json in the declared write scope. Stop after the first complete source bytes; do not repair them from compiler feedback. If any forbidden read occurs, return task_status=blocked and name it in blockers. Return the required receipt fields and do not claim semantic truth, acceptance, promotion, publication, deployment, or production readiness.",
+            "read_policy": {
+              "allowed_read_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-alpha.md",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/TRIAL.json",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources"
+              ],
+              "forbidden_read_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/content",
+                "spells/invoke/development/define-v2-documentation/tournament/oracle",
+                "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+                "spells/invoke/development/define-v2-documentation/tournament/render_candidates.py",
+                "spells/invoke/development/define-v2-documentation/tournament/build_oracle_sources.py",
+                "spells/invoke/development/define-v2-documentation/tournament/prepare_dispatch.py",
+                "spells/invoke/development/define-v2-documentation/tournament/score_tournament.py",
+                "spells/invoke/schemas",
+                "spells/invoke/scripts/compile_define_source_v2.py",
+                "spells/invoke/scripts/validate_definitions_artifact.py",
+                "spells/invoke/development/test_compile_define_source_v2.py",
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-beta.md",
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-gamma.md",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02"
+              ],
+              "input_refs": [
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-alpha.md",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/TRIAL.json"
+              ],
+              "required_input_refs_readable": true
+            },
+            "receipt_shape": {
+              "completion_requires_all_fields": true,
+              "required_fields": [
+                "task_status",
+                "domain_gate_status",
+                "artifacts",
+                "validation",
+                "blockers",
+                "residue",
+                "handoff_note"
+              ]
+            },
+            "status_semantics": {
+              "domain_gate_is_separate": true,
+              "domain_gate_status_field": "domain_gate_status",
+              "task_blocked_value": "blocked",
+              "task_complete_value": "completed",
+              "task_status_field": "task_status"
+            },
+            "write_policy": {
+              "forbidden_write_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/content",
+                "spells/invoke/development/define-v2-documentation/tournament/oracle",
+                "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+                "spells/invoke/development/define-v2-documentation/tournament/guides",
+                "spells/invoke/development/define-v2-documentation/tournament/cases",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources",
+                "spells/invoke/schemas",
+                "spells/invoke/scripts"
+              ],
+              "mutation_policy": "proposal-only",
+              "write_scope": [
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources"
+              ]
+            }
+          },
+          "briefing_sha256": "c525a3c27f0afd9cdbd211af0f568237605a9b087b204f44901fe5b212a11444",
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {
+            "artifact_path": "briefings.json",
+            "artifact_sha256": "86fc6267adbd9ee00825d8a443c4f6e2dea6970e7437ddb090676142556d70db",
+            "selected_payload_sha256": "c525a3c27f0afd9cdbd211af0f568237605a9b087b204f44901fe5b212a11444",
+            "selector": "/roles/trial-alpha-02"
+          }
+        },
+        "capability_mode": "run-all",
+        "capability_ref": "experiment-harness",
+        "capability_target": "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02",
+        "depends_on_roles": [],
+        "forbidden_write_scopes": [
+          "spells/invoke/development/define-v2-documentation/tournament/content",
+          "spells/invoke/development/define-v2-documentation/tournament/oracle",
+          "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+          "spells/invoke/development/define-v2-documentation/tournament/guides",
+          "spells/invoke/development/define-v2-documentation/tournament/cases",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources",
+          "spells/invoke/schemas",
+          "spells/invoke/scripts"
+        ],
+        "input_refs": [
+          "spells/invoke/development/define-v2-documentation/tournament/guides/guide-alpha.md",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/TRIAL.json"
+        ],
+        "mutation_policy": "proposal-only",
+        "output_refs": [
+          "receipts/trial-alpha-02.json"
+        ],
+        "owns": "The source proposals and receipt for trial-alpha-02 only.",
+        "purpose": "Produce three first-attempt Define v2 sources using opaque guide alpha.",
+        "role_id": "trial-alpha-02",
+        "write_scope": [
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources"
+        ]
+      },
+      {
+        "agent_count": 1,
+        "applies_to_steps": [
+          "run-blinded-trials"
+        ],
+        "briefing_binding": {
+          "briefing": {
+            "agent_identity": "Blinded documentation trial trial-beta-02",
+            "angle": "Use only opaque candidate beta to author the same three first-attempt sources.",
+            "authority_ceiling": {
+              "allowed_actions": [
+                "read_declared_inputs",
+                "compute_exact_evidence",
+                "write_declared_source_proposals",
+                "return_trial_receipt"
+              ],
+              "forbidden_actions": [
+                "read_forbidden_inputs",
+                "run_define_compiler_or_validator",
+                "repair_after_scoring",
+                "acceptance",
+                "promotion",
+                "publication",
+                "deployment",
+                "production_claim"
+              ],
+              "summary": "Author only three candidate-local first-attempt source proposals for one blinded trial."
+            },
+            "instructions": "Run the blinded Invoke Define v2 documentation trial trial-beta-02. Read only the assigned guide guide-beta.md, the three declared case directories, and this trial's manifest and source directory. Treat the three cases as the explicit all-case experiment set. Use ordinary local tools to inspect allowed files and compute exact repository-relative paths, SHA-256 digests, byte sizes, selectors, and line bounds. Do not read any other candidate, oracle, scorer, renderer, dispatch artifact, Invoke schema, compiler, validator, test, or prior trial. Do not run the Invoke compiler or validators. Author exactly case-01.json, case-02.json, and case-03.json in the declared write scope. Stop after the first complete source bytes; do not repair them from compiler feedback. If any forbidden read occurs, return task_status=blocked and name it in blockers. Return the required receipt fields and do not claim semantic truth, acceptance, promotion, publication, deployment, or production readiness.",
+            "read_policy": {
+              "allowed_read_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-beta.md",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/TRIAL.json",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources"
+              ],
+              "forbidden_read_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/content",
+                "spells/invoke/development/define-v2-documentation/tournament/oracle",
+                "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+                "spells/invoke/development/define-v2-documentation/tournament/render_candidates.py",
+                "spells/invoke/development/define-v2-documentation/tournament/build_oracle_sources.py",
+                "spells/invoke/development/define-v2-documentation/tournament/prepare_dispatch.py",
+                "spells/invoke/development/define-v2-documentation/tournament/score_tournament.py",
+                "spells/invoke/schemas",
+                "spells/invoke/scripts/compile_define_source_v2.py",
+                "spells/invoke/scripts/validate_definitions_artifact.py",
+                "spells/invoke/development/test_compile_define_source_v2.py",
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-alpha.md",
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-gamma.md",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02"
+              ],
+              "input_refs": [
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-beta.md",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/TRIAL.json"
+              ],
+              "required_input_refs_readable": true
+            },
+            "receipt_shape": {
+              "completion_requires_all_fields": true,
+              "required_fields": [
+                "task_status",
+                "domain_gate_status",
+                "artifacts",
+                "validation",
+                "blockers",
+                "residue",
+                "handoff_note"
+              ]
+            },
+            "status_semantics": {
+              "domain_gate_is_separate": true,
+              "domain_gate_status_field": "domain_gate_status",
+              "task_blocked_value": "blocked",
+              "task_complete_value": "completed",
+              "task_status_field": "task_status"
+            },
+            "write_policy": {
+              "forbidden_write_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/content",
+                "spells/invoke/development/define-v2-documentation/tournament/oracle",
+                "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+                "spells/invoke/development/define-v2-documentation/tournament/guides",
+                "spells/invoke/development/define-v2-documentation/tournament/cases",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources",
+                "spells/invoke/schemas",
+                "spells/invoke/scripts"
+              ],
+              "mutation_policy": "proposal-only",
+              "write_scope": [
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources"
+              ]
+            }
+          },
+          "briefing_sha256": "0382bdf097145066f6d1f651d8f18d3484e34c168cd46c87af76887a2f7b807d",
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {
+            "artifact_path": "briefings.json",
+            "artifact_sha256": "86fc6267adbd9ee00825d8a443c4f6e2dea6970e7437ddb090676142556d70db",
+            "selected_payload_sha256": "0382bdf097145066f6d1f651d8f18d3484e34c168cd46c87af76887a2f7b807d",
+            "selector": "/roles/trial-beta-02"
+          }
+        },
+        "capability_mode": "run-all",
+        "capability_ref": "experiment-harness",
+        "capability_target": "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02",
+        "depends_on_roles": [],
+        "forbidden_write_scopes": [
+          "spells/invoke/development/define-v2-documentation/tournament/content",
+          "spells/invoke/development/define-v2-documentation/tournament/oracle",
+          "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+          "spells/invoke/development/define-v2-documentation/tournament/guides",
+          "spells/invoke/development/define-v2-documentation/tournament/cases",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources",
+          "spells/invoke/schemas",
+          "spells/invoke/scripts"
+        ],
+        "input_refs": [
+          "spells/invoke/development/define-v2-documentation/tournament/guides/guide-beta.md",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/TRIAL.json"
+        ],
+        "mutation_policy": "proposal-only",
+        "output_refs": [
+          "receipts/trial-beta-02.json"
+        ],
+        "owns": "The source proposals and receipt for trial-beta-02 only.",
+        "purpose": "Produce three first-attempt Define v2 sources using opaque guide beta.",
+        "role_id": "trial-beta-02",
+        "write_scope": [
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources"
+        ]
+      },
+      {
+        "agent_count": 1,
+        "applies_to_steps": [
+          "run-blinded-trials"
+        ],
+        "briefing_binding": {
+          "briefing": {
+            "agent_identity": "Blinded documentation trial trial-gamma-02",
+            "angle": "Use only opaque candidate gamma to author the same three first-attempt sources.",
+            "authority_ceiling": {
+              "allowed_actions": [
+                "read_declared_inputs",
+                "compute_exact_evidence",
+                "write_declared_source_proposals",
+                "return_trial_receipt"
+              ],
+              "forbidden_actions": [
+                "read_forbidden_inputs",
+                "run_define_compiler_or_validator",
+                "repair_after_scoring",
+                "acceptance",
+                "promotion",
+                "publication",
+                "deployment",
+                "production_claim"
+              ],
+              "summary": "Author only three candidate-local first-attempt source proposals for one blinded trial."
+            },
+            "instructions": "Run the blinded Invoke Define v2 documentation trial trial-gamma-02. Read only the assigned guide guide-gamma.md, the three declared case directories, and this trial's manifest and source directory. Treat the three cases as the explicit all-case experiment set. Use ordinary local tools to inspect allowed files and compute exact repository-relative paths, SHA-256 digests, byte sizes, selectors, and line bounds. Do not read any other candidate, oracle, scorer, renderer, dispatch artifact, Invoke schema, compiler, validator, test, or prior trial. Do not run the Invoke compiler or validators. Author exactly case-01.json, case-02.json, and case-03.json in the declared write scope. Stop after the first complete source bytes; do not repair them from compiler feedback. If any forbidden read occurs, return task_status=blocked and name it in blockers. Return the required receipt fields and do not claim semantic truth, acceptance, promotion, publication, deployment, or production readiness.",
+            "read_policy": {
+              "allowed_read_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-gamma.md",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/TRIAL.json",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources"
+              ],
+              "forbidden_read_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/content",
+                "spells/invoke/development/define-v2-documentation/tournament/oracle",
+                "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+                "spells/invoke/development/define-v2-documentation/tournament/render_candidates.py",
+                "spells/invoke/development/define-v2-documentation/tournament/build_oracle_sources.py",
+                "spells/invoke/development/define-v2-documentation/tournament/prepare_dispatch.py",
+                "spells/invoke/development/define-v2-documentation/tournament/score_tournament.py",
+                "spells/invoke/schemas",
+                "spells/invoke/scripts/compile_define_source_v2.py",
+                "spells/invoke/scripts/validate_definitions_artifact.py",
+                "spells/invoke/development/test_compile_define_source_v2.py",
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-alpha.md",
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-beta.md",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02"
+              ],
+              "input_refs": [
+                "spells/invoke/development/define-v2-documentation/tournament/guides/guide-gamma.md",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+                "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/TRIAL.json"
+              ],
+              "required_input_refs_readable": true
+            },
+            "receipt_shape": {
+              "completion_requires_all_fields": true,
+              "required_fields": [
+                "task_status",
+                "domain_gate_status",
+                "artifacts",
+                "validation",
+                "blockers",
+                "residue",
+                "handoff_note"
+              ]
+            },
+            "status_semantics": {
+              "domain_gate_is_separate": true,
+              "domain_gate_status_field": "domain_gate_status",
+              "task_blocked_value": "blocked",
+              "task_complete_value": "completed",
+              "task_status_field": "task_status"
+            },
+            "write_policy": {
+              "forbidden_write_scopes": [
+                "spells/invoke/development/define-v2-documentation/tournament/content",
+                "spells/invoke/development/define-v2-documentation/tournament/oracle",
+                "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+                "spells/invoke/development/define-v2-documentation/tournament/guides",
+                "spells/invoke/development/define-v2-documentation/tournament/cases",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources",
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources",
+                "spells/invoke/schemas",
+                "spells/invoke/scripts"
+              ],
+              "mutation_policy": "proposal-only",
+              "write_scope": [
+                "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources"
+              ]
+            }
+          },
+          "briefing_sha256": "c5cf3f5560c3c4d8719038e41708eadc39e6e10ae863ef3816e334cb0cca0bdb",
+          "contract_version": "arcanum.confirmed-role-briefing.v0.1",
+          "source_binding": {
+            "artifact_path": "briefings.json",
+            "artifact_sha256": "86fc6267adbd9ee00825d8a443c4f6e2dea6970e7437ddb090676142556d70db",
+            "selected_payload_sha256": "c5cf3f5560c3c4d8719038e41708eadc39e6e10ae863ef3816e334cb0cca0bdb",
+            "selector": "/roles/trial-gamma-02"
+          }
+        },
+        "capability_mode": "run-all",
+        "capability_ref": "experiment-harness",
+        "capability_target": "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02",
+        "depends_on_roles": [],
+        "forbidden_write_scopes": [
+          "spells/invoke/development/define-v2-documentation/tournament/content",
+          "spells/invoke/development/define-v2-documentation/tournament/oracle",
+          "spells/invoke/development/define-v2-documentation/tournament/dispatch",
+          "spells/invoke/development/define-v2-documentation/tournament/guides",
+          "spells/invoke/development/define-v2-documentation/tournament/cases",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-01/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-alpha-02/sources",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-beta-02/sources",
+          "spells/invoke/schemas",
+          "spells/invoke/scripts"
+        ],
+        "input_refs": [
+          "spells/invoke/development/define-v2-documentation/tournament/guides/guide-gamma.md",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-01-simple",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-02-relations",
+          "spells/invoke/development/define-v2-documentation/tournament/cases/case-03-structural",
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/TRIAL.json"
+        ],
+        "mutation_policy": "proposal-only",
+        "output_refs": [
+          "receipts/trial-gamma-02.json"
+        ],
+        "owns": "The source proposals and receipt for trial-gamma-02 only.",
+        "purpose": "Produce three first-attempt Define v2 sources using opaque guide gamma.",
+        "role_id": "trial-gamma-02",
+        "write_scope": [
+          "spells/invoke/development/define-v2-documentation/tournament/runs/trial-gamma-02/sources"
+        ]
+      }
+    ],
+    "status": "required",
+    "trigger": "Six independent first-attempt outputs are required, and alternative guides must remain isolated to avoid cross-candidate contamination."
+  },
+  "techniques": [
+    "tournament",
+    "toy_game",
+    "validation_loop",
+    "role_projection_boundary",
+    "execution_receipt_handoff",
+    "concrete_path_evidence",
+    "owner_boundary_check",
+    "artifact_contract_bridge",
+    "observability_grouping"
+  ]
+}

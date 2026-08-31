@@ -1,0 +1,437 @@
+{
+  "$schema": "https://arcanum.dev/schemas/invoke/design-input-boundary-authoring-request/v1",
+  "schema_version": "invoke.cli-authoring-request.v1",
+  "mode": "design",
+  "stage": "boundary",
+  "document": {
+    "target_id": "invoke:plan-successor:definition-target",
+    "target_visibility": "public",
+    "approved_by": "owner:user",
+    "observation_epoch": "2026-08-28-plan-successor-design-boundary-v4-current-define",
+    "roots": [
+      {
+        "root_id": "root:invoke",
+        "path": "arcanum/spells/invoke"
+      },
+      {
+        "root_id": "root:implementation-layering",
+        "path": "arcanum/transmutations/implementation-layering"
+      },
+      {
+        "root_id": "root:work-pack-readiness-audit",
+        "path": "arcanum/spells/work-pack-readiness-audit"
+      },
+      {
+        "root_id": "root:implementation-readiness",
+        "path": "arcanum/spells/implementation-readiness"
+      },
+      {
+        "root_id": "root:task-session",
+        "path": "arcanum/arcana/task-session"
+      },
+      {
+        "root_id": "root:context-builder",
+        "path": "arcanum/transmutations/context-builder"
+      },
+      {
+        "root_id": "root:dispatch-spec",
+        "path": "arcanum/formulae/dispatch-spec"
+      },
+      {
+        "root_id": "root:goal",
+        "path": "arcanum/spells/goal"
+      },
+      {
+        "root_id": "root:signal-observer",
+        "path": "arcanum/arcana/signal-observer"
+      },
+      {
+        "root_id": "root:define-refresh",
+        "path": "arcanum/development/invoke-plan-successor-define-refresh"
+      }
+    ],
+    "discovery_rules": [
+      {
+        "rule_id": "rule:admitted-plan-definitions-current",
+        "root_id": "root:define-refresh",
+        "input_class": "define-artifact",
+        "include_globs": [
+          "bundle-current/DEFINITIONS.json"
+        ]
+      },
+      {
+        "rule_id": "rule:define-refresh-stage-admission",
+        "root_id": "root:define-refresh",
+        "input_class": "interface-contract",
+        "include_globs": [
+          "bundle-current/INVOKE-DEFINE-STAGE-RECEIPT.json",
+          "DEFINE-BUNDLE-ADMISSION-RECEIPT-PASS.json"
+        ]
+      },
+      {
+        "rule_id": "rule:define-refresh-reassessment",
+        "root_id": "root:define-refresh",
+        "input_class": "owner-decision",
+        "include_globs": [
+          "OWNER-SEMANTIC-REASSESSMENT.json"
+        ]
+      },
+      {
+        "rule_id": "rule:invoke-plan-authority",
+        "root_id": "root:invoke",
+        "input_class": "authority-policy",
+        "include_globs": [
+          "README.md",
+          "plan.md",
+          "PLAN-ARTIFACT-BOUNDARIES.md"
+        ]
+      },
+      {
+        "rule_id": "rule:invoke-plan-interfaces",
+        "root_id": "root:invoke",
+        "input_class": "interface-contract",
+        "include_globs": [
+          "schemas/plan*.json",
+          "schemas/distill-*.schema.json"
+        ]
+      },
+      {
+        "rule_id": "rule:invoke-plan-implementation",
+        "root_id": "root:invoke",
+        "input_class": "current-implementation",
+        "include_globs": [
+          "mode-capabilities.json",
+          "scripts/compile_plan_execution_source.py",
+          "scripts/prepare_plan_implementation_readiness.py",
+          "scripts/capability_status_resolver.py"
+        ]
+      },
+      {
+        "rule_id": "rule:invoke-plan-templates",
+        "root_id": "root:invoke",
+        "input_class": "architecture-pattern",
+        "include_globs": [
+          "templates/work-pack.md",
+          "templates/implementation-layering.md",
+          "templates/domainspec-spec/execution-pack.md"
+        ]
+      },
+      {
+        "rule_id": "rule:invoke-plan-quality",
+        "root_id": "root:invoke",
+        "input_class": "quality-constraint",
+        "include_globs": [
+          "development/test_plan*.py",
+          "development/fixtures/INV-PLAN-*",
+          "development/fixtures/INV-INTEGRATION-DEFINE-DESIGN-PLAN-001*",
+          "development/fixtures/define-intent-coverage/*.json",
+          "development/regimes/LIVE-PLAN-001.md",
+          "development/regimes/LIVE-DEFINE-DESIGN-PLAN-001.md"
+        ]
+      },
+      {
+        "rule_id": "rule:layering-authority",
+        "root_id": "root:implementation-layering",
+        "input_class": "authority-policy",
+        "include_globs": [
+          "README.md",
+          "SKILL.md"
+        ]
+      },
+      {
+        "rule_id": "rule:layering-pattern",
+        "root_id": "root:implementation-layering",
+        "input_class": "architecture-pattern",
+        "include_globs": [
+          "templates/**"
+        ]
+      },
+      {
+        "rule_id": "rule:wpra-authority",
+        "root_id": "root:work-pack-readiness-audit",
+        "input_class": "authority-policy",
+        "include_globs": [
+          "README.md"
+        ]
+      },
+      {
+        "rule_id": "rule:wpra-interfaces",
+        "root_id": "root:work-pack-readiness-audit",
+        "input_class": "interface-contract",
+        "include_globs": [
+          "schemas/**"
+        ]
+      },
+      {
+        "rule_id": "rule:wpra-implementation",
+        "root_id": "root:work-pack-readiness-audit",
+        "input_class": "current-implementation",
+        "include_globs": [
+          "scripts/**"
+        ]
+      },
+      {
+        "rule_id": "rule:wpra-quality",
+        "root_id": "root:work-pack-readiness-audit",
+        "input_class": "quality-constraint",
+        "include_globs": [
+          "development/test_*.py"
+        ]
+      },
+      {
+        "rule_id": "rule:readiness-authority",
+        "root_id": "root:implementation-readiness",
+        "input_class": "authority-policy",
+        "include_globs": [
+          "README.md"
+        ]
+      },
+      {
+        "rule_id": "rule:readiness-interfaces",
+        "root_id": "root:implementation-readiness",
+        "input_class": "interface-contract",
+        "include_globs": [
+          "schemas/**"
+        ]
+      },
+      {
+        "rule_id": "rule:readiness-implementation",
+        "root_id": "root:implementation-readiness",
+        "input_class": "current-implementation",
+        "include_globs": [
+          "scripts/**"
+        ]
+      },
+      {
+        "rule_id": "rule:readiness-quality",
+        "root_id": "root:implementation-readiness",
+        "input_class": "quality-constraint",
+        "include_globs": [
+          "development/test_*.py",
+          "development/validate-outer-loop.py"
+        ]
+      },
+      {
+        "rule_id": "rule:task-session-authority",
+        "root_id": "root:task-session",
+        "input_class": "authority-policy",
+        "include_globs": [
+          "README.md",
+          "SKILL.md",
+          "decision-validation-policy.json",
+          "hook-adapters.json"
+        ]
+      },
+      {
+        "rule_id": "rule:task-session-interfaces",
+        "root_id": "root:task-session",
+        "input_class": "interface-contract",
+        "include_globs": [
+          "continuity.schema.json",
+          "schemas/**"
+        ]
+      },
+      {
+        "rule_id": "rule:task-session-implementation",
+        "root_id": "root:task-session",
+        "input_class": "current-implementation",
+        "include_globs": [
+          "scripts/**",
+          "development/validate-*.py"
+        ]
+      },
+      {
+        "rule_id": "rule:task-session-quality",
+        "root_id": "root:task-session",
+        "input_class": "quality-constraint",
+        "include_globs": [
+          "development/test_*.py",
+          "development/test-*.py"
+        ]
+      },
+      {
+        "rule_id": "rule:context-authority",
+        "root_id": "root:context-builder",
+        "input_class": "authority-policy",
+        "include_globs": [
+          "README.md",
+          "SKILL.md"
+        ]
+      },
+      {
+        "rule_id": "rule:context-interfaces",
+        "root_id": "root:context-builder",
+        "input_class": "interface-contract",
+        "include_globs": [
+          "schemas/**"
+        ]
+      },
+      {
+        "rule_id": "rule:context-implementation",
+        "root_id": "root:context-builder",
+        "input_class": "current-implementation",
+        "include_globs": [
+          "scripts/**"
+        ]
+      },
+      {
+        "rule_id": "rule:context-patterns",
+        "root_id": "root:context-builder",
+        "input_class": "architecture-pattern",
+        "include_globs": [
+          "templates/**"
+        ]
+      },
+      {
+        "rule_id": "rule:context-quality",
+        "root_id": "root:context-builder",
+        "input_class": "quality-constraint",
+        "include_globs": [
+          "development/test_*.py"
+        ]
+      },
+      {
+        "rule_id": "rule:dispatch-authority",
+        "root_id": "root:dispatch-spec",
+        "input_class": "authority-policy",
+        "include_globs": [
+          "README.md",
+          "SKILL.md",
+          "TECHNIQUE-CATALOG.md",
+          "CAPABILITY-BOUND-DELEGATION.md"
+        ]
+      },
+      {
+        "rule_id": "rule:dispatch-interface",
+        "root_id": "root:dispatch-spec",
+        "input_class": "interface-contract",
+        "include_globs": [
+          "dispatch.schema.json"
+        ]
+      },
+      {
+        "rule_id": "rule:dispatch-implementation",
+        "root_id": "root:dispatch-spec",
+        "input_class": "current-implementation",
+        "include_globs": [
+          "scripts/validate-dispatch.py"
+        ]
+      },
+      {
+        "rule_id": "rule:dispatch-quality",
+        "root_id": "root:dispatch-spec",
+        "input_class": "quality-constraint",
+        "include_globs": [
+          "development/run_validation_fixtures.py",
+          "development/run-execution-contract-v02-tests.py"
+        ]
+      },
+      {
+        "rule_id": "rule:goal-authority",
+        "root_id": "root:goal",
+        "input_class": "authority-policy",
+        "include_globs": [
+          "README.md",
+          "CRAFT.md"
+        ]
+      },
+      {
+        "rule_id": "rule:goal-interfaces",
+        "root_id": "root:goal",
+        "input_class": "interface-contract",
+        "include_globs": [
+          "decision-profile.schema",
+          "schemas/**"
+        ]
+      },
+      {
+        "rule_id": "rule:goal-implementation",
+        "root_id": "root:goal",
+        "input_class": "current-implementation",
+        "include_globs": [
+          "runtime/goal_loop.py"
+        ]
+      },
+      {
+        "rule_id": "rule:goal-quality",
+        "root_id": "root:goal",
+        "input_class": "quality-constraint",
+        "include_globs": [
+          "validation/run-fixtures.py"
+        ]
+      },
+      {
+        "rule_id": "rule:observability-contract",
+        "root_id": "root:signal-observer",
+        "input_class": "observability-contract",
+        "include_globs": [
+          "README.md",
+          "SKILL.md"
+        ]
+      }
+    ],
+    "required_input_classes": [
+      "define-artifact",
+      "authority-policy",
+      "interface-contract",
+      "current-implementation",
+      "quality-constraint",
+      "observability-contract",
+      "architecture-pattern",
+      "owner-decision"
+    ],
+    "permitted_exclusions": []
+  },
+  "evidence_paths": [
+    {
+      "pointer": "/roots/0",
+      "path": "arcanum/spells/invoke",
+      "kind": "directory"
+    },
+    {
+      "pointer": "/roots/1",
+      "path": "arcanum/transmutations/implementation-layering",
+      "kind": "directory"
+    },
+    {
+      "pointer": "/roots/2",
+      "path": "arcanum/spells/work-pack-readiness-audit",
+      "kind": "directory"
+    },
+    {
+      "pointer": "/roots/3",
+      "path": "arcanum/spells/implementation-readiness",
+      "kind": "directory"
+    },
+    {
+      "pointer": "/roots/4",
+      "path": "arcanum/arcana/task-session",
+      "kind": "directory"
+    },
+    {
+      "pointer": "/roots/5",
+      "path": "arcanum/transmutations/context-builder",
+      "kind": "directory"
+    },
+    {
+      "pointer": "/roots/6",
+      "path": "arcanum/formulae/dispatch-spec",
+      "kind": "directory"
+    },
+    {
+      "pointer": "/roots/7",
+      "path": "arcanum/spells/goal",
+      "kind": "directory"
+    },
+    {
+      "pointer": "/roots/8",
+      "path": "arcanum/arcana/signal-observer",
+      "kind": "directory"
+    },
+    {
+      "pointer": "/roots/9",
+      "path": "arcanum/development/invoke-plan-successor-define-refresh",
+      "kind": "directory"
+    }
+  ]
+}

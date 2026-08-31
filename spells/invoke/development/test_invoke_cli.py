@@ -91,13 +91,13 @@ def test_catalog_and_root_routing() -> None:
     assert direct == rooted == slash
     assert direct["data"]["define"]["status"] == "active"
     assert direct["data"]["design"]["status"] == "active"
-    assert direct["data"]["plan"]["status"] == "unsupported"
+    assert direct["data"]["plan"]["status"] == "active"
 
     described = run([str(ROOT_TOOL), "invoke", "define", "describe", "source"], 0)
     assert described["data"]["output_schema"] == "define-source-v3.schema.json"
 
-    unsupported = run([str(ROOT_TOOL), "invoke", "plan", "describe"], 0)
-    assert unsupported["data"]["status"] == "unsupported"
+    plan = run([str(ROOT_TOOL), "invoke", "plan", "describe", "source"], 0)
+    assert plan["data"]["output_schema"] == "plan-source-v2.schema.json"
 
     retired = run([str(ROOT_TOOL), "--exec", "invoke", "modes"], 2)
     assert retired["diagnostics"][0]["code"] == "LEGACY_INVOKE_ADAPTER_RETIRED"
@@ -510,6 +510,21 @@ def test_design_boundary_authoring_derives_directory_evidence() -> None:
         assert len(approval["approval_digest"]) == 64
 
 
+def test_plan_author_produce_and_admit() -> None:
+    with tempfile.TemporaryDirectory(dir=RUNS) as temporary:
+        root = Path(temporary)
+        request = INVOKE / "examples/plan-v2/PLAN-SOURCE-AUTHORING-REQUEST.json"
+        checked = run(["python3", str(CLI), "plan", "check", "source", "--request", str(request), "--repo-root", str(REPO)], 0)
+        assert checked["status"] == "pass"
+        source = root / "PLAN-SOURCE.json"
+        run(["python3", str(CLI), "plan", "author", "source", "--request", str(request), "--repo-root", str(REPO), "--output", str(source)], 0)
+        bundle = root / "bundle"
+        run(["python3", str(CLI), "plan", "produce", "bundle", "--source", str(source), "--repo-root", str(REPO), "--output", str(bundle)], 0)
+        admission = root / "admission.json"
+        run(["python3", str(CLI), "plan", "admit", "admission", "--bundle", str(bundle), "--repo-root", str(REPO), "--output", str(admission)], 0)
+        assert json.loads(admission.read_text(encoding="utf-8"))["result"] == "pass"
+
+
 def main() -> int:
     tests = [
         test_catalog_and_root_routing,
@@ -518,6 +533,7 @@ def main() -> int:
         test_define_produce_admit_and_status,
         test_path_confinement_and_symlink_escape,
         test_design_boundary_authoring_derives_directory_evidence,
+        test_plan_author_produce_and_admit,
     ]
     for test in tests:
         test()

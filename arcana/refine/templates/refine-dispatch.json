@@ -265,6 +265,7 @@
       "inputs": [{"kind": "frame", "ref": "repair-frame"}],
       "outputs": [
         {"kind": "artifact", "ref": "stages/09-invoke-plan.md"},
+        {"kind": "receipt", "ref": "stages/09-invoke-plan-stage-receipt.json"},
         {"kind": "artifact", "ref": "INVOKE-PLAN-READINESS-BINDING.json"}
       ],
       "evidence_artifact": "stages/09-invoke-plan.md"
@@ -332,7 +333,7 @@
       "gate_id": "g07-invoke-plan-readiness",
       "kind": "validation",
       "owner": "refine",
-      "condition": "Before final synthesis, an execution-candidate validates an exact non-reusable PLAN_IMPLEMENTATION_READY receipt through validate-invoke-plan-readiness.py; a non-executing plan records its reason and exposes no Task Session route.",
+      "condition": "Before final synthesis, an execution-candidate validates binding v2 to an exact Invoke-owned mode=plan terminal PASS stage receipt, its exact output set, and the same non-reusable PLAN_IMPLEMENTATION_READY receipt through validate-invoke-plan-readiness.py; v1 cannot establish a new execution-candidate, and a non-executing plan records its reason and exposes no Task Session route.",
       "on_fail": "block"
     }
   ],

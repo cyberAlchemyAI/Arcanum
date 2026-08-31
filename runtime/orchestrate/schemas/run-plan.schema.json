@@ -5,11 +5,12 @@
   "type": "object",
   "required": ["schema_version", "dispatch_id", "run_id", "state", "validation_status", "selected_wave", "action_artifacts", "actions"],
   "properties": {
-    "schema_version": {"const": "arcanum.native-dispatch-runner.run-plan.v0.1"},
+    "schema_version": {"enum": ["arcanum.native-dispatch-runner.run-plan.v0.1", "arcanum.native-dispatch-runner.run-plan.v0.2"]},
     "dispatch_id": {"type": "string", "minLength": 1},
     "run_id": {"type": "string", "minLength": 1},
     "state": {"const": "wave_ready"},
     "validation_status": {"const": "pass"},
+    "execution_contract_version": {"const": "arcanum.capability-bound-execution.v0.2"},
     "selected_wave": {
       "type": "object",
       "required": ["wave_id", "role_ids", "parallel", "join_policy", "depends_on_waves", "gate_after", "on_incomplete"],
@@ -31,5 +32,19 @@
       "items": {"$ref": "action.schema.json"}
     }
   },
+  "allOf": [
+    {
+      "if": {"properties": {"schema_version": {"const": "arcanum.native-dispatch-runner.run-plan.v0.2"}}},
+      "then": {
+        "required": ["execution_contract_version"],
+        "properties": {
+          "selected_wave": {
+            "properties": {"gate_after": {"type": "string", "minLength": 1}}
+          }
+        }
+      },
+      "else": {"not": {"required": ["execution_contract_version"]}}
+    }
+  ],
   "additionalProperties": false
 }

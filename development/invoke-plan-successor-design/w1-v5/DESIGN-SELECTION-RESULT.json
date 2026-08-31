@@ -1,0 +1,424 @@
+{
+  "concerns": [
+    {
+      "concern_id": "concern:authority",
+      "disposition": "required",
+      "output_id": "architecture:authority-trust",
+      "ownership": {
+        "accountable_owner": "authority-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "arcanum/development/invoke-plan-successor-define-refresh/bundle-current/DEFINITIONS.json",
+          "file:arcanum/development/invoke-plan-successor-define-refresh/bundle-current/DEFINITIONS.json"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "authority",
+      "rationale": "The successor changes which artifact owns Plan meaning and must preserve the owner decision and authority ceiling.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:authority",
+        "signal:normative-rule:rule:single-plan-source"
+      ]
+    },
+    {
+      "concern_id": "concern:security",
+      "disposition": "not-applicable-with-rationale",
+      "output_id": null,
+      "ownership": {
+        "accountable_owner": "security-risk-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": true,
+        "evidence_selectors": [
+          "file:arcanum/development/invoke-plan-successor-define-refresh/bundle-current/DEFINITIONS.json"
+        ],
+        "required_predicate": false
+      },
+      "primary_class": "security",
+      "rationale": "No authentication, authorization transport, credential, or security boundary is introduced by this local authoring contract.",
+      "revisit_condition": null,
+      "selected": false,
+      "signal_ids": [
+        "authored:security"
+      ]
+    },
+    {
+      "concern_id": "concern:state-event",
+      "disposition": "required",
+      "output_id": "architecture:state-event",
+      "ownership": {
+        "accountable_owner": "workflow-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-task-session/README.md",
+          "file:arcanum/development/invoke-plan-successor-design-material-v2/materials/root-task-session/README.md"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "state-event",
+      "rationale": "Plan tasks, waves, gates, blockers, and terminal handoff states require explicit transition rules.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:state-event",
+        "signal:normative-rule:rule:terminal-plan-handoff"
+      ]
+    },
+    {
+      "concern_id": "concern:persistence",
+      "disposition": "required",
+      "output_id": "architecture:persistence-concurrency",
+      "ownership": {
+        "accountable_owner": "persistence-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-invoke/scripts/compile_plan_execution_source.py",
+          "file:arcanum/development/invoke-plan-successor-design-material-v2/materials/root-invoke/scripts/compile_plan_execution_source.py"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "persistence",
+      "rationale": "The compiler and admission steps create exact absent outputs and must define writer ownership and collision behavior.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:persistence",
+        "signal:writer:writer:plan-bundle"
+      ]
+    },
+    {
+      "concern_id": "concern:failure",
+      "disposition": "required",
+      "output_id": "architecture:failure-compensation",
+      "ownership": {
+        "accountable_owner": "workflow-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-implementation-readiness/README.md",
+          "file:arcanum/development/invoke-plan-successor-design-material-v2/materials/root-implementation-readiness/README.md"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "failure",
+      "rationale": "Blocked prerequisites and failed validation must stop before implementation authority is inferred.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:failure",
+        "signal:effect:effect:implementation-execution"
+      ]
+    },
+    {
+      "concern_id": "concern:reliability",
+      "disposition": "required",
+      "output_id": "architecture:quality",
+      "ownership": {
+        "accountable_owner": "service-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "file:arcanum/development/invoke-plan-successor-design-material-v2/materials/root-invoke/development/test_plan_execution_source.py"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "reliability",
+      "rationale": "The source-to-view chain must replay deterministically and expose stale or incomplete consumer evidence.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:reliability"
+      ]
+    },
+    {
+      "concern_id": "concern:integration",
+      "disposition": "required",
+      "output_id": "architecture:integration-versioning",
+      "ownership": {
+        "accountable_owner": "interface-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "arcanum/development/invoke-plan-successor-define-refresh/bundle-current/DEFINITIONS.json",
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-context-builder/README.md",
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-dispatch-spec/README.md",
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-goal/README.md",
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-implementation-readiness/README.md",
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-invoke/schemas/distill-execution-receipt.schema.json",
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-signal-observer/README.md",
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-task-session/README.md",
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-work-pack-readiness-audit/README.md",
+          "file:arcanum/development/invoke-plan-successor-design-material-v2/materials/root-work-pack-readiness-audit/README.md"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "integration",
+      "rationale": "The Design must close the interfaces to readiness, task execution, context, dispatch, goal, and observation consumers.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:integration",
+        "signal:interface:interface:define-to-design",
+        "signal:interface:interface:design-to-distill-v1",
+        "signal:interface:interface:plan-to-context-builder",
+        "signal:interface:interface:plan-to-dispatch",
+        "signal:interface:interface:plan-to-goal",
+        "signal:interface:interface:plan-to-observer",
+        "signal:interface:interface:plan-to-readiness",
+        "signal:interface:interface:plan-to-task-session",
+        "signal:interface:interface:plan-to-wpra"
+      ]
+    },
+    {
+      "concern_id": "concern:migration",
+      "disposition": "required",
+      "output_id": "architecture:migration-rollout",
+      "ownership": {
+        "accountable_owner": "migration-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-invoke/PLAN-ARTIFACT-BOUNDARIES.md",
+          "file:arcanum/development/invoke-plan-successor-design-material-v2/materials/root-invoke/PLAN-ARTIFACT-BOUNDARIES.md"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "migration",
+      "rationale": "The successor must replace Work-Pack-as-source wording without rewriting historical artifacts or hiding the compatibility boundary.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:migration",
+        "signal:compatibility:compatibility:work-pack-source"
+      ]
+    },
+    {
+      "concern_id": "concern:rollout",
+      "disposition": "not-applicable-with-rationale",
+      "output_id": null,
+      "ownership": {
+        "accountable_owner": "release-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": true,
+        "evidence_selectors": [
+          "file:arcanum/development/invoke-plan-successor-define-refresh/bundle-current/DEFINITIONS.json"
+        ],
+        "required_predicate": false
+      },
+      "primary_class": "rollout",
+      "rationale": "This Design authors local governed artifacts and performs no runtime activation, publication, deployment, or release.",
+      "revisit_condition": null,
+      "selected": false,
+      "signal_ids": [
+        "authored:rollout"
+      ]
+    },
+    {
+      "concern_id": "concern:privacy-data",
+      "disposition": "not-applicable-with-rationale",
+      "output_id": null,
+      "ownership": {
+        "accountable_owner": "data-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": true,
+        "evidence_selectors": [
+          "file:arcanum/development/invoke-plan-successor-define-refresh/bundle-current/DEFINITIONS.json"
+        ],
+        "required_predicate": false
+      },
+      "primary_class": "privacy-data",
+      "rationale": "The bounded source contains repository planning evidence and introduces no personal-data collection or retention sink.",
+      "revisit_condition": null,
+      "selected": false,
+      "signal_ids": [
+        "authored:privacy-data"
+      ]
+    },
+    {
+      "concern_id": "concern:performance",
+      "disposition": "not-applicable-with-rationale",
+      "output_id": null,
+      "ownership": {
+        "accountable_owner": "service-owner",
+        "artifact_owner": "architecture-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": true,
+        "evidence_selectors": [
+          "file:arcanum/development/invoke-plan-successor-design-material-v2/materials/root-invoke/development/test_plan_execution_source.py"
+        ],
+        "required_predicate": false
+      },
+      "primary_class": "performance",
+      "rationale": "No runtime latency or throughput claim is made; deterministic correctness is the required quality property.",
+      "revisit_condition": null,
+      "selected": false,
+      "signal_ids": [
+        "authored:performance"
+      ]
+    },
+    {
+      "concern_id": "concern:ux",
+      "disposition": "not-applicable-with-rationale",
+      "output_id": null,
+      "ownership": {
+        "accountable_owner": "ux-plan-owner",
+        "artifact_owner": "ux-plan-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": true,
+        "evidence_selectors": [
+          "file:arcanum/development/invoke-plan-successor-design-material-v2/materials/root-invoke/templates/work-pack.md"
+        ],
+        "required_predicate": false
+      },
+      "primary_class": "ux",
+      "rationale": "The generated Markdown is a coordinator view with no new interactive surface or changed human navigation contract.",
+      "revisit_condition": null,
+      "selected": false,
+      "signal_ids": [
+        "authored:ux"
+      ]
+    },
+    {
+      "concern_id": "concern:validation",
+      "disposition": "required",
+      "output_id": "validation-contracts",
+      "ownership": {
+        "accountable_owner": "design-owner",
+        "artifact_owner": "plan-work-pack-owner",
+        "contributing_owners": [
+          "architecture-owner",
+          "plan-work-pack-owner"
+        ],
+        "validator_owner": "invoke-design-selection-validator"
+      },
+      "predicate_evidence": {
+        "detector_negative": false,
+        "evidence_selectors": [
+          "arcanum/development/invoke-plan-successor-define-refresh/bundle-current/DEFINITIONS.json",
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-invoke/development/test_plan_execution_source.py",
+          "arcanum/development/invoke-plan-successor-design-material-v2/materials/root-work-pack-readiness-audit/README.md",
+          "file:arcanum/development/invoke-plan-successor-design-material-v2/materials/root-invoke/schemas/plan-execution-source-v1.schema.json"
+        ],
+        "required_predicate": true
+      },
+      "primary_class": "validation",
+      "rationale": "Every source, generated view, predecessor binding, and downstream readiness claim requires machine validation.",
+      "revisit_condition": null,
+      "selected": true,
+      "signal_ids": [
+        "authored:validation",
+        "signal:acceptance-readiness-claim:claim:w1-input-closure",
+        "signal:effect:effect:author-plan-artifacts",
+        "signal:normative-rule:rule:all-plan-consumers"
+      ]
+    }
+  ],
+  "denominator_receipt_digest": "a6cf02e9c2a1feedd219472b45fbb5cb9bc4a4f81abc3e72b3b9f50c8b3dbc53",
+  "diagnostics": [],
+  "evidence_state": "design-validator-pass",
+  "fixed_point": true,
+  "manifest_id": "design-input-closure:8c2079c0115652c4f064:scope-manifest:v1",
+  "manifest_input_digest": "22c9ef7ca516bc85cdde19276f2302999dbdc553fd56bcac64ef4afba801f302",
+  "pass_1_digest": "f0d6df21a61036405e16c73b2541669f322bbf70afa16eda83787c649dd78c2d",
+  "pass_2_digest": "f0d6df21a61036405e16c73b2541669f322bbf70afa16eda83787c649dd78c2d",
+  "result_digest": "4b10c3a49674206fb00fd438b29821d310e69a328355a0939192e6908de75432",
+  "schema_version": "1.0.0",
+  "selected_outputs": [
+    "architecture",
+    "architecture:authority-trust",
+    "architecture:failure-compensation",
+    "architecture:integration-versioning",
+    "architecture:migration-rollout",
+    "architecture:persistence-concurrency",
+    "architecture:quality",
+    "architecture:state-event",
+    "validation-contracts"
+  ],
+  "verdict": "pass"
+}

@@ -1,0 +1,69 @@
+{
+  "schema_version": "distill.mode_spec.v2",
+  "mode_id": "standard",
+  "display_name": "Standard",
+  "tracks": {"minimum": 1, "default": 1, "maximum": 1},
+  "rounds_per_track": {"minimum": 1, "default": 2, "maximum": 3},
+  "role_program": [
+    {
+      "step": 1,
+      "actor": "proposer",
+      "action": "propose",
+      "participation": "required",
+      "execution_paths": ["true_subagent", "role_simulation"],
+      "preserve_role_trace": true
+    },
+    {
+      "step": 2,
+      "actor": "balancer",
+      "action": "balance",
+      "participation": "required",
+      "execution_paths": ["true_subagent", "role_simulation"],
+      "preserve_role_trace": true
+    },
+    {
+      "step": 3,
+      "actor": "core_engine",
+      "action": "reconcile",
+      "participation": "required",
+      "preserve_role_trace": true
+    }
+  ],
+  "technique_policy": [
+    {"technique_id": "abstraction_level_guard", "disposition": "required"},
+    {"technique_id": "recomposition_proof", "disposition": "required"},
+    {"technique_id": "evolution_profile", "disposition": "required"},
+    {"technique_id": "frame_expiry_note", "disposition": "required"},
+    {"technique_id": "cognitive_load_check", "disposition": "available"},
+    {"technique_id": "requisite_variety_check", "disposition": "available"},
+    {"technique_id": "boundary_object_check", "disposition": "available"},
+    {"technique_id": "concept_vs_knowledge_status", "disposition": "available"},
+    {"technique_id": "premortem_pass", "disposition": "required"},
+    {"technique_id": "set_based_tournament", "disposition": "not_applicable"},
+    {"technique_id": "navigable_result_check", "disposition": "required"}
+  ],
+  "skipped_reason_required": true,
+  "pitch_off_policy": {"status": "prohibited"},
+  "human_gates": [
+    {
+      "gate_id": "blocker_decision",
+      "trigger": "blocker_decision",
+      "blocking": true,
+      "route": "decision_gate"
+    }
+  ],
+  "cycle_policy": {
+    "maximum_repeated_structure": 2,
+    "maximum_stagnant_rounds": 1
+  },
+  "closeout_policy": {
+    "required_techniques": [
+      "recomposition_proof",
+      "frame_expiry_note",
+      "premortem_pass",
+      "navigable_result_check"
+    ],
+    "navigation_required": true,
+    "verdict_owner": "core_engine"
+  }
+}

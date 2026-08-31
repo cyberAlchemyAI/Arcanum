@@ -1,0 +1,89 @@
+{
+  "schema_version": "distill.schema_fixture_manifest.v2",
+  "manifest_id": "distill.trace_event.schema_fixtures.v2",
+  "artifact": "trace_event",
+  "schema_path": "arcana/distill/schemas/distill-trace-event-v2.schema.json",
+  "schema_id": "https://arcanum.dev/schemas/distill/trace-event/2-0-0",
+  "instance_schema_version": "distill.trace_event.v2",
+  "positive_fixture": "valid-trace-event.json",
+  "expected_case_count": 144,
+  "groups": [
+    {"id": "trace-positive", "kind": "canonical_positive"},
+    {"id": "trace-missing-required", "kind": "generated_missing_required", "expected_blocker": "E_REQUIRED_PROPERTY"},
+    {"id": "trace-unknown-field", "kind": "generated_unknown_field", "expected_blocker": "E_UNKNOWN_PROPERTY"},
+    {"id": "trace-wrong-type", "kind": "generated_wrong_type", "expected_blocker": "E_WRONG_TYPE"},
+    {"id": "trace-invalid-enum", "kind": "generated_invalid_enum_or_const", "expected_blocker": "E_ENUM_OR_CONST"},
+    {"id": "trace-common-ref-edges", "kind": "generated_common_ref_edges", "expected_blocker": "E_COMMON_REF_EDGE"},
+    {
+      "id": "trace-policy-mutations",
+      "kind": "generated_policy_mutations",
+      "mutations": [
+        {"id": "trace-authority-event", "operation": "set", "pointer": "/event_type", "value": "owner_decision", "expected_blocker": "E_TRACE_AUTHORITY_EVENT"},
+        {"id": "trace-mutable-summary", "operation": "add", "pointer": "/mutable_summary", "value": "replacement", "expected_blocker": "E_TRACE_MUTABLE_SUMMARY"},
+        {"id": "trace-sequence-zero-with-predecessor", "operation": "set", "pointer": "/sequence", "value": 0, "expected_blocker": "E_TRACE_PREDECESSOR"},
+        {"id": "trace-sequence-one-without-predecessor", "operation": "set", "pointer": "/previous_event_sha256", "value": null, "expected_blocker": "E_TRACE_PREDECESSOR"},
+        {
+          "id": "trace-skipped-without-reason",
+          "operation": "multi_set",
+          "changes": [
+            {"pointer": "/payload/activation_status", "value": "skipped"},
+            {"pointer": "/payload/emitted_output", "value": []},
+            {"pointer": "/payload/decision", "value": "skipped_with_reason"},
+            {"pointer": "/payload/readiness_effect", "value": "unchanged"}
+          ],
+          "expected_blocker": "E_TRACE_SKIP_REASON_REQUIRED"
+        },
+        {"id": "trace-activated-without-output", "operation": "set", "pointer": "/payload/emitted_output", "value": [], "expected_blocker": "E_TRACE_ACTIVATED_OUTPUT_REQUIRED"},
+        {
+          "id": "trace-skipped-with-output",
+          "operation": "multi_set",
+          "changes": [
+            {"pointer": "/payload/activation_status", "value": "skipped"},
+            {"pointer": "/payload/decision", "value": "skipped_with_reason"},
+            {"pointer": "/payload/readiness_effect", "value": "unchanged"},
+            {"pointer": "/payload/skip_reason", "value": "Predicate did not match."}
+          ],
+          "expected_blocker": "E_TRACE_SKIPPED_OUTPUT_FORBIDDEN"
+        },
+        {
+          "id": "trace-route-without-target",
+          "operation": "multi_set",
+          "changes": [
+            {"pointer": "/payload/decision", "value": "route"},
+            {"pointer": "/payload/readiness_effect", "value": "route"}
+          ],
+          "expected_blocker": "E_TRACE_ROUTE_TARGET"
+        },
+        {"id": "trace-nonroute-with-target", "operation": "add", "pointer": "/payload/route_target", "value": "decision_gate", "expected_blocker": "E_TRACE_ROUTE_TARGET"},
+        {"id": "trace-invalid-state-field", "operation": "set", "pointer": "/payload/inspected_state/0", "value": "RunFrame.target_context", "expected_blocker": "E_TRACE_STATE_FIELD_REFERENCE"},
+        {"id": "trace-untagged-emitted-value", "operation": "set", "pointer": "/payload/emitted_output/0/value", "value": "abstraction_level_guard", "expected_blocker": "E_TRACE_EMITTED_VALUE_TAG"},
+        {"id": "trace-not-applicable-activated", "operation": "set", "pointer": "/payload/policy_status", "value": "not_applicable", "expected_blocker": "E_TRACE_ACTIVATION_STATUS"},
+        {
+          "id": "trace-coarse-objection-category",
+          "operation": "multi_set",
+          "changes": [
+            {"pointer": "/event_type", "value": "objection"},
+            {
+              "pointer": "/payload",
+              "value": {
+                "track_id": "track_one",
+                "round": 1,
+                "category": "boundary",
+                "objection": "Coarse categories are forbidden.",
+                "readiness_effect": "flag"
+              }
+            }
+          ],
+          "expected_blocker": "E_OBJECTION_CATEGORY"
+        },
+        {
+          "id": "trace-duplicate-emitted-field",
+          "operation": "set",
+          "pointer": "/payload/emitted_output/1/field_id",
+          "value": "technique_id",
+          "expected_blocker": "E_TRACE_EMITTED_FIELD_DUPLICATE"
+        }
+      ]
+    }
+  ]
+}

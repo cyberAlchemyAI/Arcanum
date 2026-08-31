@@ -33,6 +33,7 @@ what the refinement established or why it stopped, and why that matters.>
 - Final synthesis: `<summary or blocked reason>`
 - Execution designation: `execution-candidate | non-executing`
 - Invoke Plan readiness binding: `INVOKE-PLAN-READINESS-BINDING.json`
+- Invoke Plan stage receipt: `stages/09-invoke-plan-stage-receipt.json | n/a`
 - Implementation readiness: `<Invoke receipt path and pass | n/a with reason | block>`
 - Exact acceptance: `<required next action | n/a>`
 - Promotion evidence: `yes | no`

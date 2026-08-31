@@ -61,7 +61,7 @@ class StrategyRegistrationIntegrationTests(unittest.TestCase):
             self.sheet,
             {
                 "dispatch_id": "2026-08-26-example-review",
-                "schema_version": "0.7.0",
+                "schema_version": "0.6.1",
                 "dispatch_type": "review",
                 "goal": "Exercise registered native strategy binding.",
                 "context": "A synthetic integration sheet whose topology matches the executable runtime waves.",
@@ -81,15 +81,15 @@ class StrategyRegistrationIntegrationTests(unittest.TestCase):
                             {"between": [1, 2], "question": "Can the third check overturn the second?"},
                         ],
                         "agents": [
-                            {"agent_name": "Abramsky, Samson", "role": "explorer", "model": "gpt-5.6-sol", "token_budget": 800, "angle": "beta", "initial_prompt": "You are Abramsky, Samson.\n\nRun beta check."},
-                            {"agent_name": "Hewitt, Carl", "role": "explorer", "model": "gpt-5.6-sol", "token_budget": 800, "angle": "beta peer", "initial_prompt": "You are Hewitt, Carl.\n\nRun beta peer check."},
-                            {"agent_name": "Peirce, Charles Sanders", "role": "explorer", "model": "gpt-5.6-sol", "token_budget": 800, "angle": "alpha", "initial_prompt": "You are Peirce, Charles Sanders.\n\nRun alpha check."},
+                            {"agent_name": None, "role": "explorer", "model": "gpt-5.6-sol", "token_budget": 800, "angle": "beta", "initial_prompt": "Run beta check."},
+                            {"agent_name": None, "role": "explorer", "model": "gpt-5.6-sol", "token_budget": 800, "angle": "beta peer", "initial_prompt": "Run beta peer check."},
+                            {"agent_name": None, "role": "explorer", "model": "gpt-5.6-sol", "token_budget": 800, "angle": "alpha", "initial_prompt": "Run alpha check."},
                         ],
                     },
                     {
                         "group_id": "artifact",
                         "agents": [
-                            {"agent_name": "Shannon, Claude", "role": "writer", "model": "gpt-5.6-sol", "token_budget": 800, "initial_prompt": "You are Shannon, Claude.\n\nWrite the dependent artifact."}
+                            {"agent_name": None, "role": "writer", "model": "gpt-5.6-sol", "token_budget": 800, "initial_prompt": "Write the dependent artifact."}
                         ],
                     },
                 ],
@@ -98,9 +98,9 @@ class StrategyRegistrationIntegrationTests(unittest.TestCase):
         )
         self.sheet_sha = hashlib.sha256(self.sheet.read_bytes()).hexdigest()
         runtime_dispatch["subagent_strategy"]["registration"] = {
-            "schema_version": "arcanum.subagent-strategy-registration.v0.3",
+            "schema_version": "arcanum.subagent-strategy-registration.v0.2",
             "ledger": ".arcanum/observability/subagents-strategy/subagents-dispatch.yaml",
-            "sheet_schema_version": "0.7.0",
+            "sheet_schema_version": "0.6.1",
             "sheet_sha256": self.sheet_sha,
             "execution_projection_sha256": projection_sha,
             "temporary_sheet": ".arcanum/runtime/subagents-strategy/2026-08-26-example-review.tmp.json",
@@ -147,9 +147,7 @@ class StrategyRegistrationIntegrationTests(unittest.TestCase):
                 "close_of": "2026-08-26-example-review",
                 "exit_reason": "resolved",
                 "agents_spawned": {
-                    "planned_total": 4,
                     "total": 4,
-                    "not_launched": 0,
                     "tree": {"explorer": 3, "writer": 1, "helpers": 0},
                     "loops_used": 0,
                 },
@@ -251,26 +249,6 @@ class StrategyRegistrationIntegrationTests(unittest.TestCase):
             coordinator.compile_to_directory(
                 self.dispatch,
                 "strategy-topology-mismatch",
-                self.project_root / "run",
-                VALIDATOR,
-                self.project_root,
-            )
-        self.assertIn(
-            "registered strategy topology does not match executable runtime waves",
-            raised.exception.blockers,
-        )
-
-    def test_registered_initial_prompt_mismatch_blocks_without_actions(self) -> None:
-        registered = self.appender(self.sheet)
-        self.assertEqual(registered.returncode, 0, registered.stderr)
-        ledger = self.project_root / ".arcanum/observability/subagents-strategy/subagents-dispatch.yaml"
-        text = ledger.read_text(encoding="utf-8")
-        text = text.replace("Run beta check.", "Run a different beta check.")
-        ledger.write_text(text, encoding="utf-8")
-        with self.assertRaises(coordinator.CompileBlocked) as raised:
-            coordinator.compile_to_directory(
-                self.dispatch,
-                "strategy-prompt-mismatch",
                 self.project_root / "run",
                 VALIDATOR,
                 self.project_root,

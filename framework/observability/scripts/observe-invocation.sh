@@ -50,6 +50,13 @@ if [[ ! -f "$envelope" ]]; then
 fi
 
 envelope_abs="$(cd "$(dirname "$envelope")" && pwd)/$(basename "$envelope")"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+envelope_validator="$script_dir/../../../arcana/signal-observer/scripts/validate-invocation-envelope.py"
+if ! python3 "$envelope_validator" --envelope "$envelope_abs" >/dev/null; then
+	printf 'OBSERVATION=failed\n'
+	printf 'REASON=invalid envelope\n'
+	exit 1
+fi
 if [[ -z "$observability_dir" ]]; then
 	repo_root="$(git -C "$(dirname "$envelope_abs")" rev-parse --show-toplevel 2>/dev/null || pwd)"
 	observability_dir="$repo_root/.arcanum/observability"
@@ -65,7 +72,6 @@ ledger="$observability_dir/signals/sigil-invocations.jsonl"
 reflection_state="$observability_dir/reflection-state.json"
 observability_config="$observability_dir/config.json"
 touch "$ledger"
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 hook_recorder="$script_dir/record-hook-operation.sh"
 hook_started_at_ms="$(date +%s%3N)"
 
@@ -101,51 +107,6 @@ record_hook() {
 	fi
 	return 0
 }
-
-validate_filter='
-def non_empty_string: type == "string" and length > 0;
-def array_field: type == "array";
-
-(. as $e
-| ($e.capability.id // $e.sigil // "") as $capability_id
-| ($e.capability.kind // "sigil") as $capability_kind
-| ($e.lineage // null) as $lineage
-| [
-	(if ($e.timestamp | non_empty_string) then empty else "missing timestamp" end),
-	(if ($capability_id | non_empty_string) then empty else "missing capability.id or sigil" end),
-	(if ($capability_kind | non_empty_string) then empty else "missing capability.kind" end),
-	(if (($e.mode // $e.capability.mode // "") | non_empty_string) then empty else "missing mode" end),
-	(if (($e.request.summary // $e.request.intent // "") | non_empty_string) then empty else "missing request summary or intent" end),
-	(if (($e.execution.status // "") | non_empty_string) then empty else "missing execution.status" end),
-	(if (($e.execution.outputs // []) | array_field) then empty else "execution.outputs must be an array" end),
-	(if (($e.execution.files_changed // []) | array_field) then empty else "execution.files_changed must be an array" end),
-	(if (($e.execution.validation // []) | array_field) then empty else "execution.validation must be an array" end),
-	(if (($e.observer.quality_bar_status // "") | non_empty_string) then empty else "missing observer.quality_bar_status" end),
-	(if (($e.observer.anti_pattern_hits // []) | array_field) then empty else "observer.anti_pattern_hits must be an array" end),
-	(if (($e.observer.workflow_gaps // []) | array_field) then empty else "observer.workflow_gaps must be an array" end),
-	(if (($e.observer.reflection_trigger // "") | non_empty_string) then empty else "missing observer.reflection_trigger" end),
-	(if (($e.observer.recommendation // "") | non_empty_string) then empty else "missing observer.recommendation" end),
-	(if $lineage == null then empty
-	 elif ($lineage | type) != "object" then "lineage must be an object"
-	 elif ((($lineage.parent_run_id // "") | non_empty_string) | not) then "lineage.parent_run_id must be a non-empty string"
-	 elif $lineage.relation != "invoked-by" then "lineage.relation must be invoked-by"
-	 elif (($lineage.caller // null) | type) != "object" then "lineage.caller must be an object"
-	 elif ((($lineage.caller.id // "") | non_empty_string) | not) then "lineage.caller.id must be a non-empty string"
-	 elif ((($lineage.caller.kind // "") | non_empty_string) | not) then "lineage.caller.kind must be a non-empty string"
-	 elif ((($lineage.caller.mode // "") | non_empty_string) | not) then "lineage.caller.mode must be a non-empty string"
-	 else empty end),
-	(if (($e.evidence // null) == null or (($e.evidence | type) == "object"))
-	 then empty else "evidence must be an object" end)
-])
-'
-
-validation_errors="$(jq -r "$validate_filter | .[]" "$envelope_abs")"
-if [[ -n "$validation_errors" ]]; then
-	printf 'OBSERVATION=failed\n'
-	printf 'REASON=invalid envelope\n'
-	printf '%s\n' "$validation_errors" | sed 's/^/ERROR: /' >&2
-	exit 1
-fi
 
 target_run_id="$(
 	jq -r \

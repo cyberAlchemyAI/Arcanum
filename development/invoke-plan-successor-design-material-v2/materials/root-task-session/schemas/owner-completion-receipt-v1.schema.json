@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "stream_id",
+    "child_id",
+    "owner",
+    "request_digest",
+    "result",
+    "output_digests"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.owner-completion-receipt/v1"
+    },
+    "stream_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "child_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ordinal": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "baseline_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "partition_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "governance_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "invocation_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "execution_ticket_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "request_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "completion_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "executable_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "precloseout_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "owner_closeout_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "terminal_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "predecessor_continuity_digest": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/sha"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "continuity_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "successor_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "reconciliation_digest": {
+      "$ref": "#/$defs/sha"
+    },
+    "owner": {
+      "type": "string"
+    },
+    "executable": {
+      "type": "string"
+    },
+    "inputs": {
+      "type": "array"
+    },
+    "owner_joins": {
+      "type": "array"
+    },
+    "write_scope": {
+      "type": "array"
+    },
+    "output_digests": {
+      "type": "array"
+    },
+    "observed_writes": {
+      "type": "array"
+    },
+    "result": {
+      "enum": [
+        "pass",
+        "block"
+      ]
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "block"
+      ]
+    },
+    "reason": {
+      "type": "string"
+    },
+    "phase": {
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "pending",
+        "running",
+        "complete",
+        "blocked"
+      ]
+    },
+    "join_count": {
+      "const": 1
+    },
+    "completed_prefix": {
+      "type": "array"
+    },
+    "frontier_size": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "candidate_count": {
+      "enum": [
+        0,
+        1
+      ]
+    },
+    "candidate": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "$defs": {
+    "sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

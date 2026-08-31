@@ -1,0 +1,55 @@
+{
+  "schema_version": "invoke.plan-successor-distill-balancer-report.v1",
+  "run_id": "distill:plan-successor-w2-v6-validate-01",
+  "role": "balancer",
+  "execution_path": "true_subagent",
+  "invocation_ref": "/root/plan_w2_v6_distill_balancer",
+  "mode": "validate",
+  "rounds_completed": 1,
+  "verdict": "block",
+  "smallest_coherent_unit": "canonical Plan source -> normalized graph -> deterministic human views and conditional consumer projections -> independent replay admission",
+  "objections": [
+    {
+      "objection_id": "BAL-V6-001",
+      "category": "process",
+      "statement": "Consumer projection has overlapping ownership: the workflow assigns navigation and consumer projections to PlanViewProjector while ExecutionContractProjector separately owns consumer projections.",
+      "evidence_refs": [
+        "DESIGN-SOURCE-V6.json#/facts/component:plan-view-projector",
+        "DESIGN-SOURCE-V6.json#/facts/component:execution-contract-projector",
+        "DESIGN-SOURCE-V6.json#/facts/workflow:project-plan-views"
+      ],
+      "disposition": "revise"
+    },
+    {
+      "objection_id": "BAL-V6-002",
+      "category": "coverage",
+      "statement": "The candidate requires machine-checkable applicability but does not define the predicate inputs, branches, negative evidence, projection, rehearsal, and failure route for each consumer.",
+      "evidence_refs": [
+        "DESIGN-SOURCE-V6.json#/facts/contract:conditional-consumer-applicability",
+        "DESIGN-SOURCE-V6.json#/facts/dependency:task-context-route",
+        "DESIGN-SOURCE-V6.json#/facts/dependency:wpra-readiness",
+        "DESIGN-SOURCE-V6.json#/planned_witnesses/witness:consumer-rehearsal"
+      ],
+      "disposition": "revise"
+    },
+    {
+      "objection_id": "BAL-V6-003",
+      "category": "scope",
+      "statement": "PlanEvidenceResolver and PlanMigrationValidator are conditional boundary adapters, not mandatory stages of the minimum source-to-admission unit.",
+      "evidence_refs": [
+        "DESIGN-SOURCE-V6.json#/layering",
+        "DESIGN-SOURCE-V6.json#/facts/component:plan-evidence-resolver",
+        "DESIGN-SOURCE-V6.json#/facts/component:plan-migration-validator"
+      ],
+      "disposition": "revise"
+    }
+  ],
+  "recomposition": {
+    "status": "proven-after-repair",
+    "summary": "One source compiles one graph. Separate human-view and consumer-contract projectors read that graph and bind its digest. Independent admission recompiles the source, byte-compares every applicable projection, validates negative evidence, and grants no readiness or execution authority."
+  },
+  "frame_expiry": "Rerun when W1 selection, either W2 candidate file, any consumer contract, native-context rules, Signal Observer machine evidence, or the four Distill v1 schemas change.",
+  "next_route": "invoke-design:w2-candidate-repair",
+  "authority_effect": "none",
+  "claim_ceiling": "Read-only Balancer evidence only; no W3 production, Plan acceptance, readiness, or execution authority."
+}

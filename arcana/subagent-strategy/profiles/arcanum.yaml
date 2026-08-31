@@ -1,6 +1,8 @@
 profile_id: arcanum.subagent-strategy.v1
 version: 1.0.0
 repository_root: runtime-resolved
+canonical_profile: arcana/subagent-strategy/profiles/arcanum.json
+runtime_engine: node arcana/subagent-strategy/scripts/strategy-runtime.cjs
 
 dispatch_types:
   research:
@@ -32,7 +34,7 @@ dispatch_types:
 
 form_owner:
   capability: arcana/subagent-strategy/scripts/append-dispatch.cjs
-  schema_version: 0.7.0
+  schema_version: 0.6.1
   confirmation_readiness_validator: node arcana/subagent-strategy/scripts/validate-readiness.cjs
   registration_validator: node arcana/subagent-strategy/scripts/append-dispatch.cjs --consume
   version_drift_policy: warn-rematerialize-and-revalidate-before-confirmation
@@ -62,7 +64,7 @@ sheet_lifecycle:
 agent_pool:
   source: telemetry/agents/agent-pool.yaml
   allowed_models: [gpt-5.6-sol, gpt-5.6-terra, claude-sonnet-4-6, claude-opus-4-8]
-  selection_rules: every agent has one unique pool identity that declares the assigned role and prefixes its initial prompt
+  selection_rules: every non-null identity is unique and declares the assigned role
 
 registration:
   registrar: node arcana/subagent-strategy/scripts/append-dispatch.cjs --consume
@@ -72,7 +74,9 @@ registration:
   close_rows: 1
 
 native_runtime_binding:
-  schema_version: arcanum.subagent-strategy-registration.v0.3
+  schema_version: arcanum.subagent-strategy-registration.v0.2
+  successor_schema_version: arcanum.subagent-strategy-registration.v0.3
+  successor_binding: post-confirmation-execution-entry
   dispatch_field: subagent_strategy.registration
   compile_command: python runtime/orchestrate/scripts/native_dispatch_coordinator.py compile
   verify_registration_command: python runtime/orchestrate/scripts/native_dispatch_coordinator.py verify-registration

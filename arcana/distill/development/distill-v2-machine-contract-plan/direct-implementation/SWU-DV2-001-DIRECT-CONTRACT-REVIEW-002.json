@@ -1,0 +1,96 @@
+{
+  "schema_version": "arcanum.independent-contract-review.v1",
+  "review_id": "SWU-DV2-001-DIRECT-CONTRACT-REVIEW-002",
+  "candidate": {
+    "path": "arcana/distill/development/distill-v2-machine-contract-plan/direct-implementation/SWU-DV2-001-DIRECT-CONTRACT.json",
+    "sha256": "508ebc4bf7ecb123f4b8683b8cd686349b6807dc4dfd9bb380d306318ab46a4b",
+    "size_bytes": 17660,
+    "digest_and_size_verified_before_and_after_review": true
+  },
+  "verdict": "BLOCK",
+  "checks": {
+    "prior_review_preserved": {
+      "status": "PASS",
+      "reviewed_digest": "33ff27abfa4b01e7c1e6cd94c05378a997e661242a40a22593f329d387f3c07e",
+      "required_repairs_reconciled": true
+    },
+    "source_anchors": {
+      "status": "PASS",
+      "decision_binding_matches": true,
+      "five_source_digests_and_sizes_match": true
+    },
+    "generated_mutation_denominator": {
+      "status": "PASS",
+      "persisted_cases": 5,
+      "generated_mutations": 9,
+      "total_denominator": 14,
+      "all_case_ids_unique": true,
+      "generated_mutations_have_exact_targets_layers_and_blocker_codes": true
+    },
+    "abstraction_instance_semantics": {
+      "status": "PASS",
+      "display_name_frozen": true,
+      "emitted_field_constraints_frozen": true,
+      "pass_flag_block_conditions_frozen": true,
+      "canonical_identifier_and_enum_normalizations_frozen": true
+    },
+    "directory_baselines_and_rollback": {
+      "status": "BLOCK",
+      "eight_directory_baselines_absent": true,
+      "deepest_first_empty_only_rmdir_defined": true,
+      "scope_consistent": false,
+      "produced_postimage_identity_guard_before_file_deletion": false
+    },
+    "evidence_hash_domain": {
+      "status": "PASS",
+      "inventory_domain_non_self_referential": true,
+      "receipt_domain_non_self_referential": true,
+      "canonical_json_digest_method_defined": true,
+      "evidence_syntax_and_digest_recomputation_defined": true
+    },
+    "write_scope": {
+      "status": "BLOCK",
+      "future_file_targets": 13,
+      "unique_file_targets": 13,
+      "all_file_targets_absent": true,
+      "reason": "The forbidden scope excludes every repository path outside future_write_scope, while required directory creation and removal paths are listed only in directory_baselines."
+    },
+    "persisted_negative_acceptance": {
+      "status": "BLOCK",
+      "reason": "Pass conditions require exact stable blocker codes for all four persisted negatives, but their case records do not declare expected_blocker values."
+    },
+    "runtime": {
+      "status": "PASS",
+      "python_version": "3.12.3",
+      "python_identity_matches": true,
+      "jsonschema_version": "4.10.3",
+      "jsonschema_identity_matches": true,
+      "draft_2020_12_and_in_memory_refresolver_probe": "PASS",
+      "dependency_install_required": false
+    },
+    "claim_ceiling": {
+      "status": "PASS",
+      "value": "SWU-DV2-001 representational grammar and canonical abstraction_level_guard fixture evidence only",
+      "normal_task_session_excluded": true,
+      "successor_execution_prohibited": true,
+      "implementation_authorized": false
+    }
+  },
+  "blockers": [
+    {
+      "id": "E_DIRECTORY_SCOPE_CONTRADICTION",
+      "repair": "Change forbidden_scope to permit exactly the directory_baselines paths for attempt-local creation and declared rollback while continuing to forbid every other file and directory."
+    },
+    {
+      "id": "E_ROLLBACK_POSTIMAGE_IDENTITY_UNBOUND",
+      "repair": "Before deleting any created file, require its current SHA-256 and size to match the attempt-produced postimage; preserve and block on any mismatch."
+    },
+    {
+      "id": "E_PERSISTED_BLOCKER_CODES_UNBOUND",
+      "repair": "Add expected_blocker to each persisted negative case, or narrow the pass condition so exact blocker-code equality applies only to the nine generated mutations."
+    }
+  ],
+  "safe_for_later_explicit_execution_request": false,
+  "safe_next_state": "repair-contract-and-rereview-only",
+  "authority_effect": "none"
+}

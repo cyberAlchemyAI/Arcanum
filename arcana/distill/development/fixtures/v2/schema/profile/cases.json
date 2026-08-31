@@ -1,0 +1,27 @@
+{
+  "schema_version": "distill.schema_fixture_manifest.v2",
+  "manifest_id": "distill.profile.schema_fixtures.v2",
+  "artifact": "profile",
+  "schema_path": "arcana/distill/schemas/distill-profile-v2.schema.json",
+  "schema_id": "https://arcanum.dev/schemas/distill/profile/2-0-0",
+  "instance_schema_version": "distill.profile.v2",
+  "positive_fixture": "valid-profile.json",
+  "expected_case_count": 60,
+  "groups": [
+    {"id": "profile-positive", "kind": "canonical_positive"},
+    {"id": "profile-missing-required", "kind": "generated_missing_required", "expected_blocker": "E_REQUIRED_PROPERTY"},
+    {"id": "profile-unknown-field", "kind": "generated_unknown_field", "expected_blocker": "E_UNKNOWN_PROPERTY"},
+    {"id": "profile-wrong-type", "kind": "generated_wrong_type", "expected_blocker": "E_WRONG_TYPE"},
+    {"id": "profile-invalid-enum", "kind": "generated_invalid_enum_or_const", "expected_blocker": "E_ENUM_OR_CONST"},
+    {"id": "profile-common-ref-edges", "kind": "generated_common_ref_edges", "expected_blocker": "E_COMMON_REF_EDGE"},
+    {
+      "id": "profile-policy-mutations", "kind": "generated_policy_mutations",
+      "mutations": [
+        {"id": "profile-embedded-mode-spec", "operation": "add", "pointer": "/mode_spec", "value": {}, "expected_blocker": "E_PROFILE_EMBEDDED_DEFINITION"},
+        {"id": "profile-embedded-technique-spec", "operation": "add", "pointer": "/technique_specs", "value": [], "expected_blocker": "E_PROFILE_EMBEDDED_DEFINITION"},
+        {"id": "profile-unsafe-mode-ref", "operation": "set", "pointer": "/mode_refs/0/path", "value": "../standard.json", "expected_blocker": "E_PATH_TRAVERSAL"}
+        ,{"id": "profile-coarse-objection-category", "operation": "set", "pointer": "/objection_categories/0", "value": "boundary", "expected_blocker": "E_ENUM_OR_CONST"}
+      ]
+    }
+  ]
+}

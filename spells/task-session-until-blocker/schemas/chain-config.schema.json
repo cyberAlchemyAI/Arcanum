@@ -47,6 +47,9 @@
         "initial_selection_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"}
       }
     },
+    "frontier_binding_mode": {
+      "const": "accepted-policy-frontier"
+    },
     "admission_window": {
       "type": "object",
       "additionalProperties": false,
@@ -150,6 +153,12 @@
             }
           }
         }
+      }
+    },
+    {
+      "if": {"required": ["frontier_binding_mode"]},
+      "then": {
+        "not": {"required": ["admission_window"]}
       }
     }
   ],

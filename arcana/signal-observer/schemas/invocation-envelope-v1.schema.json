@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/observability/invocation-envelope/v1",
+  "title": "Invocation Envelope v1",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["timestamp", "request", "execution", "observer"],
+  "properties": {
+    "timestamp": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "session_id": {"type": ["string", "null"]},
+    "sigil": {"type": "string", "minLength": 1},
+    "mode": {"type": "string", "minLength": 1},
+    "capability": {"type": "object", "additionalProperties": true, "required": ["id"], "properties": {"id": {"type": "string", "minLength": 1}, "kind": {"type": "string", "minLength": 1}, "mode": {"type": "string", "minLength": 1}}},
+    "lineage": {"type": "object", "additionalProperties": true, "required": ["parent_run_id", "relation", "caller"], "properties": {"parent_run_id": {"type": "string", "minLength": 1}, "relation": {"const": "invoked-by"}, "caller": {"type": "object", "additionalProperties": true, "required": ["id", "kind", "mode"], "properties": {"id": {"type": "string", "minLength": 1}, "kind": {"type": "string", "minLength": 1}, "mode": {"type": "string", "minLength": 1}}}}},
+    "evidence": {"type": "object"},
+    "request": {"type": "object", "additionalProperties": true, "anyOf": [{"required": ["summary"], "properties": {"summary": {"type": "string", "minLength": 1}}}, {"required": ["intent"], "properties": {"intent": {"type": "string", "minLength": 1}}}]},
+    "execution": {"type": "object", "additionalProperties": true, "required": ["status", "outputs", "files_changed", "validation"], "properties": {"status": {"type": "string", "minLength": 1}, "outputs": {"type": "array"}, "files_changed": {"type": "array"}, "validation": {"type": "array"}}},
+    "observer": {"type": "object", "additionalProperties": true, "required": ["quality_bar_status", "anti_pattern_hits", "workflow_gaps", "reflection_trigger", "recommendation"], "properties": {"quality_bar_status": {"type": "string", "minLength": 1}, "anti_pattern_hits": {"type": "array"}, "workflow_gaps": {"type": "array"}, "reflection_trigger": {"type": "string", "minLength": 1}, "recommendation": {"type": "string", "minLength": 1}}}
+  },
+  "anyOf": [{"required": ["sigil", "mode"]}, {"required": ["capability", "mode"]}, {"required": ["capability"], "properties": {"capability": {"required": ["id", "mode"]}}}]
+}

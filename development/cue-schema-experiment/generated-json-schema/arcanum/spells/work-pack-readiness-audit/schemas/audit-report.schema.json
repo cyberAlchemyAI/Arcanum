@@ -1,0 +1,250 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "audit_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "authority_effect": {
+            "const": "none"
+        },
+        "canonical_spell_id": {
+            "const": "work-pack-readiness-audit"
+        },
+        "findings": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "category": {
+                        "enum": [
+                            "snapshot",
+                            "graph",
+                            "command",
+                            "path",
+                            "write-algebra",
+                            "runtime-admission",
+                            "dependency-receipt",
+                            "receipt-semantics",
+                            "attempt",
+                            "closeout",
+                            "handoff",
+                            "authority"
+                        ]
+                    },
+                    "claim": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "evidence": {
+                        "allOf": [
+                            {
+                                "prefixItems": [
+                                    true
+                                ]
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "minItems": 1
+                            }
+                        ]
+                    },
+                    "id": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "scope": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "severity": {
+                        "enum": [
+                            "blocker",
+                            "flag"
+                        ]
+                    },
+                    "target_paths": {
+                        "allOf": [
+                            {
+                                "prefixItems": [
+                                    true
+                                ]
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "minItems": 1
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "category",
+                    "claim",
+                    "evidence",
+                    "id",
+                    "scope",
+                    "severity",
+                    "target_paths"
+                ]
+            }
+        },
+        "mutation_ready": {
+            "const": false
+        },
+        "next_owner": {
+            "const": "invoke:refresh"
+        },
+        "plan_contract_status": {
+            "enum": [
+                "pass",
+                "flag",
+                "block"
+            ]
+        },
+        "ready_frontier": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "minLength": 1
+            },
+            "uniqueItems": true
+        },
+        "receipt_semantics_status": {
+            "enum": [
+                "pass",
+                "block"
+            ]
+        },
+        "runtime_admission_status": {
+            "enum": [
+                "pass",
+                "flag",
+                "block"
+            ]
+        },
+        "schema_version": {
+            "const": "1.0.0"
+        },
+        "selected_unit": {
+            "type": "null"
+        },
+        "snapshot": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "artifact_count": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                },
+                "digest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "drift": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "artifact_count",
+                "digest",
+                "drift"
+            ]
+        },
+        "unit_counts": {
+            "type": "object",
+            "additionalProperties": {
+                "allOf": [
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                ]
+            }
+        },
+        "unit_results": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "blocker_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "uniqueItems": true
+                    },
+                    "plan_contract": {
+                        "enum": [
+                            "pass",
+                            "block"
+                        ]
+                    },
+                    "runtime_admission": {
+                        "enum": [
+                            "pass",
+                            "block"
+                        ]
+                    },
+                    "unit_id": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "blocker_ids",
+                    "plan_contract",
+                    "runtime_admission",
+                    "unit_id"
+                ]
+            }
+        },
+        "verdict": {
+            "enum": [
+                "pass",
+                "flag",
+                "block"
+            ]
+        }
+    },
+    "required": [
+        "audit_id",
+        "authority_effect",
+        "canonical_spell_id",
+        "findings",
+        "mutation_ready",
+        "next_owner",
+        "plan_contract_status",
+        "ready_frontier",
+        "receipt_semantics_status",
+        "runtime_admission_status",
+        "schema_version",
+        "selected_unit",
+        "snapshot",
+        "unit_counts",
+        "unit_results",
+        "verdict"
+    ]
+}

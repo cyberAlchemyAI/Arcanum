@@ -5,14 +5,30 @@
   "type": "object",
   "required": ["schema_version", "dispatch_id", "run_id", "source_wave_id", "source_gate_id", "decision", "next_wave_id", "actions"],
   "properties": {
-    "schema_version": {"const": "arcanum.native-dispatch-runner.action-set.v0.1"},
+    "schema_version": {"enum": ["arcanum.native-dispatch-runner.action-set.v0.1", "arcanum.native-dispatch-runner.action-set.v0.2"]},
     "dispatch_id": {"type": "string", "minLength": 1},
     "run_id": {"type": "string", "minLength": 1},
     "source_wave_id": {"type": "string", "minLength": 1},
     "source_gate_id": {"type": ["string", "null"]},
-    "decision": {"enum": ["gate_pass", "gate_block"]},
+    "decision": {"enum": ["gate_pass", "gate_block", "gate_resolved"]},
     "next_wave_id": {"type": ["string", "null"]},
     "actions": {"type": "array", "items": {"$ref": "action.schema.json"}}
   },
+  "allOf": [
+    {
+      "if": {"properties": {"schema_version": {"const": "arcanum.native-dispatch-runner.action-set.v0.1"}}},
+      "then": {"properties": {"decision": {"enum": ["gate_pass", "gate_block"]}}},
+      "else": {"properties": {"source_gate_id": {"type": "string", "minLength": 1}}}
+    },
+    {
+      "if": {"properties": {"decision": {"const": "gate_resolved"}}},
+      "then": {
+        "properties": {
+          "next_wave_id": {"type": "null"},
+          "actions": {"maxItems": 0}
+        }
+      }
+    }
+  ],
   "additionalProperties": false
 }

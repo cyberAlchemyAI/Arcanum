@@ -227,6 +227,14 @@ cross-checks the chain epoch semantic digest against the acceptance and fast
 entry, revalidates the real guard result, and will not expose the first Task
 Session unless it is exactly `proceed/TASK_READY`.
 
+For selected-unit-at-Task-Session plans, the frozen policy frontier and the
+current WPRA `ready_frontier` are distinct bindings. The chain config must set
+`frontier_binding_mode: accepted-policy-frontier`: the complete ordered policy
+frontier then controls the chain, request budget, and complete execution and
+closeout contract coverage, while `ready_frontier` controls only the current
+selector window and must be an ordered prefix of that policy. Manual and
+fresh-current-unit modes retain their existing ready-frontier behavior.
+
 The same command surface then consumes at most one Task Session transition and
 exposes at most one next unit:
 

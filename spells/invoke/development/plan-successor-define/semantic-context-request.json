@@ -1,0 +1,503 @@
+{
+  "$schema": "https://arcanum.dev/schemas/invoke/define-semantic-context-authoring-request/v1",
+  "schema_version": "invoke.cli-authoring-request.v1",
+  "mode": "define",
+  "stage": "semantic-context",
+  "document": {
+    "authored_by": "codex.invoke-plan-successor-definition-author",
+    "assessed_by": "invoke.define-semantic-closure-validator",
+    "target": {
+      "id": "invoke:plan-successor:definition-target",
+      "objective": "Define the Plan itself, its executable parts and relationships, and the exact authoring, admission, and evidence states required before rebuilding Invoke Plan.",
+      "authority_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+      "visibility": "public"
+    },
+    "discovery": {
+      "kind": "artifact",
+      "ref": {
+        "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+        "format": "markdown",
+        "selector_type": "heading",
+        "selector": "Purpose",
+        "visibility": "public"
+      }
+    },
+    "discovery_contract": {
+      "profile": "semantic-surface-v1",
+      "claim_scope": "configured-roots-complete",
+      "roots": [
+        {
+          "root_id": "root:arcanum-canonical-definitions",
+          "path": "arcanum/definitions",
+          "registry_globs": ["**/DEFINITIONS.md", "**/DEFINITIONS-INDEX.md", "**/DEFINITIONS.json", "**/GLOSSARY.md"],
+          "consumer_globs": ["**/*.md"],
+          "visibility": "public"
+        }
+      ]
+    },
+    "concept_probes": [
+      {
+        "probe_id": "probe:plan-authoring-source",
+        "term": "Plan authoring source",
+        "aliases": ["Plan semantic source", "Plan source document"],
+        "intent": "Name the sole machine-readable source of Plan meaning while keeping generated views and downstream lifecycle evidence derived or external.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {
+            "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "Plan Authoring Source",
+            "visibility": "public"
+          },
+          {
+            "path": "arcanum/spells/invoke/schemas/plan-execution-source-v1.schema.json",
+            "format": "json",
+            "selector_type": "json-pointer",
+            "selector": "/properties",
+            "visibility": "public"
+          },
+          {
+            "path": "arcanum/spells/invoke/scripts/compile_plan_execution_source.py",
+            "format": "text",
+            "selector_type": "symbol",
+            "selector": "compile_source",
+            "visibility": "public"
+          },
+          {
+            "path": "arcanum/spells/invoke/design.md",
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "Activation Gate",
+            "visibility": "public"
+          }
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The canonical registry contains no term for the sole authored semantic source that separates Plan meaning from views and lifecycle evidence."
+      },
+      {
+        "probe_id": "probe:plan-candidate-bundle",
+        "term": "Plan candidate bundle",
+        "aliases": ["generated Plan bundle"],
+        "intent": "Name the full deterministic output generated from one exact Plan authoring source without implying admission or execution readiness.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {
+            "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "Plan Candidate Bundle",
+            "visibility": "public"
+          },
+          {
+            "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md",
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "Artifact Boundary Summary",
+            "visibility": "public"
+          },
+          {
+            "path": "arcanum/spells/invoke/plan.md",
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "Mode Output Contract",
+            "visibility": "public"
+          }
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The canonical registry has general artifact terms but no scoped term for the complete deterministic Plan output set."
+      },
+      {
+        "probe_id": "probe:plan-bundle-admission",
+        "term": "Plan bundle admission",
+        "aliases": ["Plan admission result"],
+        "intent": "Name the independent replay and consumer-validation result for one exact Plan candidate bundle.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {
+            "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "Plan Bundle Admission",
+            "visibility": "public"
+          },
+          {
+            "path": "arcanum/spells/invoke/scripts/prepare_plan_implementation_readiness.py",
+            "format": "text",
+            "selector_type": "symbol",
+            "selector": "main",
+            "visibility": "public"
+          },
+          {
+            "path": "arcanum/spells/work-pack-readiness-audit/README.md",
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "Purpose",
+            "visibility": "public"
+          },
+          {
+            "path": "arcanum/spells/implementation-readiness/README.md",
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "Work-Pack Execution Outer Loop",
+            "visibility": "public"
+          }
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "No canonical term names an independent point-in-time replay of a generated Plan bundle while preserving later readiness gates."
+      },
+      {
+        "probe_id": "probe:plan-evidence-state",
+        "term": "Plan evidence state",
+        "aliases": ["Plan proof state"],
+        "intent": "Name the typed statement that separates authored, admitted, readiness-proved, accepted, and execution-authorized Plan states.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {
+            "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "Plan Evidence State",
+            "visibility": "public"
+          },
+          {
+            "path": "arcanum/spells/invoke/README.md",
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "Evidence Capability Contract",
+            "visibility": "public"
+          },
+          {
+            "path": "arcanum/spells/invoke/scripts/capability_status_resolver.py",
+            "format": "text",
+            "selector_type": "symbol",
+            "selector": "resolve_capability_status",
+            "visibility": "public"
+          }
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The current Plan documents describe separate evidence ceilings, but the scoped state that preserves them has no canonical definition."
+      },
+      {
+        "probe_id": "probe:invoke-plan",
+        "term": "Invoke Plan",
+        "aliases": ["governed implementation plan"],
+        "intent": "Name the governed translation of one admitted Design into ordered, verifiable implementation work without implying execution.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Plan", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/plan.md", "format": "markdown", "selector_type": "heading", "selector": "Purpose", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The canonical registry does not define the Invoke-local artifact that translates admitted Design into implementation work."
+      },
+      {
+        "probe_id": "probe:work-pack",
+        "term": "Work Pack",
+        "aliases": ["Plan coordinator view"],
+        "intent": "Name the compact deterministic coordinator view projected from one exact Plan authoring source.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Work Pack", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md", "format": "markdown", "selector_type": "heading", "selector": "Artifact Boundary Summary", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "No canonical definition owns the Work Pack's role as a generated coordinator view that preserves navigation without becoming source truth."
+      },
+      {
+        "probe_id": "probe:delivery-slice",
+        "term": "Delivery slice",
+        "aliases": ["Plan delivery slice"],
+        "intent": "Name one coherent delivered outcome that groups implementation tasks without defining their execution order.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Delivery Slice", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/plan.md", "format": "markdown", "selector_type": "heading", "selector": "Planning Artifact Boundary Policy", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The canonical registry has no scoped meaning for the outcome grouping used inside a Work Pack."
+      },
+      {
+        "probe_id": "probe:implementation-layer",
+        "term": "Implementation layer",
+        "aliases": ["Plan layer"],
+        "intent": "Name one L0-L3 decision boundary and the evidence required to advance beyond it.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Implementation Layer", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/plan.md", "format": "markdown", "selector_type": "heading", "selector": "Layering Policy", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "No canonical definition owns the Plan-local L0-L3 decision boundary and its promotion evidence."
+      },
+      {
+        "probe_id": "probe:plan-wave",
+        "term": "Plan wave",
+        "aliases": ["execution-order wave"],
+        "intent": "Name the authored layer-aligned ordering group whose optional wave file is a deterministic view.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Plan Wave", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md", "format": "markdown", "selector_type": "heading", "selector": "Artifact Boundary Summary", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The canonical registry has no term for the Plan-local execution-order group governed by implementation layers."
+      },
+      {
+        "probe_id": "probe:plan-task",
+        "term": "Plan task",
+        "aliases": ["implementation task contract"],
+        "intent": "Name one authored implementation responsibility whose optional task file is a deterministic view.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Plan Task", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md", "format": "markdown", "selector_type": "heading", "selector": "Split Work-Pack Minimum Useful Content", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "No canonical definition owns the executable responsibility and contract fields of an Invoke Plan task."
+      },
+      {
+        "probe_id": "probe:smallest-working-unit",
+        "term": "Smallest Working Unit",
+        "aliases": ["SWU"],
+        "intent": "Name the smallest independently executable and reviewable change or decision owned by exactly one Plan task.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Smallest Working Unit", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md", "format": "markdown", "selector_type": "heading", "selector": "SWU Responsibility", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The canonical registry does not define the Plan-local atomic execution and review boundary represented by an SWU."
+      },
+      {
+        "probe_id": "probe:implementation-detail-contract",
+        "term": "Implementation detail contract",
+        "aliases": ["task implementation specification"],
+        "intent": "Name the concrete algorithm, interface, data-flow, failure, constraint, and validation detail required to make a task executable.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Implementation Detail Contract", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/plan.md", "format": "markdown", "selector_type": "heading", "selector": "Implementation Detail Policy", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "No canonical term owns the task-level detail required when a title or outcome cannot guide implementation safely."
+      },
+      {
+        "probe_id": "probe:validation-obligation",
+        "term": "Validation obligation",
+        "aliases": ["Plan verification requirement"],
+        "intent": "Name one exact runnable or reviewable proof required for a Plan unit or gate.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Validation Obligation", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/plan.md", "format": "markdown", "selector_type": "heading", "selector": "Mode Gates", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The canonical registry has no Plan-local term for an exact check and the evidence it must produce."
+      },
+      {
+        "probe_id": "probe:plan-gate",
+        "term": "Plan gate",
+        "aliases": ["Plan evidence gate"],
+        "intent": "Name the typed evidence condition that controls advancement of a layer, wave, task, or handoff.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Plan Gate", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md", "format": "markdown", "selector_type": "heading", "selector": "Execution Readiness Gate", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "No canonical definition owns the Plan-local evidence condition that controls advancement or handoff."
+      },
+      {
+        "probe_id": "probe:plan-blocker",
+        "term": "Plan blocker",
+        "aliases": ["blocking Plan condition"],
+        "intent": "Name a known condition that prevents a bounded Plan state, selected unit, gate, or handoff from proceeding.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Plan Blocker", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/plan.md", "format": "markdown", "selector_type": "heading", "selector": "Mode Gates", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The canonical registry has no Plan-scoped meaning for a condition that must stop current advancement."
+      },
+      {
+        "probe_id": "probe:plan-gap",
+        "term": "Plan gap",
+        "aliases": ["non-blocking Plan gap"],
+        "intent": "Name missing information or evidence that remains owned but does not block the current bounded Plan state.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Plan Gap", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/plan.md", "format": "markdown", "selector_type": "heading", "selector": "Automatic Distill Validation", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "No canonical definition distinguishes an owned non-blocking Plan gap from an acceptance-critical blocker."
+      },
+      {
+        "probe_id": "probe:execution-entry",
+        "term": "Execution entry",
+        "aliases": ["Plan execution-entry boundary"],
+        "intent": "Name the authored eligibility contract for an execution boundary while leaving exact unit selection to a downstream receipt.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Execution Entry", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/plan.md", "format": "markdown", "selector_type": "heading", "selector": "Work-Pack Execution Entry Policy", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "The canonical registry has no term that separates authored execution eligibility from downstream exact-unit selection and admission."
+      },
+      {
+        "probe_id": "probe:execution-pack",
+        "term": "Execution Pack",
+        "aliases": ["Plan choreography view"],
+        "intent": "Name the deterministic medium/high-complexity choreography view projected from the Plan source without owning Plan or lifecycle state.",
+        "intended_scope": {"kind": "feature", "ref": "invoke-plan-successor"},
+        "evidence_refs": [
+          {"path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md", "format": "markdown", "selector_type": "heading", "selector": "Execution Pack", "visibility": "public"},
+          {"path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md", "format": "markdown", "selector_type": "heading", "selector": "Artifact Boundary Summary", "visibility": "public"}
+        ],
+        "proposed_disposition": "new-scoped-term",
+        "claimed_matches": [],
+        "proposed_basis_ids": [],
+        "assessment_rationale": "No canonical definition owns the Execution Pack's source-derived choreography role and exclusion of lifecycle state."
+      }
+    ],
+    "authority_boundary": {
+      "declaration": "configured",
+      "profile": "markdown-index-v1",
+      "declared_owner": "definitions-governance",
+      "canonical_scope": {"kind": "repository", "ref": "arcanum"},
+      "canonical_source_refs": [
+        {
+          "path": "arcanum/definitions/DEFINITIONS.md",
+          "format": "markdown",
+          "selector_type": "heading",
+          "selector": "Arcanum Canonical Definitions",
+          "visibility": "public"
+        }
+      ],
+      "index_refs": [
+        {
+          "path": "arcanum/definitions/DEFINITIONS-INDEX.md",
+          "format": "markdown",
+          "selector_type": "heading",
+          "selector": "Arcanum Definitions Index",
+          "visibility": "public"
+        }
+      ],
+      "resolution_evidence_refs": [
+        {
+          "path": "arcanum/definitions/DEFINITIONS.md",
+          "format": "markdown",
+          "selector_type": "heading",
+          "selector": "Authority Rule",
+          "visibility": "public"
+        }
+      ]
+    },
+    "adjacent_registries": [],
+    "consumer_boundary": {
+      "classification": "catalogued",
+      "consumers": [
+        {
+          "consumer_id": "consumer:historical-goal-swu-mention",
+          "kind": "narrative",
+          "source_ref": {
+            "path": "arcanum/definitions/DEFINITION-DRIFT-AUDIT.md",
+            "format": "markdown",
+            "selector_type": "heading",
+            "selector": "2026-06-20 Goal Spell Spec And Definitions Addendum",
+            "visibility": "public"
+          },
+          "reason_in_scope": "The historical Goal Spell follow-up uses the SWU alias, so the successor meaning must remain compatible with that narrative use."
+        }
+      ],
+      "rationale": null
+    },
+    "exclusions": []
+  },
+  "evidence_paths": [
+    {"pointer": "/discovery/ref", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/0/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/0/evidence_refs/1", "path": "arcanum/spells/invoke/schemas/plan-execution-source-v1.schema.json"},
+    {"pointer": "/concept_probes/0/evidence_refs/2", "path": "arcanum/spells/invoke/scripts/compile_plan_execution_source.py"},
+    {"pointer": "/concept_probes/0/evidence_refs/3", "path": "arcanum/spells/invoke/design.md"},
+    {"pointer": "/concept_probes/1/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/1/evidence_refs/1", "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"},
+    {"pointer": "/concept_probes/1/evidence_refs/2", "path": "arcanum/spells/invoke/plan.md"},
+    {"pointer": "/concept_probes/2/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/2/evidence_refs/1", "path": "arcanum/spells/invoke/scripts/prepare_plan_implementation_readiness.py"},
+    {"pointer": "/concept_probes/2/evidence_refs/2", "path": "arcanum/spells/work-pack-readiness-audit/README.md"},
+    {"pointer": "/concept_probes/2/evidence_refs/3", "path": "arcanum/spells/implementation-readiness/README.md"},
+    {"pointer": "/concept_probes/3/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/3/evidence_refs/1", "path": "arcanum/spells/invoke/README.md"},
+    {"pointer": "/concept_probes/3/evidence_refs/2", "path": "arcanum/spells/invoke/scripts/capability_status_resolver.py"},
+    {"pointer": "/concept_probes/4/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/4/evidence_refs/1", "path": "arcanum/spells/invoke/plan.md"},
+    {"pointer": "/concept_probes/5/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/5/evidence_refs/1", "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"},
+    {"pointer": "/concept_probes/6/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/6/evidence_refs/1", "path": "arcanum/spells/invoke/plan.md"},
+    {"pointer": "/concept_probes/7/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/7/evidence_refs/1", "path": "arcanum/spells/invoke/plan.md"},
+    {"pointer": "/concept_probes/8/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/8/evidence_refs/1", "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"},
+    {"pointer": "/concept_probes/9/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/9/evidence_refs/1", "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"},
+    {"pointer": "/concept_probes/10/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/10/evidence_refs/1", "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"},
+    {"pointer": "/concept_probes/11/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/11/evidence_refs/1", "path": "arcanum/spells/invoke/plan.md"},
+    {"pointer": "/concept_probes/12/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/12/evidence_refs/1", "path": "arcanum/spells/invoke/plan.md"},
+    {"pointer": "/concept_probes/13/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/13/evidence_refs/1", "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"},
+    {"pointer": "/concept_probes/14/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/14/evidence_refs/1", "path": "arcanum/spells/invoke/plan.md"},
+    {"pointer": "/concept_probes/15/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/15/evidence_refs/1", "path": "arcanum/spells/invoke/plan.md"},
+    {"pointer": "/concept_probes/16/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/16/evidence_refs/1", "path": "arcanum/spells/invoke/plan.md"},
+    {"pointer": "/concept_probes/17/evidence_refs/0", "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"},
+    {"pointer": "/concept_probes/17/evidence_refs/1", "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"},
+    {"pointer": "/consumer_boundary/consumers/0/source_ref", "path": "arcanum/definitions/DEFINITION-DRIFT-AUDIT.md"},
+    {"pointer": "/authority_boundary/canonical_source_refs/0", "path": "arcanum/definitions/DEFINITIONS.md"},
+    {"pointer": "/authority_boundary/index_refs/0", "path": "arcanum/definitions/DEFINITIONS-INDEX.md"},
+    {"pointer": "/authority_boundary/resolution_evidence_refs/0", "path": "arcanum/definitions/DEFINITIONS.md"}
+  ]
+}

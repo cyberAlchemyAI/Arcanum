@@ -79,7 +79,7 @@ Every refine run uses this stage list. Presets tune budget/configuration; they d
 | Invoke Redefine / Design | `invoke` | `design`, framed as redefine/design from previous artifacts | Design artifact or blocked reason. |
 | Interrogation | `interrogation` | `refine-design-review` | Critique verdict for design-stage output. |
 | Distill Repair | `distill` | `validate` or repair-focused request | Repair verdict, tensions, and selected repair. |
-| Invoke Plan | `invoke` | `plan` | Non-executed plan artifact. |
+| Invoke Plan | `invoke` | `plan` | Invoke-owned plan outputs and terminal stage receipt; execution-candidates also bind the exact Implementation Readiness receipt. |
 | Final Interrogation and Synthesis | `interrogation` then `refine` | `refine-final` | Final verdict and Refine-owned synthesis. |
 
 ## Dispatch Technique Overlays
@@ -172,3 +172,10 @@ Required contents:
 - `stages/`
 
 The manifest is an index, not a replacement for stage artifacts. Each stage row must reference the artifact produced by its owning capability plus the native receipt, or record an explicit blocked reason. A selected stage without an artifact path or blocked reason is invalid. A stage marked `pass` must reference an artifact path or receipt that exists.
+
+For a new execution-candidate, stage 9 is complete only when an exact
+`refine.invoke-plan-stage-receipt/v1` owned by `invoke` records mode `plan`,
+terminal/result `pass`, matching Work Pack identity and execution designation,
+the exact Invoke output set, and the same exact Implementation Readiness receipt
+as `refine.invoke-plan-readiness-binding/v2`. Refine-issued or stale receipts,
+flag/block outcomes, and v1 execution-candidate bindings block final synthesis.

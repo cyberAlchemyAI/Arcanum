@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/spells/goal/telemetry-signal.schema.json",
+  "title": "Goal Telemetry Signal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "spell",
+    "goal_context_id",
+    "round_index",
+    "frontier_size",
+    "nodes_classified",
+    "stop_reason"
+  ],
+  "properties": {
+    "spell": {
+      "const": "goal"
+    },
+    "goal_context_id": {
+      "type": "string"
+    },
+    "round_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "frontier_size": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "nodes_classified": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "T0",
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "properties": {
+        "T0": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "T1": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "T2": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "T3": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "nodes_dispatched": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "staged_deltas": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "stop_reason": {
+      "type": "string"
+    }
+  }
+}

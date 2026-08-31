@@ -1,0 +1,52 @@
+{
+  "technique": {
+    "technique_id": "abstraction_level_guard",
+    "activation": {
+      "operator": "all",
+      "predicates": [
+        {"kind": "mode", "mode_id": "standard"},
+        {"kind": "input_present", "group": "intent"}
+      ]
+    },
+    "emits": {
+      "violations": {"kind": "array", "item_type": "string", "minimum_items": 0},
+      "summary": {"kind": "scalar", "value_type": "string"},
+      "assessment": {
+        "kind": "object",
+        "required_fields": ["status"],
+        "field_types": {"status": "string", "score": "integer"}
+      }
+    },
+    "failure_actions": [
+      {"kind": "flag", "code": "ABSTRACTION_DRIFT"},
+      {"kind": "route", "route": "human_review"}
+    ]
+  },
+  "mode": {
+    "mode_id": "standard",
+    "role_program": [
+      {"sequence": 1, "role": "proposer", "action": "propose"},
+      {"sequence": 2, "role": "balancer", "action": "challenge"},
+      {"sequence": 3, "role": "proposer", "action": "repair", "condition": "balancer flags a repairable tension"}
+    ],
+    "technique_policy": [
+      {"technique_id": "abstraction_level_guard", "state": "required", "reason_required": false},
+      {"technique_id": "premortem_pass", "state": "risk_triggered", "reason_required": true}
+    ],
+    "human_gate_policy": {
+      "gates": [
+        {"gate": "blocker"},
+        {"gate": "periodic", "frequency": 2},
+        {"gate": "final"}
+      ]
+    },
+    "pitch_off": {"enabled": true, "dimensions": ["coherence", "reversibility", "operational burden"]}
+  },
+  "source": {
+    "identity": {"run_id": "cue_stressor_001"},
+    "intent": {"statement": "Find the smallest coherent concept unit."},
+    "artifacts": [],
+    "requested_techniques": [],
+    "evidence_context": {"notes": []}
+  }
+}

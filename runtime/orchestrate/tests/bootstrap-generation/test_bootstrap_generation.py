@@ -113,6 +113,44 @@ class BootstrapGenerationTests(unittest.TestCase):
         self.assertNotIn("Classify the request as authoring, refinement", source)
         self.assertIn('source_file="$arcanum_root/runtime/orchestrate/SKILL.md"', source)
 
+    def test_generated_routers_prefer_repository_skills(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / "consumer"
+            target.mkdir()
+            completed = subprocess.run(
+                [
+                    "bash",
+                    str(BOOTSTRAP),
+                    "--target",
+                    str(target),
+                    "--sigils",
+                    "context-builder",
+                    "--spells",
+                    "none",
+                    "--profiles",
+                    "repo-codex,claude",
+                    "--no-necronomicon",
+                    "--force",
+                ],
+                cwd=ARCANUM_ROOT,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(
+                completed.returncode,
+                0,
+                completed.stderr or completed.stdout,
+            )
+            agents = (target / "AGENTS.md").read_text(encoding="utf-8")
+            claude = (target / "CLAUDE.md").read_text(encoding="utf-8")
+        self.assertIn("explicit repository route", agents)
+        self.assertIn("user-global or catalog fallback", agents)
+        self.assertIn("arcanum-orchestrate must never name a repository", agents)
+        self.assertIn("explicit repository route", claude)
+        self.assertIn("user-global or catalog fallback", claude)
+        self.assertIn("arcanum-orchestrate must never name a repository", claude)
+
 
 if __name__ == "__main__":
     unittest.main()

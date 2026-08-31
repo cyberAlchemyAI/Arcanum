@@ -1,0 +1,511 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/governance-terminal-receipt/1-0-0",
+  "title": "TaskSessionGovernanceTerminalReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "run_id",
+    "task_id",
+    "swu_id",
+    "request_ref",
+    "ticket_ref",
+    "predecessor_ref",
+    "phase_receipts",
+    "executor_receipt_ref",
+    "closeout_join",
+    "observation_ref",
+    "owner_identity",
+    "idempotency_key",
+    "result",
+    "output_refs",
+    "residue"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.governance-terminal-receipt.v1"
+    },
+    "entry_profile": {
+      "enum": [
+        "pre-execution-prerequisite",
+        "work-pack-fast-entry"
+      ]
+    },
+    "pre_execution_resume": {
+      "$ref": "#/$defs/preExecutionResume"
+    },
+    "fast_execution_entry": {
+      "$ref": "#/$defs/fastExecutionEntryProvenance"
+    },
+    "admission_profile": {
+      "const": "plan-once-selected-unit"
+    },
+    "consumed_admission": {
+      "$ref": "#/$defs/consumedAdmission"
+    },
+    "receipt_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "run_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "task_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "swu_id": {
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "request_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "ticket_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "predecessor_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phase",
+        "receipt_ref"
+      ],
+      "properties": {
+        "phase": {
+          "const": "observed"
+        },
+        "receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        }
+      }
+    },
+    "phase_receipts": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "phase",
+          "receipt_ref"
+        ],
+        "properties": {
+          "phase": {
+            "enum": [
+              "resolved",
+              "governed",
+              "admitted",
+              "ticketed",
+              "execution-received",
+              "reconciled",
+              "closeout-joined",
+              "observed"
+            ]
+          },
+          "receipt_ref": {
+            "$ref": "#/$defs/exactArtifactRef"
+          }
+        }
+      }
+    },
+    "executor_receipt_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "closeout_join": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_owner_capabilities",
+        "joined_owner_receipts",
+        "continuation"
+      ],
+      "properties": {
+        "required_owner_capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "joined_owner_receipts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/joinedOwnerReceipt"
+          }
+        },
+        "continuation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "policy",
+            "cursor_ref",
+            "successor_executed"
+          ],
+          "properties": {
+            "policy": {
+              "const": "emit-cursor-never-execute-successor"
+            },
+            "cursor_ref": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/exactArtifactRef"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "successor_executed": {
+              "const": false
+            }
+          }
+        }
+      }
+    },
+    "observation_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "owner_identity": {
+      "$ref": "#/$defs/ownerIdentity"
+    },
+    "idempotency_key": {
+      "$ref": "#/$defs/idempotencyKey"
+    },
+    "result": {
+      "enum": [
+        "pass",
+        "flag",
+        "block"
+      ]
+    },
+    "output_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/exactArtifactRef"
+      }
+    },
+    "residue": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      }
+    },
+    "receipt_profile": {
+      "const": "precloseout-execution-v1"
+    },
+    "precloseout_execution_receipt_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "precloseout_execution_schema_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "admission_profile": {
+            "const": "plan-once-selected-unit"
+          }
+        },
+        "required": [
+          "admission_profile"
+        ]
+      },
+      "then": {
+        "required": [
+          "consumed_admission"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "entry_profile": {
+            "const": "pre-execution-prerequisite"
+          }
+        },
+        "required": [
+          "entry_profile"
+        ]
+      },
+      "then": {
+        "required": [
+          "pre_execution_resume"
+        ],
+        "not": {
+          "required": [
+            "fast_execution_entry"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "entry_profile": {
+            "const": "work-pack-fast-entry"
+          }
+        },
+        "required": [
+          "entry_profile"
+        ]
+      },
+      "then": {
+        "required": [
+          "fast_execution_entry",
+          "admission_profile",
+          "consumed_admission"
+        ],
+        "not": {
+          "required": [
+            "pre_execution_resume"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "receipt_profile": {
+            "const": "precloseout-execution-v1"
+          }
+        },
+        "required": [
+          "receipt_profile"
+        ]
+      },
+      "then": {
+        "required": [
+          "receipt_profile",
+          "precloseout_execution_receipt_ref",
+          "precloseout_execution_schema_ref"
+        ],
+        "properties": {
+          "closeout_join": {
+            "required": [
+              "required_owner_capabilities"
+            ],
+            "properties": {
+              "required_owner_capabilities": {
+                "const": [
+                  "invoke"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "precloseout_execution_receipt_ref"
+              ]
+            },
+            {
+              "required": [
+                "precloseout_execution_schema_ref"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "ownerIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability",
+        "subject"
+      ],
+      "properties": {
+        "capability": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "subject": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9._:-]+$"
+    },
+    "joinedOwnerReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner_capability",
+        "receipt_ref",
+        "result"
+      ],
+      "properties": {
+        "owner_capability": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "result": {
+          "enum": [
+            "pass",
+            "no-op"
+          ]
+        }
+      }
+    },
+    "consumedAdmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_ref",
+        "admission_token",
+        "attempt_id",
+        "consumption_ledger_ref"
+      ],
+      "properties": {
+        "receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "admission_token": {
+          "$ref": "#/$defs/sha256"
+        },
+        "attempt_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "consumption_ledger_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        }
+      }
+    },
+    "fastExecutionEntryProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_ref",
+        "receipt_ref",
+        "binding_id",
+        "binding_digest",
+        "route_fingerprint",
+        "work_pack_semantic_digest"
+      ],
+      "properties": {
+        "request_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "binding_id": {
+          "type": "string",
+          "pattern": "^wpeb-[a-f0-9]{24}$"
+        },
+        "binding_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "route_fingerprint": {
+          "$ref": "#/$defs/sha256"
+        },
+        "work_pack_semantic_digest": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "preExecutionResume": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification_receipt_ref",
+        "continuation_route_receipt_ref",
+        "owner_receipt_ref",
+        "consumption_ledger_ref",
+        "attempt_id",
+        "prerequisite_fingerprint",
+        "route",
+        "target_inventory_digest",
+        "validation_contract_digest",
+        "satisfaction_predicate_digest",
+        "resume_point",
+        "resume_count"
+      ],
+      "properties": {
+        "classification_receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "continuation_route_receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "owner_receipt_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "consumption_ledger_ref": {
+          "$ref": "#/$defs/exactArtifactRef"
+        },
+        "attempt_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "prerequisite_fingerprint": {
+          "$ref": "#/$defs/sha256"
+        },
+        "route": {
+          "const": "invoke:refresh:apply-approved"
+        },
+        "target_inventory_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "validation_contract_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "satisfaction_predicate_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "resume_point": {
+          "const": "task-session:context-build"
+        },
+        "resume_count": {
+          "const": 1
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,531 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "artifacts": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "artifact_ref": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "path": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "sha256": {
+                                        "type": "string"
+                                    },
+                                    "size_bytes": {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "path",
+                                    "sha256",
+                                    "size_bytes"
+                                ]
+                            },
+                            "semantic_role": {
+                                "enum": [
+                                    "input",
+                                    "context",
+                                    "output_target",
+                                    "reference"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "artifact_ref",
+                            "semantic_role"
+                        ]
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        },
+        "constraints": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "cost": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
+                "domain": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
+                "governance": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
+                "quality": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
+                "stop_rule_tightening": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
+                "time": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                }
+            },
+            "required": [
+                "cost",
+                "domain",
+                "governance",
+                "quality",
+                "stop_rule_tightening",
+                "time"
+            ]
+        },
+        "discovery": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "assumptions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
+                "blocker_unknowns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
+                "non_blocker_unknowns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
+                "provided_evidence": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
+                "searched_sources": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                }
+            },
+            "required": [
+                "assumptions",
+                "blocker_unknowns",
+                "non_blocker_unknowns",
+                "provided_evidence",
+                "searched_sources"
+            ]
+        },
+        "evidence_context": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "authority_effect": {
+                    "const": "none"
+                },
+                "refs": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "path": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "sha256": {
+                                "type": "string"
+                            },
+                            "size_bytes": {
+                                "allOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "path",
+                            "sha256",
+                            "size_bytes"
+                        ]
+                    },
+                    "uniqueItems": true
+                },
+                "status": {
+                    "enum": [
+                        "accepted",
+                        "unavailable",
+                        "none"
+                    ]
+                }
+            },
+            "required": [
+                "authority_effect",
+                "refs",
+                "status"
+            ]
+        },
+        "identity": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-([0-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+                },
+                "invocation_source": {
+                    "enum": [
+                        "direct",
+                        "invoked_by"
+                    ]
+                },
+                "run_id": {
+                    "type": "string"
+                },
+                "source_id": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "created_at",
+                "invocation_source",
+                "run_id",
+                "source_id"
+            ]
+        },
+        "intent": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "objective": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "optimization_goal": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "output_artifact": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "seed_point": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "target_context": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "required": [
+                "objective",
+                "optimization_goal",
+                "output_artifact",
+                "seed_point",
+                "target_context"
+            ]
+        },
+        "lineage": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "objective_output_revision": {
+                    "oneOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "prior_objective": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "prior_output_artifact": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "reason": {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            },
+                            "required": [
+                                "prior_objective",
+                                "prior_output_artifact",
+                                "reason"
+                            ]
+                        }
+                    ]
+                },
+                "parent_run_id": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "parent_source_id": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
+            },
+            "if": {
+                "type": "object",
+                "properties": {
+                    "objective_output_revision": {
+                        "type": "object"
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "parent_run_id": {
+                        "type": "string"
+                    },
+                    "parent_source_id": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "objective_output_revision",
+                "parent_run_id",
+                "parent_source_id"
+            ]
+        },
+        "policy": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "mode_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "sha256": {
+                            "type": "string"
+                        },
+                        "size_bytes": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size_bytes"
+                    ]
+                },
+                "overrides": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "rounds_per_track": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 1
+                                }
+                            ]
+                        },
+                        "tracks": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 1
+                                }
+                            ]
+                        }
+                    }
+                },
+                "profile_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "sha256": {
+                            "type": "string"
+                        },
+                        "size_bytes": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size_bytes"
+                    ]
+                },
+                "requested_technique_refs": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "path": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "sha256": {
+                                        "type": "string"
+                                    },
+                                    "size_bytes": {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "path",
+                                    "sha256",
+                                    "size_bytes"
+                                ]
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "mode_ref",
+                "profile_ref",
+                "requested_technique_refs"
+            ]
+        },
+        "schema_version": {
+            "const": "distill.source.v2"
+        }
+    },
+    "required": [
+        "artifacts",
+        "constraints",
+        "discovery",
+        "identity",
+        "intent",
+        "lineage",
+        "policy",
+        "schema_version"
+    ]
+}

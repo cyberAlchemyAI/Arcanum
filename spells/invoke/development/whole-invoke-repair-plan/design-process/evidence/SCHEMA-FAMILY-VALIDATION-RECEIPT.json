@@ -1,0 +1,59 @@
+{
+  "schema_version": "invoke.design-schema-family-validation-receipt.v1",
+  "receipt_id": "invoke-design-w0-validation-2026-08-27",
+  "scope": "Invoke Design W0 process and schema family",
+  "changed_path_inventory_ref": {
+    "path": "arcanum/spells/invoke/development/whole-invoke-repair-plan/design-process/evidence/CHANGED-PATH-INVENTORY.json",
+    "sha256": "0787dc8afaa9a1277a68be63352cf1acdb75a3179eff1fd9480e9d10c7b4a566",
+    "size": 2906
+  },
+  "results": [
+    {
+      "check_id": "design-schema-family-focused",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 arcanum/spells/invoke/development/test_design_schema_family.py",
+      "status": "pass",
+      "observed": "19 tests passed; nine schemas meta-validated; two static contracts validated with matching self-digests; seven fixture documents validated; all declared structural negatives rejected."
+    },
+    {
+      "check_id": "existing-design-selection-regression",
+      "command": "bash arcanum/spells/invoke/development/run-design-selection-fixtures.sh",
+      "status": "pass",
+      "observed": "28 cases and 27 mutations passed with zero failures."
+    },
+    {
+      "check_id": "scoped-json-and-public-boundary",
+      "command": "Parse every W0 JSON file and scan the exact W0 file inventory for trailing whitespace and forbidden private-pillar tokens.",
+      "status": "pass",
+      "observed": "All JSON parsed; zero trailing-whitespace or public-boundary violations."
+    },
+    {
+      "check_id": "tracked-whitespace-regression",
+      "command": "git -C arcanum diff --check -- spells/invoke",
+      "status": "pass",
+      "observed": "No tracked whitespace errors reported."
+    }
+  ],
+  "schema_family_state": "structurally-valid",
+  "producer_state": "not-implemented",
+  "consumer_admission_state": "not-evaluable",
+  "mirror_state": "not-synchronized",
+  "evidence_ceiling": {
+    "process_defined": true,
+    "schema_family_structurally_valid": true,
+    "semantic_input_closure_proven": false,
+    "semantic_coherence_proven": false,
+    "producer_determinism_proven": false,
+    "atomic_publication_proven": false,
+    "design_stage_pass_issued": false,
+    "consumer_admission_proven": false,
+    "mirror_parity_proven": false,
+    "plan_evidence": false,
+    "acceptance": false,
+    "execution": false,
+    "publication": false,
+    "deployment": false,
+    "external_effect": false
+  },
+  "authority_effect": "none",
+  "receipt_digest": "5de57382d0c3f764cfc4e2b2838940b646efe7af0a9ab35ccf77fca37dcc6637"
+}

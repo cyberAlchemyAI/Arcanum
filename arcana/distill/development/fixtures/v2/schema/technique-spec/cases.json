@@ -1,0 +1,331 @@
+{
+  "schema_version": "distill.schema_fixture_manifest.v2",
+  "manifest_id": "distill.technique_spec.schema_fixtures.v2",
+  "artifact": "technique_spec",
+  "schema_path": "arcana/distill/schemas/distill-technique-spec-v2.schema.json",
+  "schema_id": "https://arcanum.dev/schemas/distill/technique-spec/2-0-0",
+  "instance_schema_version": "distill.technique_spec.v2",
+  "positive_fixture": "valid-abstraction-level-guard.json",
+  "expected_case_count": 164,
+  "groups": [
+    {
+      "id": "technique-positive",
+      "kind": "canonical_positive"
+    },
+    {
+      "id": "technique-missing-required",
+      "kind": "generated_missing_required",
+      "expected_blocker": "E_REQUIRED_PROPERTY"
+    },
+    {
+      "id": "technique-unknown-field",
+      "kind": "generated_unknown_field",
+      "expected_blocker": "E_UNKNOWN_PROPERTY"
+    },
+    {
+      "id": "technique-wrong-type",
+      "kind": "generated_wrong_type",
+      "expected_blocker": "E_WRONG_TYPE"
+    },
+    {
+      "id": "technique-invalid-enum",
+      "kind": "generated_invalid_enum_or_const",
+      "expected_blocker": "E_ENUM_OR_CONST"
+    },
+    {
+      "id": "technique-common-ref-edges",
+      "kind": "generated_common_ref_edges",
+      "expected_blocker": "E_COMMON_REF_EDGE"
+    },
+    {
+      "id": "technique-policy-mutations",
+      "kind": "generated_policy_mutations",
+      "mutations": [
+        {
+          "id": "technique-activation-always-with-predicates",
+          "operation": "add",
+          "pointer": "/activation/predicates",
+          "value": [],
+          "expected_blocker": "E_UNKNOWN_PROPERTY"
+        },
+        {
+          "id": "technique-activation-group-missing-predicates",
+          "operation": "set",
+          "pointer": "/activation",
+          "value": {"operator": "any"},
+          "expected_blocker": "E_REQUIRED_PROPERTY"
+        },
+        {
+          "id": "technique-activation-predicate-missing-id",
+          "operation": "set",
+          "pointer": "/activation",
+          "value": {
+            "operator": "any",
+            "predicates": [
+              {
+                "input": "run_frame.target_context",
+                "comparison": "exists"
+              }
+            ]
+          },
+          "expected_blocker": "E_REQUIRED_PROPERTY"
+        },
+        {
+          "id": "technique-activation-predicate-invalid-id",
+          "operation": "set",
+          "pointer": "/activation",
+          "value": {
+            "operator": "any",
+            "predicates": [
+              {
+                "predicate_id": "target-context-present",
+                "input": "run_frame.target_context",
+                "comparison": "exists"
+              }
+            ]
+          },
+          "expected_blocker": "E_PATTERN"
+        },
+        {
+          "id": "technique-activation-predicate-duplicate-id",
+          "operation": "set",
+          "pointer": "/activation",
+          "value": {
+            "operator": "any",
+            "predicates": [
+              {
+                "predicate_id": "context_present",
+                "input": "run_frame.target_context",
+                "comparison": "exists"
+              },
+              {
+                "predicate_id": "context_present",
+                "input": "candidate_unit.name",
+                "comparison": "exists"
+              }
+            ]
+          },
+          "expected_blocker": "E_ACTIVATION_PREDICATE_ID_DUPLICATE"
+        },
+        {
+          "id": "technique-activation-undeclared-input",
+          "operation": "set",
+          "pointer": "/activation",
+          "value": {
+            "operator": "any",
+            "predicates": [
+              {
+                "predicate_id": "undeclared_state_present",
+                "input": "undeclared.state",
+                "comparison": "equals",
+                "value": true
+              }
+            ]
+          },
+          "expected_blocker": "E_ACTIVATION_INPUT_UNDECLARED"
+        },
+        {
+          "id": "technique-activation-recursive-predicate",
+          "operation": "set",
+          "pointer": "/activation",
+          "value": {
+            "operator": "any",
+            "predicates": [
+              {
+                "predicate_id": "target_context_present",
+                "input": "run_frame.target_context",
+                "comparison": "exists",
+                "predicates": []
+              }
+            ]
+          },
+          "expected_blocker": "E_ACTIVATION_NOT_FLAT"
+        },
+        {
+          "id": "technique-emitted-constraint-missing",
+          "operation": "remove",
+          "pointer": "/emitted_field_constraints/unit_or_layer_id",
+          "expected_blocker": "E_EMITTED_FIELD_CONSTRAINT_MISSING"
+        },
+        {
+          "id": "technique-list-descriptor-unbounded",
+          "operation": "set",
+          "pointer": "/emitted_field_constraints/unit_or_layer_id",
+          "value": {
+            "value_kind": "list",
+            "minimum_items": 0,
+            "maximum_items": 33,
+            "unique_items": true,
+            "items": {
+              "value_kind": "scalar",
+              "scalar_type": "string"
+            }
+          },
+          "expected_blocker": "E_DESCRIPTOR_BOUNDS"
+        },
+        {
+          "id": "technique-list-descriptor-order",
+          "operation": "set",
+          "pointer": "/emitted_field_constraints/unit_or_layer_id",
+          "value": {
+            "value_kind": "list",
+            "minimum_items": 3,
+            "maximum_items": 2,
+            "unique_items": true,
+            "items": {
+              "value_kind": "scalar",
+              "scalar_type": "string"
+            }
+          },
+          "expected_blocker": "E_DESCRIPTOR_BOUNDS"
+        },
+        {
+          "id": "technique-scalar-descriptor-ref-type",
+          "operation": "set",
+          "pointer": "/emitted_field_constraints/unit_or_layer_id",
+          "value": {
+            "value_kind": "scalar",
+            "scalar_type": "boolean",
+            "schema_ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+          },
+          "expected_blocker": "E_DESCRIPTOR_SCALAR_REF"
+        },
+        {
+          "id": "technique-scalar-descriptor-order",
+          "operation": "set",
+          "pointer": "/emitted_field_constraints/unit_or_layer_id",
+          "value": {
+            "value_kind": "scalar",
+            "scalar_type": "integer",
+            "minimum": 4,
+            "maximum": 3
+          },
+          "expected_blocker": "E_DESCRIPTOR_BOUNDS"
+        },
+        {
+          "id": "technique-record-required-field-unknown",
+          "operation": "set",
+          "pointer": "/emitted_field_constraints/unit_or_layer_id",
+          "value": {
+            "value_kind": "record",
+            "fields": {
+              "known": {
+                "value_kind": "scalar",
+                "scalar_type": "string"
+              }
+            },
+            "required_fields": ["unknown"],
+            "additional_fields": false
+          },
+          "expected_blocker": "E_DESCRIPTOR_REQUIRED_FIELD"
+        },
+        {
+          "id": "technique-union-duplicate-tag",
+          "operation": "set",
+          "pointer": "/emitted_field_constraints/unit_or_layer_id",
+          "value": {
+            "value_kind": "union",
+            "discriminator": "kind",
+            "variants": [
+              {
+                "tag": "same",
+                "descriptor": {
+                  "value_kind": "scalar",
+                  "scalar_type": "string"
+                }
+              },
+              {
+                "tag": "same",
+                "descriptor": {
+                  "value_kind": "scalar",
+                  "scalar_type": "boolean"
+                }
+              }
+            ]
+          },
+          "expected_blocker": "E_DESCRIPTOR_UNION_TAG"
+        },
+        {
+          "id": "technique-failure-response-order",
+          "operation": "multi_set",
+          "changes": [
+            {"pointer": "/failure_responses/0/decision", "value": "block"},
+            {"pointer": "/failure_responses/0/readiness_effect", "value": "downgraded_to_block"},
+            {"pointer": "/failure_responses/2/decision", "value": "pass"},
+            {"pointer": "/failure_responses/2/readiness_effect", "value": "unchanged"}
+          ],
+          "expected_blocker": "E_FAILURE_RESPONSE_ORDER"
+        },
+        {
+          "id": "technique-failure-response-missing-actions",
+          "operation": "remove",
+          "pointer": "/failure_responses/1/responses",
+          "expected_blocker": "E_REQUIRED_PROPERTY"
+        },
+        {
+          "id": "technique-route-action-missing-target",
+          "operation": "set",
+          "pointer": "/failure_responses/2/responses/0",
+          "value": {"action": "route"},
+          "expected_blocker": "E_REQUIRED_PROPERTY"
+        },
+        {
+          "id": "technique-non-route-action-with-target",
+          "operation": "set",
+          "pointer": "/failure_responses/2/responses/0",
+          "value": {
+            "action": "reject_candidate",
+            "route_target": "decision_gate"
+          },
+          "expected_blocker": "E_UNKNOWN_PROPERTY"
+        },
+        {
+          "id": "technique-phase-order",
+          "operation": "multi_set",
+          "changes": [
+            {"pointer": "/phases/0", "value": "closure"},
+            {"pointer": "/phases/1", "value": "concept_mapping"}
+          ],
+          "expected_blocker": "E_PHASE_ORDER"
+        },
+        {
+          "id": "technique-hook-order",
+          "operation": "multi_set",
+          "changes": [
+            {"pointer": "/hooks/0", "value": "before_accept_split"},
+            {"pointer": "/hooks/1", "value": "before_layer_split"}
+          ],
+          "expected_blocker": "E_HOOK_ORDER"
+        },
+        {
+          "id": "technique-forbidden-canonical-hook",
+          "operation": "set",
+          "pointer": "/hooks/1",
+          "value": "after_verdict",
+          "expected_blocker": "E_CANONICAL_HOOK_MISMATCH"
+        },
+        {
+          "id": "technique-legacy-activation-string",
+          "operation": "set",
+          "pointer": "/activation",
+          "value": "always",
+          "expected_blocker": "E_WRONG_TYPE"
+        },
+        {
+          "id": "technique-legacy-pass-condition",
+          "operation": "add",
+          "pointer": "/pass_condition",
+          "value": "Legacy prose field.",
+          "expected_blocker": "E_UNKNOWN_PROPERTY"
+        },
+        {
+          "id": "technique-legacy-failure-behavior",
+          "operation": "add",
+          "pointer": "/failure_behavior",
+          "value": "block",
+          "expected_blocker": "E_UNKNOWN_PROPERTY"
+        }
+      ]
+    }
+  ]
+}

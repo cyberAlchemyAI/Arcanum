@@ -37,10 +37,13 @@ Users often have a target, concern, folder, repository area, or rough idea, but 
 
 Task Session and Sigil Development may be recommended after refinement, but they are not stages in the refine loop.
 
-For an implementation outcome, Invoke Plan owns one additional producer gate:
-it must emit a proof-only `IMPLEMENTATION-READINESS-PREFLIGHT.json` from the
-exact final WPRA bytes. Refine records an exact binding to that receipt and
-validates it before final synthesis. Refine does not rebuild the execution
+For an implementation outcome, Invoke Plan owns the complete stage-9 result.
+It must emit a versioned `INVOKE-PLAN-STAGE-RECEIPT.json` with owner `invoke`,
+mode `plan`, terminal `pass`, the exact Invoke output set, and the same proof-only
+`IMPLEMENTATION-READINESS-PREFLIGHT.json` derived from final WPRA bytes. Refine
+records an exact v2 binding to both receipts and validates every referenced byte
+before final synthesis. A historical v1 binding remains readable for
+non-executing plans but cannot establish a new execution-candidate. Refine does not rebuild the execution
 contracts, self-approve the candidate, enter Task Session, or admit mutation.
 Conceptual and research-only plans declare `non-executing` with a reason and
 cannot recommend Task Session.
@@ -110,6 +113,7 @@ That folder contains:
 - `RUNTIME-HANDOFF.md`
 - `RESULT.md`
 - `INVOKE-PLAN-READINESS-BINDING.json`
+- `stages/09-invoke-plan-stage-receipt.json` for an execution-candidate
 - `stages/`
 
 The manifest references artifacts produced by Context Builder, Invoke, Interrogation, and Distill. It does not duplicate those artifacts.

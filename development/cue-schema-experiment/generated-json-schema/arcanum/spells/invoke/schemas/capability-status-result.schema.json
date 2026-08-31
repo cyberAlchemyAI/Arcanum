@@ -1,0 +1,218 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "artifact_authored": {
+            "allOf": [
+                {
+                    "additionalProperties": false,
+                    "properties": {
+                        "diagnostics": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "uniqueItems": true
+                        },
+                        "evidence": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "uniqueItems": true
+                        },
+                        "status": {
+                            "enum": [
+                                "pass",
+                                "flag",
+                                "block",
+                                "unsupported"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "diagnostics",
+                        "evidence",
+                        "status"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "diagnostics": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "uniqueItems": true
+                        },
+                        "evidence": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "uniqueItems": true
+                        },
+                        "status": true
+                    },
+                    "required": [
+                        "diagnostics",
+                        "evidence",
+                        "status"
+                    ]
+                }
+            ]
+        },
+        "capability_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+        },
+        "mode": {
+            "enum": [
+                "define",
+                "design",
+                "plan",
+                "handoff",
+                "refresh",
+                "full",
+                "validate"
+            ]
+        },
+        "mutation_runtime_ready": {
+            "allOf": [
+                {
+                    "additionalProperties": false,
+                    "properties": {
+                        "diagnostics": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "uniqueItems": true
+                        },
+                        "evidence": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "uniqueItems": true
+                        },
+                        "status": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "diagnostics",
+                        "evidence",
+                        "status"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "diagnostics": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "uniqueItems": true
+                        },
+                        "evidence": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "uniqueItems": true
+                        },
+                        "status": true
+                    },
+                    "required": [
+                        "diagnostics",
+                        "evidence",
+                        "status"
+                    ]
+                }
+            ]
+        },
+        "registry_released": {
+            "allOf": [
+                {
+                    "additionalProperties": false,
+                    "properties": {
+                        "diagnostics": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "uniqueItems": true
+                        },
+                        "evidence": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "uniqueItems": true
+                        },
+                        "status": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "diagnostics",
+                        "evidence",
+                        "status"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "diagnostics": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "uniqueItems": true
+                        },
+                        "evidence": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "uniqueItems": true
+                        },
+                        "status": true
+                    },
+                    "required": [
+                        "diagnostics",
+                        "evidence",
+                        "status"
+                    ]
+                }
+            ]
+        },
+        "schema_version": {
+            "const": "invoke.capability-status.result.v1"
+        }
+    },
+    "required": [
+        "artifact_authored",
+        "capability_sha256",
+        "mode",
+        "mutation_runtime_ready",
+        "registry_released",
+        "schema_version"
+    ]
+}

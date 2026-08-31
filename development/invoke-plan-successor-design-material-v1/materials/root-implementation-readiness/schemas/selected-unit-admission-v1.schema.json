@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/implementation-readiness/selected-unit-admission/1-0-0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "unit_id", "repository_root", "targets", "validation_commands", "runner"],
+  "properties": {
+    "schema_version": {"const": "implementation-readiness.selected-unit-admission.v1"},
+    "unit_id": {"type": "string", "minLength": 1},
+    "repository_root": {"const": "."},
+    "targets": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/target"}},
+    "validation_commands": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/command"}},
+    "runner": {"$ref": "#/$defs/ref"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\]+$"},
+    "target": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "disposition", "collision_policy", "baseline_sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"},
+        "disposition": {"enum": ["create", "update", "delete", "read", "transient"]},
+        "collision_policy": {"enum": ["fail-if-exists", "replace-declared", "not-applicable"]},
+        "baseline_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]}
+      }
+    },
+    "command": {
+      "type": "object", "additionalProperties": false,
+      "required": ["phase", "argv", "cwd"],
+      "properties": {
+        "phase": {"enum": ["pre-execution", "post-produce", "closeout"]},
+        "argv": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "cwd": {"$ref": "#/$defs/path"}
+      }
+    },
+    "ref": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {"path": {"$ref": "#/$defs/path"}, "sha256": {"$ref": "#/$defs/sha256"}}
+    }
+  }
+}

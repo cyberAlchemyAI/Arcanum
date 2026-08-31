@@ -1,0 +1,1664 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+        "\"/properties/coherence_block_receipt/oneOf/0\"": {
+            "description": "Invoke Design Coherence Receipt v2",
+            "allOf": [
+                {
+                    "if": {
+                        "type": "object",
+                        "properties": {
+                            "verdict": {
+                                "enum": [
+                                    "flag",
+                                    "block"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "verdict"
+                        ]
+                    },
+                    "then": {
+                        "type": "object",
+                        "properties": {
+                            "design_stage_state": {
+                                "const": "ineligible"
+                            },
+                            "diagnostics": {
+                                "anyOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "prefixItems": [
+                                            true
+                                        ],
+                                        "minItems": 1
+                                    },
+                                    {
+                                        "type": "object"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "$schema": {
+                            "const": "https://arcanum.dev/schemas/invoke/design-coherence-receipt/v2"
+                        },
+                        "authority_effect": {
+                            "const": "none"
+                        },
+                        "bindings": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "coherence_policy_ref": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                },
+                                "denominator_receipt_ref": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                },
+                                "design_artifact_ref": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                },
+                                "design_input_closure_receipt_ref": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                },
+                                "design_input_closure_ref": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                },
+                                "design_input_production_receipt_ref": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                },
+                                "design_source_ref": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                },
+                                "process_ref": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                },
+                                "profile_ref": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                },
+                                "scope_manifest_ref": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                },
+                                "selection_result_ref": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "coherence_policy_ref",
+                                "denominator_receipt_ref",
+                                "design_artifact_ref",
+                                "design_input_closure_receipt_ref",
+                                "design_input_closure_ref",
+                                "design_input_production_receipt_ref",
+                                "design_source_ref",
+                                "process_ref",
+                                "profile_ref",
+                                "scope_manifest_ref",
+                                "selection_result_ref"
+                            ]
+                        },
+                        "coherence_state": {
+                            "enum": [
+                                "pass",
+                                "flag",
+                                "block"
+                            ]
+                        },
+                        "design_stage_state": {
+                            "enum": [
+                                "pending-bundle-closure",
+                                "ineligible"
+                            ]
+                        },
+                        "diagnostics": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "causal_blocker_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                        },
+                                        "uniqueItems": true
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "pattern": "^[A-Z][A-Z0-9_]{2,127}$"
+                                    },
+                                    "diagnostic_id": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "pattern": ".*\\S.*"
+                                    },
+                                    "owner": {
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ]
+                                    },
+                                    "repair": {
+                                        "type": "string",
+                                        "pattern": ".*\\S.*"
+                                    },
+                                    "selector": {
+                                        "oneOf": [
+                                            {
+                                                "type": "string",
+                                                "pattern": ".*\\S.*"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "causal_blocker_ids",
+                                    "code",
+                                    "diagnostic_id",
+                                    "message",
+                                    "owner",
+                                    "repair",
+                                    "selector"
+                                ]
+                            }
+                        },
+                        "evaluated_rules": {
+                            "allOf": [
+                                {
+                                    "prefixItems": [
+                                        true
+                                    ]
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "allOf": [
+                                            {
+                                                "if": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "status": {
+                                                            "enum": [
+                                                                "flag",
+                                                                "block",
+                                                                "not_evaluable"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "status"
+                                                    ]
+                                                },
+                                                "then": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "causal_blocker_ids": {
+                                                            "anyOf": [
+                                                                {
+                                                                    "type": "null"
+                                                                },
+                                                                {
+                                                                    "type": "boolean"
+                                                                },
+                                                                {
+                                                                    "type": "number"
+                                                                },
+                                                                {
+                                                                    "type": "string"
+                                                                },
+                                                                {
+                                                                    "type": "array",
+                                                                    "prefixItems": [
+                                                                        true
+                                                                    ],
+                                                                    "minItems": 1
+                                                                },
+                                                                {
+                                                                    "type": "object"
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                        },
+                                                        "uniqueItems": true
+                                                    },
+                                                    "evidence_refs": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "additionalProperties": false,
+                                                            "properties": {
+                                                                "path": {
+                                                                    "type": "string"
+                                                                },
+                                                                "sha256": {
+                                                                    "type": "string",
+                                                                    "pattern": "^[a-f0-9]{64}$"
+                                                                },
+                                                                "size": {
+                                                                    "allOf": [
+                                                                        {
+                                                                            "type": "number"
+                                                                        },
+                                                                        {
+                                                                            "type": "integer",
+                                                                            "minimum": 0
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "path",
+                                                                "sha256",
+                                                                "size"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "rule_id": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                    },
+                                                    "status": {
+                                                        "enum": [
+                                                            "pass",
+                                                            "flag",
+                                                            "block",
+                                                            "not_evaluable"
+                                                        ]
+                                                    }
+                                                },
+                                                "if": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "status": {
+                                                            "const": "pass"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "status"
+                                                    ]
+                                                },
+                                                "then": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "causal_blocker_ids": {
+                                                            "anyOf": [
+                                                                {
+                                                                    "type": "null"
+                                                                },
+                                                                {
+                                                                    "type": "boolean"
+                                                                },
+                                                                {
+                                                                    "type": "number"
+                                                                },
+                                                                {
+                                                                    "type": "string"
+                                                                },
+                                                                {
+                                                                    "type": "array",
+                                                                    "maxItems": 0
+                                                                },
+                                                                {
+                                                                    "type": "object"
+                                                                }
+                                                            ]
+                                                        },
+                                                        "evidence_refs": {
+                                                            "anyOf": [
+                                                                {
+                                                                    "type": "null"
+                                                                },
+                                                                {
+                                                                    "type": "boolean"
+                                                                },
+                                                                {
+                                                                    "type": "number"
+                                                                },
+                                                                {
+                                                                    "type": "string"
+                                                                },
+                                                                {
+                                                                    "type": "array",
+                                                                    "prefixItems": [
+                                                                        true
+                                                                    ],
+                                                                    "minItems": 1
+                                                                },
+                                                                {
+                                                                    "type": "object"
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                "required": [
+                                                    "causal_blocker_ids",
+                                                    "evidence_refs",
+                                                    "rule_id",
+                                                    "status"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "minItems": 1,
+                                    "uniqueItems": true
+                                }
+                            ]
+                        },
+                        "plan_evidence_state": {
+                            "const": "plan-evidence-pending"
+                        },
+                        "policy_rule_ids": {
+                            "allOf": [
+                                {
+                                    "prefixItems": [
+                                        true
+                                    ]
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    },
+                                    "minItems": 1,
+                                    "uniqueItems": true
+                                }
+                            ]
+                        },
+                        "policy_rule_set_digest": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "receipt_digest": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "receipt_id": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                        },
+                        "schema_version": {
+                            "const": "invoke.design-coherence-receipt.v2"
+                        },
+                        "selection_evidence_state": {
+                            "const": "design-validator-pass"
+                        },
+                        "validator": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "identity": {
+                                    "const": "invoke.validate-design-coherence.v2"
+                                },
+                                "owner": {
+                                    "const": "invoke-design-coherence-validator"
+                                },
+                                "path": {
+                                    "const": "arcanum/spells/invoke/scripts/validate_design_coherence_v2.py"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                }
+                            },
+                            "required": [
+                                "identity",
+                                "owner",
+                                "path",
+                                "sha256"
+                            ]
+                        },
+                        "verdict": {
+                            "enum": [
+                                "pass",
+                                "flag",
+                                "block"
+                            ]
+                        }
+                    },
+                    "if": {
+                        "type": "object",
+                        "properties": {
+                            "verdict": {
+                                "const": "pass"
+                            }
+                        },
+                        "required": [
+                            "verdict"
+                        ]
+                    },
+                    "then": {
+                        "type": "object",
+                        "properties": {
+                            "coherence_state": {
+                                "const": "pass"
+                            },
+                            "design_stage_state": {
+                                "const": "pending-bundle-closure"
+                            },
+                            "diagnostics": {
+                                "anyOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "maxItems": 0
+                                    },
+                                    {
+                                        "type": "object"
+                                    }
+                                ]
+                            },
+                            "evaluated_rules": {
+                                "anyOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "null"
+                                                },
+                                                {
+                                                    "type": "boolean"
+                                                },
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "status": {
+                                                            "const": "pass"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "type": "object"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "required": [
+                        "$schema",
+                        "authority_effect",
+                        "bindings",
+                        "coherence_state",
+                        "design_stage_state",
+                        "diagnostics",
+                        "evaluated_rules",
+                        "plan_evidence_state",
+                        "policy_rule_ids",
+                        "policy_rule_set_digest",
+                        "receipt_digest",
+                        "receipt_id",
+                        "schema_version",
+                        "selection_evidence_state",
+                        "validator",
+                        "verdict"
+                    ]
+                }
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "if": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "const": "block"
+                    }
+                },
+                "required": [
+                    "result"
+                ]
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "blockers": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "prefixItems": [
+                                    true
+                                ],
+                                "minItems": 1
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "outputs": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "maxItems": 0
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "$schema": {
+                    "const": "https://arcanum.dev/schemas/invoke/design-candidate-production-receipt/v2"
+                },
+                "authority_effect": {
+                    "const": "none"
+                },
+                "bindings": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "policy": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "path",
+                                "sha256",
+                                "size"
+                            ]
+                        },
+                        "process": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "path",
+                                "sha256",
+                                "size"
+                            ]
+                        },
+                        "profile": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "path",
+                                "sha256",
+                                "size"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "policy",
+                        "process",
+                        "profile"
+                    ]
+                },
+                "blockers": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "blocker_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "code": {
+                                "enum": [
+                                    "SOURCE_SCHEMA_INVALID",
+                                    "SOURCE_DIGEST_MISMATCH",
+                                    "SOURCE_PATH_UNSAFE",
+                                    "W1_RECEIPT_INVALID",
+                                    "W1_RECEIPT_NOT_NORMAL",
+                                    "W1_OUTPUT_BINDING_MISMATCH",
+                                    "TARGET_BINDING_MISMATCH",
+                                    "PROFILE_INVALID",
+                                    "PROFILE_BINDING_MISMATCH",
+                                    "APPLICATION_DENOMINATOR_MISMATCH",
+                                    "APPLICATION_INVALID",
+                                    "FACT_REGISTRY_INVALID",
+                                    "VIEW_PROJECTION_INVALID",
+                                    "SELECTION_CLOSURE_INVALID",
+                                    "EVOLUTION_INVALID",
+                                    "GOVERNANCE_OVERCLAIM",
+                                    "ARTIFACT_PROJECTION_FAILED",
+                                    "ARTIFACT_PROJECTION_MISMATCH",
+                                    "COHERENCE_BLOCKED",
+                                    "LATE_VALIDATION_FAILED",
+                                    "OUTPUT_INVENTORY_MISMATCH"
+                                ]
+                            },
+                            "message": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "owner": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "repair_route": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "selector": {
+                                "oneOf": [
+                                    {
+                                        "type": "string",
+                                        "pattern": ".*\\S.*"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "blocker_id",
+                            "code",
+                            "message",
+                            "owner",
+                            "repair_route",
+                            "selector"
+                        ]
+                    }
+                },
+                "coherence_block_receipt": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/%22~1properties~1coherence_block_receipt~1oneOf~10%22"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "evidence_ceiling": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "acceptance": {
+                            "const": false
+                        },
+                        "candidate_projected": {
+                            "type": "boolean"
+                        },
+                        "coherence_validated": {
+                            "type": "boolean"
+                        },
+                        "deployment": {
+                            "const": false
+                        },
+                        "design_stage_pass": {
+                            "const": false
+                        },
+                        "execution": {
+                            "const": false
+                        },
+                        "external_effect": {
+                            "const": false
+                        },
+                        "human_views_produced": {
+                            "const": false
+                        },
+                        "normal_w1_bound": {
+                            "type": "boolean"
+                        },
+                        "plan_evidence": {
+                            "const": false
+                        },
+                        "publication": {
+                            "const": false
+                        },
+                        "source_complete": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "acceptance",
+                        "candidate_projected",
+                        "coherence_validated",
+                        "deployment",
+                        "design_stage_pass",
+                        "execution",
+                        "external_effect",
+                        "human_views_produced",
+                        "normal_w1_bound",
+                        "plan_evidence",
+                        "publication",
+                        "source_complete"
+                    ]
+                },
+                "next_route": {
+                    "enum": [
+                        "design-bundle-production",
+                        "repair-w1-input",
+                        "repair-installed-contract",
+                        "repair-design-source"
+                    ]
+                },
+                "outputs": {
+                    "type": "array",
+                    "prefixItems": [
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "design-artifact"
+                                        },
+                                        "path": {
+                                            "const": "DESIGN.json"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "coherence-receipt"
+                                        },
+                                        "path": {
+                                            "const": "DESIGN-COHERENCE-RECEIPT.json"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "path",
+                                        "sha256",
+                                        "size"
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "maxItems": 2,
+                    "minItems": 2
+                },
+                "producer": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "identity": {
+                            "const": "invoke.compile-design-candidate.v2"
+                        },
+                        "owner": {
+                            "const": "invoke-design-candidate-producer"
+                        },
+                        "path": {
+                            "const": "arcanum/spells/invoke/scripts/compile_design_candidate_v2.py"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        }
+                    },
+                    "required": [
+                        "identity",
+                        "owner",
+                        "path",
+                        "sha256"
+                    ]
+                },
+                "receipt_digest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "receipt_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                },
+                "result": {
+                    "enum": [
+                        "pass",
+                        "block"
+                    ]
+                },
+                "schema_version": {
+                    "const": "invoke.design-candidate-production-receipt.v2"
+                },
+                "source_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                },
+                "stage_results": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true,
+                                true,
+                                true,
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "allOf": [
+                                    {
+                                        "if": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "enum": [
+                                                        "block",
+                                                        "not_evaluable"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "status"
+                                            ]
+                                        },
+                                        "then": {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "prefixItems": [
+                                                                true
+                                                            ],
+                                                            "minItems": 1
+                                                        },
+                                                        {
+                                                            "type": "object"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "causal_blocker_ids": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "uniqueItems": true
+                                            },
+                                            "stage_id": {
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                            },
+                                            "status": {
+                                                "enum": [
+                                                    "pass",
+                                                    "block",
+                                                    "not_evaluable"
+                                                ]
+                                            }
+                                        },
+                                        "if": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "const": "pass"
+                                                }
+                                            },
+                                            "required": [
+                                                "status"
+                                            ]
+                                        },
+                                        "then": {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "maxItems": 0
+                                                        },
+                                                        {
+                                                            "type": "object"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        "required": [
+                                            "causal_blocker_ids",
+                                            "stage_id",
+                                            "status"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "maxItems": 4,
+                            "minItems": 4
+                        }
+                    ]
+                },
+                "w1_production_receipt_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                }
+            },
+            "if": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "const": "pass"
+                    }
+                },
+                "required": [
+                    "result"
+                ]
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "blockers": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "maxItems": 0
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "coherence_block_receipt": {
+                        "type": "null"
+                    },
+                    "next_route": {
+                        "const": "design-bundle-production"
+                    },
+                    "outputs": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "prefixItems": [
+                                    true,
+                                    true
+                                ],
+                                "minItems": 2
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "stage_results": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "anyOf": [
+                                        {
+                                            "type": "null"
+                                        },
+                                        {
+                                            "type": "boolean"
+                                        },
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "array"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "const": "pass"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "$schema",
+                "authority_effect",
+                "bindings",
+                "blockers",
+                "coherence_block_receipt",
+                "evidence_ceiling",
+                "next_route",
+                "outputs",
+                "producer",
+                "receipt_digest",
+                "receipt_id",
+                "result",
+                "schema_version",
+                "source_ref",
+                "stage_results",
+                "w1_production_receipt_ref"
+            ]
+        }
+    ]
+}

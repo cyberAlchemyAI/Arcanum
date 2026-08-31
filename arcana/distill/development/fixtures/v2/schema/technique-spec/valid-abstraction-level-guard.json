@@ -1,0 +1,119 @@
+{
+  "schema_version": "distill.technique_spec.v2",
+  "technique_id": "abstraction_level_guard",
+  "display_name": "Abstraction-Level Guard",
+  "type": "classifier",
+  "phases": [
+    "concept_mapping",
+    "closure"
+  ],
+  "hooks": [
+    "before_layer_split",
+    "before_accept_split"
+  ],
+  "activation": {
+    "operator": "all",
+    "predicates": [
+      {
+        "predicate_id": "target_context_present",
+        "input": "run_frame.target_context",
+        "comparison": "exists"
+      }
+    ]
+  },
+  "allowed_inputs": [
+    "run_frame.target_context",
+    "concept_layer.label",
+    "concept_layer.abstraction_level",
+    "candidate_unit.name",
+    "candidate_unit.responsibility",
+    "candidate_unit.inputs",
+    "candidate_unit.outputs"
+  ],
+  "emits": [
+    "technique_id",
+    "unit_or_layer_id",
+    "selected_level",
+    "level_rationale",
+    "cross_level_confusion",
+    "decision"
+  ],
+  "emitted_field_constraints": {
+    "technique_id": {
+      "value_kind": "enum",
+      "values": [
+        "abstraction_level_guard"
+      ]
+    },
+    "unit_or_layer_id": {
+      "value_kind": "scalar",
+      "scalar_type": "string",
+      "schema_ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+    },
+    "selected_level": {
+      "value_kind": "enum",
+      "values": [
+        "purpose",
+        "value_constraint",
+        "capability",
+        "function",
+        "workflow_process",
+        "policy_rule",
+        "interface",
+        "artifact",
+        "operation"
+      ]
+    },
+    "level_rationale": {
+      "value_kind": "scalar",
+      "scalar_type": "string",
+      "schema_ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+    },
+    "cross_level_confusion": {
+      "value_kind": "scalar",
+      "scalar_type": "boolean"
+    },
+    "decision": {
+      "value_kind": "enum",
+      "values": [
+        "pass",
+        "flag",
+        "block"
+      ]
+    }
+  },
+  "failure_responses": [
+    {
+      "decision": "pass",
+      "condition": "Every accepted layer and candidate unit has an explicit level, and parent/child levels have a coherent relationship.",
+      "responses": [],
+      "readiness_effect": "unchanged"
+    },
+    {
+      "decision": "flag",
+      "condition": "A level is plausible but weakly justified.",
+      "responses": [
+        {
+          "action": "revise_candidate"
+        },
+        {
+          "action": "add_guardrail"
+        }
+      ],
+      "readiness_effect": "downgraded_to_flag"
+    },
+    {
+      "decision": "block",
+      "condition": "The split depends on confusing abstraction levels in a way that breaks closure or recomposition.",
+      "responses": [
+        {
+          "action": "revise_candidate"
+        },
+        {
+          "action": "reject_candidate"
+        }
+      ],
+      "readiness_effect": "downgraded_to_block"
+    }
+  ]
+}

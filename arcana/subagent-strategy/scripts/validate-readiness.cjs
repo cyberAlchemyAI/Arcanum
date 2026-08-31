@@ -111,13 +111,6 @@ for (let gi = 0; gi < rec.groups.length; gi++) {
       const fits = pool.get(agent.agent_name);
       if (!fits) errs.push(`agent identity is not present in the configured pool: ${JSON.stringify(agent.agent_name)}`);
       else if (!fits.has(agent.role)) errs.push(`agent ${JSON.stringify(agent.agent_name)} does not declare role ${JSON.stringify(agent.role)}`);
-      const identityPrefix = `You are ${agent.agent_name}.`;
-      const instructionBody = agent.initial_prompt.startsWith(identityPrefix + '\n\n')
-        ? agent.initial_prompt.slice(identityPrefix.length + 2).trim()
-        : '';
-      if (!instructionBody) {
-        errs.push(`groups[${gi}].agents[${ai}].initial_prompt does not preserve the confirmed agent identity`);
-      }
     }
   }
 

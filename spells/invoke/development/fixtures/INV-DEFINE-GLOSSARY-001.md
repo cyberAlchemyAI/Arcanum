@@ -2,7 +2,8 @@
 
 ## Scenario
 
-Glossary contains a new no-match term that must not be silently promoted.
+A candidate definition contains a new local term that must not be silently
+promoted.
 
 ## User Request
 
@@ -17,14 +18,14 @@ Define an experiment session notebook for Mars geology analysis. The notebook in
 - Template inventory: present
 - Candidate-template permission: not needed
 - Necronomicon concept sources: available
-- New glossary term: sol-thread
+- New candidate definition term: sol-thread
 
 ## Expected Result
 
 - Phase status: `pass`
-- Template selection: research or generic family
-- Outputs: spec artifact, glossary artifact, define transport report
-- Glossary linking: `sol-thread` is no-match with rationale and promotion gate
+- Template selection: `invoke.generic-definitions-baseline.v3`
+- Outputs: spec artifact, `DEFINITIONS.json`, `DEFINITIONS.md`, `GLOSSARY.md`, and define transport report
+- Definition status: `sol-thread` remains candidate with exact source evidence and a promotion boundary
 - Implementation layering: seed emitted or gap recorded
 - Expected next route: `deferred`
 

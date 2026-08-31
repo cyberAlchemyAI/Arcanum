@@ -1,0 +1,553 @@
+---
+name: invoke
+description: "Use when: turning development intent into governed define, design, plan, handoff, or refresh artifacts before lifecycle execution."
+argument-hint: "modes | <define|design> <describe|check|author|produce|admit|status> ..."
+tier: spells
+domain: lifecycle-authoring
+version: 0.5.0
+origin: canonical Arcanum spell for intent-to-artifact authoring
+allowed-tools: Read, Write, Glob, Grep, Bash, AskQuestions, Task
+---
+
+# Invoke
+
+## Identity
+
+- Canonical ID: `invoke`
+- Aliases: none
+- Scope: library
+
+## Purpose
+
+Invoke turns vague development intent into governed authoring artifacts. The root spell file stays intentionally compact and delegates mode behavior to per-mode contracts under `spells/invoke/`.
+
+Invoke is an authoring front door, not the lifecycle owner for every artifact it can describe. It discovers intent, shapes definitions, designs, and plans, then hands off to the capability that owns the target lifecycle.
+
+Invoke does not require deprecated command files, slash commands, or command-resolution bridges as authoring readiness evidence. When an Invoke-authored plan prepares later execution, it should name native capability handles, expected receipts, validation surfaces, and subagent/local fallback boundaries. Legacy command adapters may remain as explicit example-runner compatibility only.
+
+## Deterministic CLI
+
+`tools/arcanum invoke` is the stateless machine authoring surface for Define
+and Design. It converts a complete authoring request into canonical JSON, then
+invokes the existing closure, producer, admission, and capability consumers.
+It never calls a model or runtime adapter and never infers definitions,
+architecture, approvals, reviewer evidence, promotion, or execution authority.
+
+Start with `tools/arcanum invoke modes`, then inspect one exact stage with
+`tools/arcanum invoke <mode> describe [stage]`. Plan, Handoff, and Refresh use
+the native Invoke skill until they expose equivalent deterministic source and
+admission contracts.
+
+## Human Result Contract
+
+Every user-facing Invoke result must follow
+`framework/OUTCOME-BRIEF-CONTRACT.md`: lead with a short plain-language
+`Outcome Brief`, then state `Boundary and Next Decision`, and only then return
+the existing technical result. The brief is a human projection of the same run
+evidence; it does not change receipt schemas, authority, promotion, mutation,
+or lifecycle state.
+
+The opening must explain the objective, result, and why it matters without
+requiring the operator to decode paths, hashes, status axes, or internal
+identifiers. The boundary must explicitly name what changed, what did not,
+remaining uncertainty, any exact user decision, and the next bounded action.
+
+## Trigger Conditions
+
+- The user has something to build but the authoring baseline is missing or inconsistent.
+- A reusable spec and glossary are needed before architecture or execution planning.
+- The workflow needs one-question clarification, explicit approvals, and auditable outputs.
+
+## Mode Contracts
+
+| Mode       | Status           | Contract File                              | Notes                                                  |
+| ---------- | ---------------- | ------------------------------------------ | ------------------------------------------------------ |
+| `define`   | implemented (L0) | [define.md](./define.md)     | [Human overview](./define/README.md). Closure-bound v3 authoring: one source produces a thirteen-file candidate bundle, then independent admission proves current replay parity and typed semantic-drift closure. |
+| `design`   | W1 v2, W2 v2, and W3 v3 bundle/admission implemented | [design.md](./design.md)     | [Human overview](./design/README.md). [Agent authoring guide](./design-authoring-guide.md). Requires admitted Define v3, closes approved inputs, compiles one typed six-view candidate, binds independent Distill PASS, publishes a deterministic fifteen-file bundle, and admits only `artifact_authored` after byte-equal replay. |
+| `plan`     | implemented (L2 contract) | [plan.md](./plan.md)         | Converts approved design outputs into implementation plans, layering artifacts, and work-packs. |
+| `handoff`  | implemented (L2 companion contract) | [handoff.md](./handoff.md) | Creates a new session/thread handoff from a prompt, source session reference, and Context Builder selection. |
+| `refresh`  | implemented (L2 refresh contract) | [refresh.md](./refresh.md) | Updates existing invoke-authored workflow artifacts from new session evidence through typed deltas while separating phase completion from handoff readiness. |
+| `full`     | deferred         | [full.md](./full.md)         | Composite execution mode, pending L2 and L3 readiness. |
+| `validate` | deferred         | [validate.md](./validate.md) | Lifecycle validation mode, pending L3.                 |
+
+## Evidence Capability Contract
+
+The machine-readable capability table is [mode-capabilities.json](./mode-capabilities.json).
+The production resolver is
+[scripts/capability_status_resolver.py](./scripts/capability_status_resolver.py).
+It returns three independent axes:
+
+- `artifact_authored.status`: `pass`, `flag`, `block`, or `unsupported`, based
+  only on the mode's artifact receipt;
+- `registry_released.status`: boolean, based only on a registry owner receipt
+  bound to the current capability-table digest;
+- `mutation_runtime_ready.status`: boolean, based only on a passing material
+  package receipt plus a current mode-runtime receipt containing every required
+  gate.
+
+An earlier axis never implies a later axis. In particular, a valid Plan may be
+authored while registry release and runtime readiness remain false. Deferred
+`full` and `validate` return `artifact_authored=unsupported`,
+`registry_released=false`, and `mutation_runtime_ready=false` even if a caller
+supplies receipts. The request schema rejects legacy collapsed fields such as a
+single capability `status` or `mutation_handoff_allowed`.
+
+This capability result is distinct from a mode run's `phase_status` and
+handoff decision. Active-mode validation may consume evidence before routing,
+but it cannot substitute its run verdict for any of the three capability axes.
+Define PASS additionally requires the exact v3 compiler receipt and matching
+current bundle-admission receipt declared by the capability table. Valid v1/v2
+producer receipts are historical/read-only. Even a valid v3 stage/admission
+pair opens only `artifact_authored`.
+Agents author that v3 source through the closure-first, ownership-aware
+[Define authoring guide](./define-authoring-guide.md) and its
+[compiler-and-admission-valid mixed example](./examples/define-v3/DEFINE-SOURCE.json);
+the guide never replaces the JSON Schemas as shape authority.
+
+Design input production adds another independent evidence family. Its
+`DesignInputBoundaryApproval`, `DesignInputClosureReceipt`,
+`DesignScopeManifest`, `DesignDenominatorReceipt`, `DesignSelectionResult`, and
+`DesignInputProductionReceipt` establish only approved-boundary-relative input
+closure and the selected Design contract. They do not establish a six-view
+Design artifact or final Design stage PASS. The production receipt carries the
+exact evidence ceiling. These artifacts imply neither registry release nor
+runtime readiness, and they never count planned witnesses as Plan evidence.
+
+Design W2 adds one canonical architecture source, deterministic candidate
+projection, independent coherence validation, and atomic candidate closure.
+W3 then accepts only that exact passing candidate plus independently validated
+Distill evidence through `DESIGN-BUNDLE-CLOSURE.json`. It publishes fourteen
+payloads plus a v3 stage receipt atomically; an independent v2 validator recompiles
+the bundle and emits an external admission receipt only when all fifteen files
+are byte-equal. The capability resolver requires both receipts. Generic Design
+PASS envelopes and v1/v2 Design stage receipts remain blocked.
+Agents author the complete chain through the
+[Design authoring guide](./design-authoring-guide.md), which links the detailed
+W1, W2, and W3 guides and explains each formal stage with concrete components,
+interfaces, workflows, decisions, and dependencies. The guide does not replace
+the JSON Schemas or the stage catalog as machine authority.
+
+## Core Required Sigils
+
+| Sigil                       | Role In Spell                                                         | Required Mode  |
+| --------------------------- | --------------------------------------------------------------------- | -------------- |
+| `structured-interview-kits` | Clarify missing context one question at a time and capture approvals. | mode-dependent |
+| `inventory`                 | Resolve local templates and record template usage evidence.           | mode-dependent |
+| `context-builder`           | Build bounded context for invoke inputs and artifact linking.         | mode-dependent |
+| `dispatch-spec`             | Select and validate the Dispatch Spec technique trace that shapes each invoke route. | technique trace or dispatch validation |
+
+## Core Optional Sigils
+
+| Sigil                            | Use When                                                             | Notes                                                                              |
+| -------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `decision-gate`                  | A blocker-level decision cannot be resolved from available evidence. | Route only consequential unresolved choices.                                       |
+| `spellcraft`                     | Approved invoke output targets spell authoring or spell revision.    | Invoke prepares handoff context only; Spellcraft owns spell lifecycle mutation, validation, install, observation, and reflection. |
+| `sigil-development`              | Approved invoke output targets sigil authoring or sigil revision.    | Invoke prepares handoff context only; Sigil Development owns sigil lifecycle mutation, validation, observability, reflection, and promotion readiness. |
+| `architecture-pattern-inventory` | Design-stage work needs reusable pattern evidence or alternatives.    | Optional design-mode evidence source; does not override design gates.              |
+| `task-session`                   | Plan output is ready for bounded execution.                          | Invoke emits handoff context; Task Session owns execution.                         |
+| `distill`                        | A broad output needs smallest coherent unit validation, scope reduction, or gap discovery. | Required as automatic validate pass for `plan`, `full`, and `validate`; triggered for other modes when scope is broad or overbuilt. |
+
+## Lifecycle Authority Chain
+
+Use this chain to avoid responsibility overlap:
+
+1. `invoke` owns intent-to-artifact authoring: define, design, plan, work-pack creation, and handoff context.
+2. `sigil-development` owns sigil lifecycle: create, revise, validate, observe, reflect, iterate, and prepare promotion evidence.
+3. `spellcraft` owns spell lifecycle: compose sigils, define phases and gates, install/adapt spells, validate, observe, reflect, and revise.
+4. `task-session` owns bounded execution from an approved work-pack task or SWU.
+
+Invoke may write handoff artifacts inside a target capability's `development/` folder, but it must not claim the target lifecycle is complete. The handoff route becomes the next owner.
+
+### Chaining Workflow
+
+For a new sigil:
+
+```text
+invoke define/design/plan -> sigil-development --new/--update -> task-session when implementation work-pack tasks are ready
+```
+
+For a new spell:
+
+```text
+invoke define/design/plan -> spellcraft design/install/validate -> task-session when implementation work-pack tasks are ready
+```
+
+For an ordinary feature or module:
+
+```text
+invoke define/design/plan -> task-session to WORK-PACK.md
+```
+
+For a new thread split from the current session:
+
+```text
+invoke handoff -> workflow-reflect | invoke define/design/full | research | task-session
+```
+
+For artifact refresh after a session result:
+
+```text
+direct-user invoke refresh -> apply-approved when material gates pass
+delegated/continuation invoke refresh -> proposal-only refresh report
+either -> task-session | workflow-reflect | deferred
+```
+
+When a target is already clearly a sigil or spell, Invoke should produce a compact handoff packet and route early instead of expanding into lifecycle execution.
+
+## Cross-Cutting Transmutations
+
+| Transmutation | Role In Spell | Application Rule |
+| --- | --- | --- |
+| `implementation-layering` | Keeps plan/full/validate outputs bounded by explicit layer decisions and promotion evidence. | Optional seed in `define` and `design`; required companion artifact in `plan`, `full`, and `validate`. |
+
+## Dispatch Technique Discipline
+
+Every invoke mode must record a Dispatch Spec technique trace before it returns a pass or flag result. The trace selects only techniques from `formulae/dispatch-spec/TECHNIQUE-CATALOG.md` or explicitly names a local-extension source, then connects each selected technique to a mode phase, output artifact, gate, evidence expectation, or unresolved gap.
+
+Minimum trace fields:
+
+- selected technique ids,
+- activation trigger,
+- affected phase or artifact,
+- validation expectation,
+- skipped technique reasons when an obvious technique was considered and rejected,
+- whether a full dispatch JSON was needed and, if so, the validation result.
+
+Common invoke techniques include `sequence`, `frame_handoff`, `handle_handoff`, `residue_ledger`, `owner_boundary_check`, `artifact_contract_bridge`, `validation_loop`, `concrete_path_evidence`, and `observability_grouping`. Plan, full, and validate modes additionally consider `scu_swu_reduction`, `recomposition_proof`, `execution_receipt_handoff`, and `authority_split_gate`.
+
+Do not list techniques as decoration. A technique citation that does not affect a phase, output, gate, evidence check, or gap route is a flag. When the invoke route crosses multiple capabilities, delegates work, defines subagent strategy, creates a reusable route artifact, or carries protected/private context, create a dispatch document and validate it with `formulae/dispatch-spec/scripts/validate-dispatch.py`.
+
+## Distill Validation
+
+Plan, full, and validate must run automatic Distill validation against the draft implementation plan, layering artifact, work-pack, and handoff route before reporting mutation-capable readiness. Distill validation checks whether the selected unit is small enough to execute, large enough to preserve meaning, owns one primary behavior with an independently reviewable acceptance boundary, records why it cannot be split further, recomposes into the approved design, exposes hidden gaps, and avoids overbuilt or vague task structure. The first selected SWU must be the narrowest reversible trust-building step, not a task-shaped bundle.
+
+Distill verdict handling:
+
+- `pass`: the output may route to its next owner if all other gates pass.
+- `flag`: the output may route only when the gap ledger names each Distill gap, owner, and repair path.
+- `block`: the output must not route to mutation-capable execution until the smallest coherent unit, SWU boundary, recomposition proof, or acceptance-critical gap is repaired.
+
+Define, design, handoff, and refresh should run Distill when the requested output is broad, ambiguous, overbuilt, or likely to hide lifecycle gaps, but they may record a skipped reason when the output is already narrow and locally bounded.
+
+### Invoke-To-Distill Telemetry
+
+When Invoke actually runs Distill and a repository observability package exists,
+Invoke must append exactly one linked Distill child signal in addition to its own
+Invoke signal. The child envelope uses the Distill run ID from the run request,
+sets `lineage.parent_run_id` to the Invoke run ID, identifies Invoke and its mode
+as the caller, and preserves available request, runtime-event, execution-receipt,
+and validator-result references.
+
+Completed, partial, blocked, and failed meaningful Distill executions are
+observed. A skipped or not-required Distill route does not create child
+telemetry; Invoke records the skip rationale in its own row. Signal Observer
+deduplicates the child append by Distill run ID. Telemetry failure is visible
+observability residue and must not change the Distill verdict, the validator
+result, or mutation authority.
+
+## Prerequisites
+
+- Repository root is known.
+- Development pack context is available under `spells/invoke/development/`.
+- Local template inventory is available, or candidate-template creation is allowed by user approval.
+- Current prebuilt template inventory is rooted at `arcanum/spells/invoke/templates/` and includes the DomainSpec template family (`domainspec-spec/` — define baseline `SPEC.md` + aspect docs, design-stage `architecture-bundle.md`, plan-stage `execution-pack.md`), standalone companion templates, and dedicated candidate family scaffolds. The legacy `module-formulae/` family is deprecated and retained only for the invoke validation fixtures and the `mogt` research project; physical removal is gated on regenerating those (see `templates/module-formulae/README.md`).
+- Implementation layering transmutation is available at `arcanum/transmutations/implementation-layering/`.
+- Implementation-layering template is available at `arcanum/spells/invoke/templates/implementation-layering.md`.
+- Work-pack template is available at `arcanum/spells/invoke/templates/work-pack.md`.
+- Necronomicon concept sources are reachable when glossary linking is requested.
+
+## Shared State
+
+| State                       | Owner | Updated By                                      | Consumed By                           |
+| --------------------------- | ----- | ----------------------------------------------- | ------------------------------------- |
+| define intent record        | spell | `structured-interview-kits` and `invoke define` | define synthesis, decision routing    |
+| template selection record   | spell | `inventory` and `invoke define`                 | define synthesis, validation, handoff |
+| spec artifact               | spell | `invoke define`                                 | downstream design or plan routing     |
+| candidate definition registry (`DEFINITIONS.json`) | spell | `invoke define` | deterministic views and downstream definition-aware routing |
+| definition view (`DEFINITIONS.md`) | spell | `invoke define` | human review; derived from the machine registry |
+| glossary view (`GLOSSARY.md`) | spell | `invoke define` | downstream design or plan routing; derived from the machine registry |
+| Define identity denominator request and result | spell | `invoke define` and identity denominator validator | Define pass and downstream Design/Plan activation |
+| design artifact             | spell | `invoke design`                                 | downstream plan routing and validation |
+| Design input boundary approval | target owner | owner-approved W1 input process | Design input closure validator |
+| Design input closure | Design input author | W1 authoring | closure validator and scope projector |
+| Design input production receipt | spell | W1 atomic input producer | input review or later normal Design authoring |
+| Design scope manifest       | spell | `invoke design`                                 | denominator extraction and exact source closure |
+| Design denominator receipt  | spell | Design scope extractor                          | total Design selection and stale-input diagnostics |
+| Design selection receipt    | spell | Design selection validator                      | evidence-state reporting and handoff routing |
+| glossary consistency report | spell | `invoke design`                                 | design validation and gap routing     |
+| implementation layering artifact | spell | `invoke design`, `invoke plan`, and `invoke full` | plan validation, execution handoff, and release checks |
+| implementation plan artifact | spell | `invoke plan` and `invoke full` | work-pack mapping, validation strategy, and execution handoff |
+| work-pack artifact          | spell | `invoke plan` and `invoke full`                 | stable planning manifest and execution handoff |
+| session handoff artifact    | spell | `invoke handoff`                                | new session/thread start, reflection, research, or continuation route |
+| refresh report              | spell | `invoke refresh`                                | evidence-backed artifact deltas, proposals, no-op decisions, and next route |
+| define transport report     | spell | `invoke define`                                 | Necronomicon context          |
+| design transport report     | spell | `invoke design`                                 | Necronomicon context          |
+| plan transport report       | spell | `invoke plan`                                   | Necronomicon context          |
+| unresolved gap ledger entry | spell | `invoke define`, `invoke design`, and optional `decision-gate` | follow-up routing                     |
+
+## Mode Router
+
+1. Resolve requested mode and load the corresponding mode contract.
+2. Select a Dispatch Spec technique trace for the mode route and determine whether a full dispatch document is required.
+3. Execute the mode contract phases and collect mode outputs.
+4. Run automatic Distill validation when required by mode or triggered by broad/ambiguous output shape.
+5. When Distill ran, append one linked child Distill signal through Signal Observer.
+6. Apply global gates, observability, and handoff policy from this root contract.
+7. Render the human result in Outcome Brief -> Boundary and Next Decision -> Technical Details order.
+
+## Target Artifact Provenance
+
+Invoke may author artifacts for another capability, module, spell, sigil, or repository feature. In those cases, invoke remains the observed authoring capability, but the produced artifact belongs to the target development cycle.
+
+Every invoke run that targets another artifact should record:
+
+- observed capability: always `invoke`,
+- invoke mode: `define`, `design`, `plan`, `handoff`, `refresh`, `full`, `validate`, or a composed mode,
+- target artifact name and type,
+- target artifact owner or lifecycle cycle,
+- output paths owned by the target artifact,
+- invoke-specific gaps,
+- target-artifact gaps,
+- recommended next route for the target artifact.
+
+Reflection and telemetry from such a run should preserve both layers. If the gap is caused by invoke behavior, template routing, output contract drift, or missing invoke guidance, route the follow-up through the invoke development cycle. If the gap is in the authored subject matter, state schema, design, plan, or implementation readiness of the target artifact, route the follow-up through the target artifact's development cycle.
+
+## Global Handoff Artifacts
+
+- define context summary
+- target artifact name, type, owner, and lifecycle cycle
+- source session reference and new-session prompt when mode is `handoff`
+- handoff type and Context Builder coverage status when mode is `handoff`
+- source signals, target artifact inventory, mutation mode, and delta summary when mode is `refresh`
+- mode artifact paths
+- design artifact paths and six-view coverage
+- Design selection receipt, Design evidence state, and exact evidence ceiling
+- exact target-artifact gaps that remain outside the Design evidence ceiling
+- glossary consistency report
+- mode selection evidence
+- Define identity-denominator passing receipt, or a not-applicable classification and rationale
+- Define v3 stage receipt and exact current bundle-admission receipt
+- implementation plan artifact path
+- implementation layering artifact path and layer decision snapshot
+- per-layer planning slice coverage when complexity is medium or high
+- work-pack artifact path and output mode (single-file or split)
+- execution designation plus `IMPLEMENTATION-READINESS-PREFLIGHT.json` for an
+  execution-candidate, or an exact non-executing reason
+- Dispatch Spec technique trace and dispatch validation result when a full dispatch document is required
+- Distill validation verdict, gap summary, and recomposition proof status when run
+- unresolved gaps and blocker decisions
+- Necronomicon transport report
+- explicit Spellcraft handoff when the target artifact is a spell
+- recommended next route (`task-session`, `full`, `spellcraft`, `sigil-development`, or deferred follow-up)
+
+## Global Gates
+
+- One-question interview cadence when context is missing in interactive mode.
+- Template or recipe selection must show eligibility evidence and explicit user choice on ties.
+- Every mode must include a Dispatch Spec technique trace; missing trace blocks pass-ready output, and unused technique citations flag.
+- Every Define output must classify identity-denominator validation as
+  `required` or `not-applicable` with rationale. It is required whenever a
+  Define artifact asserts an exact or canonical ID-to-label denominator.
+  Required runs cannot pass or activate Design or Plan without a current
+  passing receipt bound to the exact artifact, request, caller-declared
+  authority source, optional corroborating sources, field mappings, equality
+  filters, and exact coverage rule. Missing, stale, blocking, or source-
+  disagreeing evidence remains an upstream blocker; downstream modes cannot
+  reconstruct identity proof from counts, prose, or stable whole-file digests.
+- Every new Define PASS requires a current independent semantic closure before
+  authoring and a matching independent bundle admission after compilation.
+  Meaning, authority, registry/consumer topology, structural-schema, identity-
+  denominator, or unprojected source changes require reassessment; derived-view
+  drift alone requires recompilation. v1/v2 receipts remain validate-only.
+- `plan`, `full`, and `validate` must include an implementation-layering artifact; `define` and `design` may emit a seed or explicit gap.
+- `plan`, `full`, and `validate` must include a work-pack artifact mapped from implementation-plan tasks and layer decisions.
+- `plan`, `full`, and `validate` must validate any machine-readable
+  `arcanum.work-pack-execution-entry/v1` projection through the installed
+  Implementation Readiness validator before pass-ready handoff.
+- Every newly authored or refreshed mutation-capable Work Pack must be an
+  `execution-candidate`. The installed Plan producer must run WPRA over the
+  exact final bytes, preserve any failed audit status, and then run
+  Implementation Readiness `plan-readiness-preflight`. Plan cannot
+  pass without full frontier route/validation coverage and a proof-only real
+  `TASK_READY` result. The receipt must remain non-reusable, non-mutation-ready,
+  and authority-free.
+- A `non-executing` Plan must name why no mutation-capable Work Pack exists and
+  cannot expose Task Session as its next route.
+- Every new or regenerated exact owner-acceptance request must use the
+  versioned [preacceptance closure](./preacceptance-closure.md). The v2
+  request generator is the only emission path and must block unless the final
+  staged bundle has a passing two-run no-effect consumer-closure receipt, a
+  passing independent review over the same closure-graph digest, and an
+  implemented or enforced reflection-adoption receipt with a passing
+  cross-capability regression. Historical v1 requests remain readable but do
+  not satisfy this gate. The ordinary Invoke owner-request path must execute
+  `scripts/preacceptance_closure.py validate-request` on the emitted artifact
+  before presentation; a direct base request, v1 request, or hand-authored v2
+  wrapper is not an alternate mutation-capable request path.
+- Preacceptance must exercise the finalized Task Session projection in two
+  modes through `prepare_live_execution_entry.py`: deterministic no-effect
+  success closure and bounded shadow/live-topology preparation followed by a
+  deliberate pre-execution block. Both use versioned deterministic invocation
+  input closures, exact declared control locators, and the same isolated
+  transaction engine. Any write outside the complete material, executor,
+  control, terminal, lifecycle, and transient authority ceiling blocks request
+  emission. The failure path must validate Task Session terminal, Invoke owner
+  block, and continuity receipts without claiming unavailable phases.
+- An owner request is still pending evidence. Actual Task Session preparation
+  requires a separate `invoke.owner-acceptance-response.v1` whose literal token
+  equals `ACCEPT-{request_id}-{request_digest}`, whose request is canonically
+  re-emittable with closure/review/adoption PASS, and whose requested-effect and
+  authority-write-ceiling digests match the one accepted attempt.
+- `plan`, `full`, and `validate` must include a validation strategy for every delivery slice.
+- `plan`, `full`, and `validate` must run automatic Distill validation and report pass, flag, or block before mutation-capable handoff.
+- Medium/high complexity plans must include explicit L0-L3 per-layer planning slices; low complexity plans may keep compact layer mapping in the single-file work-pack.
+- Medium/high complexity plans must include implementation-detail specs for execution tasks, and algorithmic or domain-logic tasks must document inputs, outputs, ordered rules or pseudocode, edge cases, failure modes, and validation evidence.
+- Medium/high complexity work-packs must include Smallest Working Units: a shared SWU manifest, task-local SWU lists, one parent task per SWU, one primary behavior, one independently reviewable acceptance boundary, split analysis, write scope, acceptance evidence, and verification command or reviewable check.
+- Medium/high SWUs that bundle independently verifiable structure, responsive layout, state projection, interaction behavior, or workspace regions are task-shaped and block mutation-capable handoff.
+- Vague task labels such as "implement this bundle" are not execution-ready unless backed by implementation-detail specs.
+- Layer promotion requires evidence from the previous layer, not preference alone.
+- Candidate glossary or registry promotion is never automatic.
+- Normal Plan handoff requires `design-validator-pass`; `authored-complete`
+  may route only to a bounded remediation Plan for the missing Design
+  validator or witness.
+- Planned fixture and validator contracts begin Plan at
+  `plan-evidence-pending`; they are not executed Plan evidence.
+- No silent upstream mutation; direct upstream edits require explicit approval.
+- Stage transport appends stage reports and complements matching Necronomicon sections only when they already exist.
+- Reflection provenance must distinguish invoke telemetry ownership from target artifact ownership.
+- Session/thread handoffs must select context from the referenced session through Context Builder and must not substitute a whole-session transcript for obligation-linked context.
+- Handoff mode must preserve the user's split reason: workflow gap, new lifecycle idea, research direction, execution continuation, or generic continuation.
+- Refresh mode must map every proposed or applied artifact update to a typed
+  source signal. A direct user invocation defaults to `apply-approved`;
+  delegated or continuation activation defaults to `proposal-only`; an explicit
+  mutation mode overrides either default.
+- Refresh apply approval is exact-scope evidence: after path normalization, its
+  scope must equal both material-package change targets and target inventory.
+  A missing or extra approval path blocks the material handoff.
+- When consuming a `selected-unit-at-task-session` selection, a materialized
+  package may include `plan_binding`. The producer receipt repeats it exactly.
+  It binds task, SWU, semantic plan epoch, unit-contract digest, exact selection
+  receipt digest, attempt, complete structured validation contracts and their
+  digest, plus present/absent target baselines. The producer validates baseline
+  inventory and validation digest, while Task Session remains responsible for
+  rehashing live targets and issuing the only mutation-admission verdict.
+- Refresh mode must treat no-op as a valid outcome when latest evidence is already represented.
+- Refresh mode must derive current-phase status independently from apply authorization, target-lifecycle readiness, and audit readiness, then type those conditions as scoped blockers on the handoff.
+- Capability reporting must use the three-axis resolver. An authored artifact,
+  registry release, or runtime-ready receipt opens only its matching axis; no
+  consumer may reconstruct a collapsed readiness label.
+- Every user-facing mode result must begin with the Outcome Brief and boundary
+  layers before presenting the detailed Invoke result. A missing or receipt-first
+  brief is output-contract drift and cannot be reported as a complete result.
+
+## Global Failure Policy
+
+`scripts/rehearse_execution_entry_consumers.py` extends preacceptance closure for a finalized Work-Pack projection. It feeds one versioned source through real WPRA, Implementation Readiness, Context Builder, Task Session admission, the live first-write coordinator, precloseout, heterogeneous owner-closeout, terminal, and continuity consumers. Its no-effect receipt binds the exact source, WPRA configuration, unit, ordered consumer identities, consumer artifact references, deterministic input closures, successful control-write topology, and truthful pre-execution failure topology.
+
+Request emission additionally requires a digest-valid `invoke.request-emission-eligibility-receipt.v1` bound to that exact rehearsal and requested effect. This receipt permits only generation of the owner decision request. Owner acceptance remains pending until the later owner decision and is still mandatory before selection or admission; request eligibility never grants execution authority.
+
+- Return `block` when blocker ambiguity, missing mandatory inputs, or governance violations prevent safe mode output.
+- Return `flag` when mode output is usable but includes unresolved non-blocker gaps.
+- Apply these statuses to the current mode artifact. A downstream target or later lifecycle gate must not lower a complete current-mode artifact unless the mode contract explicitly makes that condition a current input.
+- Stop at the first blocked gate and return remediation guidance rather than silently switching modes.
+
+## Local Customization
+
+- Spell root: `.arcanum/spells/` for local adaptations, `spells/` for this reusable library spell.
+- Local paths: output paths come from selected templates and local project conventions.
+- Gate strictness: standard for authoring modes; blocker decisions remain strict.
+- Interaction mode: interactive one-question clarification by default.
+
+## Observability
+
+When `.arcanum/observability/` exists, record:
+
+- spell name and mode,
+- phases attempted,
+- sigils invoked,
+- gates passed, flagged, or blocked,
+- artifact paths produced,
+- unresolved gaps and blocker decisions,
+- handoff target recommendation,
+- handoff type and source session reference when mode is `handoff`,
+- refresh source signal count, delta classes, activation source, resolved
+  mutation mode, mutation-mode source, and no-op rationale when mode is
+  `refresh`,
+- authored phase status, phase-status basis, handoff status, and blocker counts by lifecycle scope when mode is `refresh`,
+- target artifact name, type, owner, and lifecycle cycle,
+- gap ownership split between invoke-specific gaps and target-artifact gaps,
+- referenced mode contract,
+- selected Dispatch Spec techniques and dispatch validation status,
+- Distill validation verdict and gap count,
+- Distill child run ID, caller linkage, telemetry append status, and evidence-reference status when Distill ran,
+- Distill skip rationale and no child signal when Distill was not required,
+- design view coverage and glossary consistency status,
+- Design selection receipt, Design evidence state, exact evidence ceiling, and
+  separate Plan evidence state,
+- plan complexity and output mode,
+- implementation layer coverage and per-layer planning slice status,
+- implementation-detail coverage status,
+- SWU coverage status,
+- validation and follow-up action.
+
+## Root Output Contract
+
+Return:
+
+```markdown
+## Outcome Brief
+
+<Two to five plain-language sentences explaining what Invoke tried to produce,
+what it produced or why it stopped, and why that matters.>
+
+- Objective: <what this Invoke mode was trying to accomplish>
+- Result: <what is now known, authored, flagged, blocked, or unchanged>
+- Why it matters: <practical consequence for the operator or next owner>
+
+## Boundary and Next Decision
+
+- Changed: <artifacts, evidence, or state changed; none when applicable>
+- Unchanged: <implementation, authority, promotion, publication, deployment, or other explicit boundaries>
+- Open questions: <remaining uncertainty or none>
+- User decision: <exact decision needed or none>
+- Next action: <next bounded action and owner>
+
+## Technical Details
+
+## Invoke Result
+
+- Mode: <define | design | plan | handoff | refresh | full | validate>
+- Spell: invoke
+- Canonical ID: invoke
+- Scope: library
+- Phase status: pass | flag | block | no-op
+- Mode contract: <path>
+- Outputs: <mode output paths>
+- Design views: <coverage summary | n/a>
+- Design selection receipt: <DesignSelectionResult path | blocked reason | n/a>
+- Design evidence state: <authored-complete | design-validator-pass | n/a>
+- Design evidence ceiling: <exact proven scope and target-artifact gaps | n/a>
+- Plan evidence: <plan-evidence-pending | pass | fail | n/a>
+- Glossary consistency: <pass | flag | block | n/a>
+- Dispatch techniques: <ids selected, validation status, full dispatch path | n/a>
+- Distill validation: <pass | flag | block | skipped with reason | n/a>
+- Distill telemetry: <recorded child run id | failed with residue | not configured | not emitted because skipped>
+- Identity denominator validation: <passing receipt | not-applicable with rationale | block | n/a>
+- Implementation layering: <artifact path | seed emitted | gap recorded>
+- Work-pack: <artifact path | single-file | split>
+- Complexity: <low | medium | high | n/a>
+- Per-layer planning: <compact | L0, L1, L2, L3 | blocked | n/a>
+- Implementation detail: <inline | task specs complete | detail gaps recorded | blocked | n/a>
+- Smallest working units: <n/a | complete | gaps recorded | blocked>
+- Execution designation: <execution-candidate | non-executing | n/a>
+- Implementation readiness: <PLAN_IMPLEMENTATION_READY receipt | n/a with reason | block>
+- Exact acceptance: <required after candidate hashing | approved receipt | n/a>
+- Refresh: <n/a | report path and delta summary | no-op | blocked>
+- Target artifact: <name, type, owner/cycle>
+- Template or recipe selection: <summary>
+- Decisions: <summary>
+- Unresolved gaps: <invoke gaps; target artifact gaps>
+- Next route: task-session | workflow-reflect | full | spellcraft | sigil-development | deferred
+```
+
+Mode-specific execution phases and mode-level output contracts are defined in [define.md](./define.md), [design.md](./design.md), [plan.md](./plan.md), [handoff.md](./handoff.md), [refresh.md](./refresh.md), [full.md](./full.md), and [validate.md](./validate.md).

@@ -1,0 +1,204 @@
+{
+  "document_kind": "draft-design-interactive-wizard-planning-candidate",
+  "document_version": "0.1.0-draft",
+  "schema_status": "unregistered-draft",
+  "planning_status": "blocked-before-plan-v2",
+  "authority_effect": "none",
+  "target_id": "invoke-design-interactive-wizard",
+  "objective": "Preserve selected historical Design evidence and one active evidence-backed question across terminal, chat, interruption, and resume, then freeze a complete request for the existing deterministic Design CLI.",
+  "prerequisite": {
+    "required_route": "invoke design",
+    "blocker_code": "WIZARD_DESIGN_NOT_ADMITTED",
+    "current_state": "The seed is not an admitted Design and the current Invoke package-closure baseline is not fresh.",
+    "required_evidence": [
+      "fresh selective Invoke package-closure result over exact post-fix bytes",
+      "current Wizard Design stage receipt",
+      "matching independent Wizard Design admission receipt"
+    ],
+    "on_pass": "Convert this candidate into invoke.plan-source-v2-authoring-request.v1 bound to the exact Design receipt pair.",
+    "on_fail": "Remain in Invoke Design; do not create a Plan v2 source or implementation entry."
+  },
+  "v1_decisions": {
+    "question_authorship": "The native Invoke agent using Structured Interview Kits authors semantic question content; the CLI validates, queues, persists, and renders it.",
+    "chat_bridge": "transport-neutral-native-agent-rendering-of-the-canonical-cli-question-record",
+    "direct_chat_api": false,
+    "network_or_ipc": false,
+    "session_root": "explicit-caller-supplied-only",
+    "hidden_state": false,
+    "revision_model": "absent immutable revision directories plus atomically advanced HEAD.json and expected-revision guards",
+    "active_question_limit": 1,
+    "evidence_completeness": "relative-only-to-a-finite-declared-boundary",
+    "transcript_authority": "none",
+    "finalize_ceiling": "freeze one complete authoring request and call only the existing Design check contract"
+  },
+  "layers": [
+    {
+      "id": "L0",
+      "decision_question": "Can one evidence-backed question survive interruption and remain identical in terminal and chat?",
+      "minimum_working_unit": "Two-ref evidence boundary, one classified coverage record, one agent-authored question, one immutable revision, dual rendering, one guarded answer, restart/resume, and one frozen draft field.",
+      "exit_evidence": [
+        "two-run byte equality",
+        "restart and resume pass",
+        "stale revision blocks without HEAD change",
+        "terminal and chat bind identical question and coverage identities"
+      ]
+    },
+    {
+      "id": "L1",
+      "decision_question": "Does every selected historical evidence ref remain accounted for under drift and concurrent submissions?",
+      "minimum_working_unit": "Total classifications, bidirectional traceability, dependency invalidation, conflict records, and transaction recovery.",
+      "exit_evidence": [
+        "one classification per denominator ref",
+        "complete forward and reverse traces",
+        "state transition mutation suite passes"
+      ]
+    },
+    {
+      "id": "L2",
+      "decision_question": "Can accepted decisions form a complete request without duplicating the Design producer?",
+      "minimum_working_unit": "Question queue, JSON Pointer mappings, finalize gates, and existing Design check invocation.",
+      "exit_evidence": [
+        "complete fixture passes Design check",
+        "incomplete or stale fixtures block before output"
+      ]
+    },
+    {
+      "id": "L3",
+      "decision_question": "Is the approved behavior portable across canonical and generated Invoke packages without unrelated deltas?",
+      "minimum_working_unit": "Concrete docs, isolated package canaries, selective sync, and exact parity.",
+      "exit_evidence": [
+        "canonical, Codex, and Claude canaries agree",
+        "exact allowlist parity",
+        "no unrelated byte changes"
+      ]
+    }
+  ],
+  "waves": [
+    {
+      "id": "W0",
+      "layer": "prerequisite",
+      "swu_ids": ["SWU-WIZ-000"],
+      "gate_id": "G0",
+      "primary_result": "fresh package baseline and admitted Wizard Design"
+    },
+    {
+      "id": "W1",
+      "layer": "L0",
+      "depends_on": ["W0"],
+      "swu_ids": ["SWU-WIZ-001"],
+      "gate_id": "G1",
+      "primary_result": "minimum vertical proof"
+    },
+    {
+      "id": "W2",
+      "layer": "L1",
+      "depends_on": ["W1"],
+      "swu_ids": ["SWU-WIZ-002", "SWU-WIZ-003"],
+      "gate_id": "G2",
+      "primary_result": "evidence and state integrity"
+    },
+    {
+      "id": "W3",
+      "layer": "L2",
+      "depends_on": ["W2"],
+      "swu_ids": ["SWU-WIZ-004", "SWU-WIZ-005"],
+      "gate_id": "G3",
+      "primary_result": "complete request accepted by existing Design check"
+    },
+    {
+      "id": "W4",
+      "layer": "L3",
+      "depends_on": ["W3"],
+      "swu_ids": ["SWU-WIZ-006"],
+      "gate_id": "G4",
+      "primary_result": "reviewed package parity and canary closure"
+    }
+  ],
+  "swus": [
+    {
+      "id": "SWU-WIZ-000",
+      "behavior": "Freeze current inputs and independently admit the Wizard Design.",
+      "acceptance": "Current stage and admission pair pass without implementation writes."
+    },
+    {
+      "id": "SWU-WIZ-001",
+      "behavior": "Prove the complete durable-question loop from finite evidence boundary through dual rendering, guarded answer, restart/resume, and one frozen draft field.",
+      "acceptance": "The complete vertical loop passes together and a stale revision cannot advance HEAD."
+    },
+    {
+      "id": "SWU-WIZ-002",
+      "behavior": "Generalize finite historical-evidence coverage, traceability, and drift invalidation.",
+      "acceptance": "Every denominator ref is classified and traceable, and relevant drift reopens dependents."
+    },
+    {
+      "id": "SWU-WIZ-003",
+      "behavior": "Harden concurrent submissions and interrupted-write recovery.",
+      "acceptance": "Stale and competing answers cannot overwrite the decision, and an interrupted write preserves the prior revision."
+    },
+    {
+      "id": "SWU-WIZ-004",
+      "behavior": "Queue validated questions and map accepted decisions to exact Design request fields.",
+      "acceptance": "Mechanical gaps and agent-authored semantic questions produce deterministic request mappings."
+    },
+    {
+      "id": "SWU-WIZ-005",
+      "behavior": "Freeze a complete draft request and call existing Design check.",
+      "acceptance": "Complete input passes; missing evidence or decisions block."
+    },
+    {
+      "id": "SWU-WIZ-006",
+      "behavior": "Close compatibility and generated-package parity.",
+      "acceptance": "Canonical and generated canaries agree with no unrelated delta."
+    }
+  ],
+  "gates": [
+    {
+      "id": "G0",
+      "pass_condition": "Fresh package closure plus current Wizard Design stage and admission PASS.",
+      "failure_route": "invoke design"
+    },
+    {
+      "id": "G1",
+      "pass_condition": "Vertical proof is deterministic, resumable, revision-safe, and surface-identical.",
+      "failure_route": "repair-session-core"
+    },
+    {
+      "id": "G2",
+      "pass_condition": "Coverage, traceability, staleness, conflict, and recovery tests pass.",
+      "failure_route": "repair-evidence-or-state-contract"
+    },
+    {
+      "id": "G3",
+      "pass_condition": "A complete frozen request passes the existing Design check and incomplete states block.",
+      "failure_route": "repair-design-authoring-bridge"
+    },
+    {
+      "id": "G4",
+      "pass_condition": "Canonical and generated canaries pass with exact reviewed parity.",
+      "failure_route": "repair-package-closure"
+    }
+  ],
+  "candidate_target_families": [
+    "spells/invoke/schemas/design-wizard-*-v1.schema.json",
+    "spells/invoke/scripts/design_wizard.py",
+    "spells/invoke/scripts/invoke_cli.py",
+    "spells/invoke/invoke-cli-stage-catalog.json",
+    "spells/invoke/design-wizard.md",
+    "spells/invoke/development/test_design_wizard.py",
+    "spells/invoke/development/test_invoke_cli.py",
+    "reviewed generated Invoke package counterparts after package-closure admission"
+  ],
+  "non_claims": [
+    "registered schema",
+    "admitted Design",
+    "Plan v2 source",
+    "Plan artifact PASS",
+    "implementation readiness",
+    "question-answer authority beyond structured user decisions",
+    "direct chat transport",
+    "owner approval or independent review",
+    "runtime activation",
+    "publication or deployment"
+  ],
+  "next_route": "invoke design"
+}

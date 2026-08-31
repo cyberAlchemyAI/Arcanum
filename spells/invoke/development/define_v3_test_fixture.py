@@ -32,6 +32,9 @@ POSITIVE_FAMILY = (
 SCHEMA_FILES = (
     "define-semantic-context-v1.schema.json",
     "define-semantic-closure-receipt-v1.schema.json",
+    "define-semantic-context-v2.schema.json",
+    "define-semantic-closure-receipt-v2.schema.json",
+    "define-bundle-admission-receipt-v2.schema.json",
     "define-source-v3.schema.json",
     "define-profile-v3.schema.json",
     "definitions.schema.json",
@@ -61,6 +64,7 @@ class DefineV3RepositoryFixture(RepositoryFixture):
         self.closure_path = root / "public/DEFINE-SEMANTIC-CLOSURE-RECEIPT.json"
         self.source_path = root / "public/DEFINE-SOURCE-v3.json"
         self.output_dir = root / "define-v3-output"
+        self.mode = mode
         self.configure_mode(mode)
 
     def configure_mode(self, mode: str) -> None:
@@ -77,6 +81,61 @@ class DefineV3RepositoryFixture(RepositoryFixture):
             raise AssertionError(f"fixture closure failed: {result.stderr}")
         self.closure = json.loads(self.closure_path.read_text(encoding="utf-8"))
         self.source = self._source(mode)
+        self.write_source()
+
+    def upgrade_define_to_v2(self) -> None:
+        """Rebind the fixture source to a passing v2 semantic closure."""
+
+        self.upgrade_to_v2()
+        self.closure_path.unlink(missing_ok=True)
+        result = self.run("public/DEFINE-SEMANTIC-CLOSURE-RECEIPT.json")
+        if result.returncode != 0:
+            raise AssertionError(f"fixture v2 closure failed: {result.stderr}")
+        self.closure = json.loads(self.closure_path.read_text(encoding="utf-8"))
+        self.source = self._source(self.mode)
+        self.write_source()
+
+    def add_v2_relationship_obligation(self) -> None:
+        """Require the existing FIX-D2 depends-on FIX-D1 relation."""
+
+        if self.context.get("schema_version") != "invoke.define-semantic-context.v2":
+            raise AssertionError("relationship obligation requires a v2 fixture")
+        obligation_id = "obligation:feature-contract-depends-on-semantic-closure"
+        probe_ids = ["probe:specialize-contract", "probe:new-semantic-closure"]
+        self.context["intent_coverage"]["obligations"].append(
+            {
+                "obligation_id": obligation_id,
+                "kind": "relationship",
+                "statement": "Feature contract depends on semantic closure.",
+                "status": "covered",
+                "evidence_source_ids": ["intent-source:fixture-discovery"],
+                "probe_ids": probe_ids,
+                "relationship": {
+                    "subject_probe_id": probe_ids[0],
+                    "type": "depends-on",
+                    "object_probe_id": probe_ids[1],
+                },
+                "boundary": None,
+                "rationale": "The fixture requires this explicit dependency.",
+            }
+        )
+        for probe in self.context["concept_probes"]:
+            if probe["probe_id"] in probe_ids:
+                probe["obligation_ids"].append(obligation_id)
+        facet = next(
+            item
+            for item in self.context["intent_coverage"]["facets"]
+            if item["facet_id"] == "relationships"
+        )
+        facet["status"] = "represented"
+        facet["obligation_ids"] = [obligation_id]
+        self.write_context()
+        self.closure_path.unlink(missing_ok=True)
+        result = self.run("public/DEFINE-SEMANTIC-CLOSURE-RECEIPT.json")
+        if result.returncode != 0:
+            raise AssertionError(f"fixture v2 relationship closure failed: {result.stderr}")
+        self.closure = json.loads(self.closure_path.read_text(encoding="utf-8"))
+        self.source = self._source(self.mode)
         self.write_source()
 
     def exact_ref(self, path: Path) -> dict[str, Any]:

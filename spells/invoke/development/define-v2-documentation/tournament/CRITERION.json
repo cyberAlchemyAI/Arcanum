@@ -1,0 +1,88 @@
+{
+  "schema_version": "invoke.define-v2-documentation.criterion.v1",
+  "criterion_id": "invoke-define-v2-documentation-order",
+  "criterion_version": 3,
+  "state": {
+    "status": "proposed",
+    "freeze_owner": "human confirmation gate",
+    "run_status": "not_started"
+  },
+  "freeze_policy": {
+    "prefreeze_rule": "This criterion must be confirmed and frozen before any trial result exists.",
+    "change_rule": "Editing the hypothesis, cases, guide-to-candidate map, scorer, outcome rule, or trial brief after freeze creates a new criterion.",
+    "required_bindings": [
+      "CRITERION.json",
+      "criterion.schema.json",
+      "render_criterion.py",
+      "CRITERION.md",
+      "TOURNAMENT-SPEC.md",
+      "GUIDE-MANIFEST.json",
+      "oracle/blind-map.json",
+      "every rendered guide",
+      "every case and trial brief",
+      "oracle/cases.json",
+      "score_tournament.py and its runtime",
+      "compiler executable and schema bytes",
+      "root scorer identity and scoring command"
+    ]
+  },
+  "hypothesis": "The ownership-first progressive guide produces more correct first-attempt invoke.define-source.v2 documents than both the schema-order guide and the tutorial-first guide when otherwise identical agents solve the same three real authoring cases.",
+  "design": {
+    "candidate_structures": [
+      "ownership-first progressive",
+      "schema-order",
+      "tutorial-first"
+    ],
+    "case_count": 3,
+    "trials_per_candidate": 2,
+    "sources_per_trial": 3,
+    "total_trials": 6,
+    "total_source_records": 18,
+    "candidate_aggregate_count": 3,
+    "blind_map_policy": "The sealed map binds alpha, beta, and gamma to the three structures before any run, remains hidden from trial agents, and is revealed only to the root scorer after all six terminal joins."
+  },
+  "observable": {
+    "metrics": [
+      {"metric_id": "atomic_compile_passes", "label": "number of sources that compile atomically", "direction": "more"},
+      {"metric_id": "semantic_projection_passes", "label": "number of compiled sources whose intended semantic projection matches the case oracle", "direction": "more"},
+      {"metric_id": "category_errors", "label": "number of category errors detected in authored source bytes", "direction": "fewer"},
+      {"metric_id": "deterministic_score", "label": "total deterministic score", "direction": "more"}
+    ],
+    "compile_rule": "The parent compiles each first-returned source exactly once. Semantic projection is evaluated only for atomically compiled sources; a non-compiling source contributes zero semantic passes.",
+    "scorecard_rule": "The freeze-bound scorer alone computes category errors and total score and must retain per-source contributions from which every aggregate can be re-summed."
+  },
+  "outcome_rule": {
+    "method": "lexicographic",
+    "metric_order": [
+      "atomic_compile_passes",
+      "semantic_projection_passes",
+      "category_errors",
+      "deterministic_score"
+    ],
+    "invalidation_precedes_ranking": true,
+    "survived": "Render SURVIVED only when ownership-first is the sole lexicographic maximum.",
+    "falsified": "Render FALSIFIED when another candidate is the sole maximum or two or more candidates share the maximum tuple.",
+    "invalid": "Render only INVALID when any invalidation condition holds; do not also report SURVIVED or FALSIFIED."
+  },
+  "invalidation_conditions": [
+    "Other than exactly six preassigned trials reach terminal completion, or a trial lacks its one assigned opaque guide, three required first-returned sources, and structured receipt.",
+    "Trials are replaced, reassigned, merged, or allowed to share an agent, source directory, conversational context, or another trial's artifacts.",
+    "A trial agent reads a forbidden scope, learns the opaque-label mapping, views another guide or trial, invokes the compiler or scorer, or receives materially different instructions beyond its assigned opaque guide.",
+    "Rendered candidates differ in section inventory or section bytes rather than section order, as checked against the freeze-bound manifest and independent guide-equivalence receipt.",
+    "Any first-returned source byte is repaired, regenerated, normalized, or otherwise changed before scoring.",
+    "Any freeze-bound input, runtime, compiler, schema, oracle, scorer, command, or identity is missing or differs at scoring or re-adjudication.",
+    "The scorer does not emit all 18 per-source records and three candidate aggregates, cannot re-sum those aggregates from the per-source records, or a clean re-run over the same freeze-bound bytes changes the scorecard payload outside explicitly excluded run metadata.",
+    "Any required receipt reports a policy breach or leaves a required isolation, source-identity, or read-scope assertion unknown."
+  ],
+  "discrimination": {
+    "SURVIVED": "Supports using ownership-first ordering for the first public Invoke Define v2 authoring guide under this model and case set.",
+    "FALSIFIED": "Shows the editorial preference did not produce a uniquely better first-attempt result and should not be promoted as a tested behavioral advantage.",
+    "INVALID": "Says nothing about documentation quality; redesign or repeat under a newly frozen criterion."
+  },
+  "non_goals": [
+    "This tournament does not test every model, repository, definition domain, or future schema revision.",
+    "It does not prove the candidate Whisper transport.",
+    "It does not establish that generated definitions are true, accepted, active, or promoted.",
+    "With two trials per candidate, any result is directional evidence rather than a universal performance claim."
+  ]
+}

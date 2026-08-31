@@ -1,0 +1,30 @@
+{
+  "schema_version": "distill.schema_fixture_manifest.v2",
+  "manifest_id": "distill.stage_receipt.schema_fixtures.v2",
+  "artifact": "stage_receipt",
+  "schema_path": "arcana/distill/schemas/distill-stage-receipt-v2.schema.json",
+  "schema_id": "https://arcanum.dev/schemas/distill/stage-receipt/2-0-0",
+  "instance_schema_version": "distill.stage_receipt.v2",
+  "positive_fixture": "valid-stage-receipt.json",
+  "expected_case_count": 204,
+  "groups": [
+    {"id": "receipt-positive", "kind": "canonical_positive"},
+    {"id": "receipt-missing-required", "kind": "generated_missing_required", "expected_blocker": "E_REQUIRED_PROPERTY"},
+    {"id": "receipt-unknown-field", "kind": "generated_unknown_field", "expected_blocker": "E_UNKNOWN_PROPERTY"},
+    {"id": "receipt-wrong-type", "kind": "generated_wrong_type", "expected_blocker": "E_WRONG_TYPE"},
+    {"id": "receipt-invalid-enum", "kind": "generated_invalid_enum_or_const", "expected_blocker": "E_ENUM_OR_CONST"},
+    {"id": "receipt-common-ref-edges", "kind": "generated_common_ref_edges", "expected_blocker": "E_COMMON_REF_EDGE"},
+    {
+      "id": "receipt-policy-mutations", "kind": "generated_policy_mutations",
+      "mutations": [
+        {"id": "receipt-incomplete-role-inventory", "operation": "remove", "pointer": "/artifact_inventory/3", "expected_blocker": "E_RECEIPT_INVENTORY_ROLES"},
+        {"id": "receipt-incomplete-schema-inventory", "operation": "remove", "pointer": "/schema_inventory/7", "expected_blocker": "E_RECEIPT_SCHEMA_INVENTORY"},
+        {"id": "receipt-duplicate-schema-kind", "operation": "set", "pointer": "/schema_inventory/7/schema_kind", "value": "result", "expected_blocker": "E_RECEIPT_SCHEMA_INVENTORY"},
+        {"id": "receipt-duplicate-role-inventory", "operation": "set", "pointer": "/artifact_inventory/3/role", "value": "result", "expected_blocker": "E_RECEIPT_INVENTORY_ROLES"},
+        {"id": "receipt-self-referential-role", "operation": "set", "pointer": "/artifact_inventory/3/role", "value": "stage_receipt", "expected_blocker": "E_RECEIPT_INVENTORY_ROLES"},
+        {"id": "receipt-self-referential-digest-law", "operation": "set", "pointer": "/receipt_digest_method/excluded_fields/0", "value": "receipt_digest_method", "expected_blocker": "E_RECEIPT_DIGEST_METHOD"},
+        {"id": "receipt-non-atomic-publication", "operation": "set", "pointer": "/publication/method", "value": "write_in_place", "expected_blocker": "E_RECEIPT_PUBLICATION_METHOD"}
+      ]
+    }
+  ]
+}

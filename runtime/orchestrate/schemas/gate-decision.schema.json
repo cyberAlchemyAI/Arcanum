@@ -8,17 +8,57 @@
     "required_action_ids", "admitted_receipt_action_ids", "next_wave_id", "next_action_ids", "blockers"
   ],
   "properties": {
-    "schema_version": {"const": "arcanum.native-dispatch-runner.gate-decision.v0.1"},
+    "schema_version": {"enum": ["arcanum.native-dispatch-runner.gate-decision.v0.1", "arcanum.native-dispatch-runner.gate-decision.v0.2"]},
     "dispatch_id": {"type": "string", "minLength": 1},
     "run_id": {"type": "string", "minLength": 1},
     "wave_id": {"type": "string", "minLength": 1},
     "gate_id": {"type": ["string", "null"]},
-    "decision": {"enum": ["gate_pass", "gate_block"]},
+    "decision": {"type": "string"},
     "required_action_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
     "admitted_receipt_action_ids": {"type": "array", "items": {"type": "string"}},
     "next_wave_id": {"type": ["string", "null"]},
     "next_action_ids": {"type": "array", "items": {"type": "string"}},
-    "blockers": {"type": "array", "items": {"type": "string"}}
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "domain_outcome": {
+      "type": ["object", "null"],
+      "properties": {
+        "role_id": {"type": "string", "minLength": 1},
+        "source_field": {"type": "string", "minLength": 1},
+        "value": {"type": "string", "minLength": 1},
+        "classification": {"enum": ["pass", "resolved"]}
+      },
+      "required": ["role_id", "source_field", "value", "classification"],
+      "additionalProperties": false
+    }
   },
+  "allOf": [
+    {
+      "if": {"properties": {"schema_version": {"const": "arcanum.native-dispatch-runner.gate-decision.v0.2"}}},
+      "then": {
+        "required": ["domain_outcome"],
+        "properties": {
+          "gate_id": {"type": "string", "minLength": 1},
+          "decision": {"enum": ["gate_pass", "gate_block", "gate_resolved"]}
+        }
+      },
+      "else": {
+        "properties": {"decision": {"enum": ["gate_pass", "gate_block"]}},
+        "not": {"required": ["domain_outcome"]}
+      }
+    },
+    {
+      "if": {"properties": {"decision": {"const": "gate_resolved"}}},
+      "then": {
+        "properties": {
+          "next_wave_id": {"type": "null"},
+          "next_action_ids": {"maxItems": 0},
+          "domain_outcome": {
+            "type": "object",
+            "properties": {"classification": {"const": "resolved"}}
+          }
+        }
+      }
+    }
+  ],
   "additionalProperties": false
 }

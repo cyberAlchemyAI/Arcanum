@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/owner-acceptance-response/1-0-0",
+  "title": "InvokeOwnerAcceptanceResponseV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "response_id", "request_ref", "request_id", "request_digest",
+    "decision", "authorization_token", "actor", "requested_effect_digest",
+    "authority_write_ceiling_digest", "attempt_id", "one_attempt_ceiling",
+    "authority_effect", "response_digest"
+  ],
+  "properties": {
+    "schema_version": {"const": "invoke.owner-acceptance-response.v1"},
+    "response_id": {"type": "string", "minLength": 1},
+    "request_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "request_id": {"type": "string", "minLength": 1},
+    "request_digest": {"$ref": "#/$defs/sha256"},
+    "decision": {"const": "accepted"},
+    "authorization_token": {"type": "string", "minLength": 1, "pattern": "^[^\\u0000]+$"},
+    "actor": {
+      "type": "object", "additionalProperties": false,
+      "required": ["capability", "subject", "provenance"],
+      "properties": {
+        "capability": {"const": "owner"},
+        "subject": {"type": "string", "minLength": 1},
+        "provenance": {"enum": ["current-user-exact-token", "durable-owner-signature"]}
+      }
+    },
+    "requested_effect_digest": {"$ref": "#/$defs/sha256"},
+    "authority_write_ceiling_digest": {"$ref": "#/$defs/sha256"},
+    "attempt_id": {"type": "string", "minLength": 1},
+    "one_attempt_ceiling": {"const": 1},
+    "authority_effect": {"const": "accept-exact-request-for-one-attempt-only"},
+    "response_digest": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "exactArtifactRef": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "size_bytes"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/sha256"}, "size_bytes": {"type": "integer", "minimum": 0}}
+    }
+  }
+}

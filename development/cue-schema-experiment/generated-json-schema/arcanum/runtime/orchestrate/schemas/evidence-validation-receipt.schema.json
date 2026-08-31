@@ -1,0 +1,184 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+        {
+            "if": {
+                "type": "object",
+                "properties": {
+                    "valid": {
+                        "const": false
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "errors": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "prefixItems": [
+                                    true
+                                ],
+                                "minItems": 1
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "status": {
+                        "const": "block"
+                    }
+                }
+            }
+        },
+        {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "action_id": {
+                                "anyOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "code": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "message": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "sequence": {
+                                "anyOf": [
+                                    {
+                                        "type": "null"
+                                    },
+                                    {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 1
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "action_id",
+                            "code",
+                            "message",
+                            "sequence"
+                        ]
+                    }
+                },
+                "event_count": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    ]
+                },
+                "schema_version": {
+                    "const": "arcanum.native-dispatch-runner.evidence-validation.v0.1"
+                },
+                "source": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "status": {
+                    "enum": [
+                        "pass",
+                        "block"
+                    ]
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "validator": {
+                    "const": "validate_run_evidence.py"
+                }
+            },
+            "if": {
+                "type": "object",
+                "properties": {
+                    "valid": {
+                        "const": true
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "errors": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "maxItems": 0
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "status": {
+                        "const": "pass"
+                    }
+                }
+            },
+            "required": [
+                "errors",
+                "event_count",
+                "schema_version",
+                "source",
+                "status",
+                "valid",
+                "validator"
+            ]
+        }
+    ]
+}

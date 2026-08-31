@@ -1,0 +1,44 @@
+{
+  "schema_version": "distill.schema_fixture_manifest.v2",
+  "manifest_id": "distill.result.schema_fixtures.v2",
+  "artifact": "result",
+  "schema_path": "arcana/distill/schemas/distill-result-v2.schema.json",
+  "schema_id": "https://arcanum.dev/schemas/distill/result/2-0-0",
+  "instance_schema_version": "distill.result.v2",
+  "positive_fixture": "valid-result.json",
+  "expected_case_count": 219,
+  "groups": [
+    {"id": "result-positive", "kind": "canonical_positive"},
+    {"id": "result-missing-required", "kind": "generated_missing_required", "expected_blocker": "E_REQUIRED_PROPERTY"},
+    {"id": "result-unknown-field", "kind": "generated_unknown_field", "expected_blocker": "E_UNKNOWN_PROPERTY"},
+    {"id": "result-wrong-type", "kind": "generated_wrong_type", "expected_blocker": "E_WRONG_TYPE"},
+    {"id": "result-invalid-enum", "kind": "generated_invalid_enum_or_const", "expected_blocker": "E_ENUM_OR_CONST"},
+    {"id": "result-common-ref-edges", "kind": "generated_common_ref_edges", "expected_blocker": "E_COMMON_REF_EDGE"},
+    {
+      "id": "result-policy-mutations", "kind": "generated_policy_mutations",
+      "mutations": [
+        {"id": "result-pass-without-selected-unit", "operation": "set", "pointer": "/selected_unit_id", "value": null, "expected_blocker": "E_RESULT_VERDICT_CONTRADICTION"},
+        {"id": "result-pass-with-blocker-tension", "operation": "set", "pointer": "/tension_ledger/0/effect", "value": "block", "expected_blocker": "E_RESULT_VERDICT_CONTRADICTION"},
+        {"id": "result-flag-without-readiness-effects", "operation": "set", "pointer": "/verdict", "value": "flag", "expected_blocker": "E_RESULT_VERDICT_CONTRADICTION"},
+        {"id": "result-block-with-selected-unit", "operation": "set", "pointer": "/verdict", "value": "block", "expected_blocker": "E_RESULT_VERDICT_CONTRADICTION"},
+        {"id": "result-block-implementation-route", "operation": "multi_set", "changes": [{"pointer": "/verdict", "value": "block"}, {"pointer": "/selected_unit_id", "value": null}, {"pointer": "/current_smallest_coherent_unit", "value": null}, {"pointer": "/next_route", "value": "task_session"}], "expected_blocker": "E_RESULT_VERDICT_CONTRADICTION"},
+        {"id": "result-technique-event-link-missing", "operation": "remove", "pointer": "/technique_pack_trace/0/event_id", "expected_blocker": "E_REQUIRED_PROPERTY"},
+        {"id": "result-technique-event-link-pattern", "operation": "set", "pointer": "/technique_pack_trace/0/event_id", "value": "event-technique-001", "expected_blocker": "E_PATTERN"},
+        {"id": "result-technique-skipped-without-reason", "operation": "set", "pointer": "/technique_pack_trace/0/activation_status", "value": "skipped", "expected_blocker": "E_REQUIRED_PROPERTY"},
+        {"id": "result-technique-activated-with-skip-reason", "operation": "add", "pointer": "/technique_pack_trace/0/skip_reason", "value": "Not skipped.", "expected_blocker": "E_CONDITIONAL"},
+        {
+          "id": "result-technique-route-without-target",
+          "operation": "multi_set",
+          "changes": [
+            {"pointer": "/technique_pack_trace/0/decision", "value": "route"},
+            {"pointer": "/technique_pack_trace/0/readiness_effect", "value": "route"}
+          ],
+          "expected_blocker": "E_REQUIRED_PROPERTY"
+        },
+        {"id": "result-technique-nonroute-with-target", "operation": "add", "pointer": "/technique_pack_trace/0/route_target", "value": "decision_gate", "expected_blocker": "E_CONDITIONAL"},
+        {"id": "result-technique-not-applicable-activated", "operation": "set", "pointer": "/technique_pack_trace/0/policy_status", "value": "not_applicable", "expected_blocker": "E_ENUM_OR_CONST"},
+        {"id": "result-authority-effect", "operation": "set", "pointer": "/authority_effect", "value": "implementation", "expected_blocker": "E_ENUM_OR_CONST"}
+      ]
+    }
+  ]
+}

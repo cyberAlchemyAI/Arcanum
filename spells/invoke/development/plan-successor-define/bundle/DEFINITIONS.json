@@ -1,0 +1,438 @@
+{
+  "$schema": "https://arcanum.dev/schemas/invoke/definitions/v2",
+  "authority_bindings": [],
+  "authority_effect": "none",
+  "authority_kind": "kind.definition",
+  "authority_scope": {
+    "kind": "feature",
+    "ref": "invoke-plan-successor"
+  },
+  "definitions": [
+    {
+      "aliases": [
+        "Plan source document"
+      ],
+      "boundary": {
+        "conditions": [
+          "The source must bind the exact admitted Design result it consumes."
+        ],
+        "excludes": [
+          "Generated views, calculated IDs and digests, validator decisions, owner approvals, and execution receipts."
+        ],
+        "includes": [
+          "Author-controlled Work Pack meaning, requested effect, route bindings, and readiness configuration."
+        ]
+      },
+      "challenge_contract": null,
+      "deferred_as": null,
+      "definition_version": "1",
+      "drift_route": "invoke-plan-owner",
+      "id": "PLAN-D1",
+      "misuse_warning": "A schema-valid source is not a generated Plan, an admitted Plan, or an execution-ready Work Pack.",
+      "notation": [],
+      "primary_consumers": [
+        "Plan successor compiler",
+        "Plan bundle admission validator"
+      ],
+      "promotion_boundary": "The Invoke Plan owner must accept any later change to the canonical Plan source contract.",
+      "relations": [],
+      "source_kinds": [
+        "synthesis",
+        "local-inference"
+      ],
+      "source_refs": [
+        {
+          "end_line": null,
+          "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+          "role": "evidence",
+          "selector": "Plan Authoring Source",
+          "selector_type": "heading",
+          "sha256": "807eaf92f5450150bfdb6bee23d76772170072fba9a02592e3977b506cf5966c",
+          "size": 2394,
+          "start_line": null,
+          "visibility": "public"
+        },
+        {
+          "end_line": null,
+          "path": "arcanum/spells/invoke/schemas/plan-execution-source-v1.schema.json",
+          "role": "evidence",
+          "selector": "/properties",
+          "selector_type": "json-pointer",
+          "sha256": "c401f799453a662f4bb5a1fb18538c8fdef8265d727afa4c19c421d927cdbc2a",
+          "size": 2404,
+          "start_line": null,
+          "visibility": "public"
+        },
+        {
+          "end_line": null,
+          "path": "arcanum/spells/invoke/scripts/compile_plan_execution_source.py",
+          "role": "evidence",
+          "selector": "compile_source",
+          "selector_type": "symbol",
+          "sha256": "d3e06c232d3ce2060b7846b9c8dabdae8955cab64b6ef4dec5ac350ee2107f82",
+          "size": 9399,
+          "start_line": null,
+          "visibility": "public"
+        },
+        {
+          "end_line": null,
+          "path": "arcanum/spells/invoke/design.md",
+          "role": "evidence",
+          "selector": "Activation Gate",
+          "selector_type": "heading",
+          "sha256": "5651f9e5d0fe5fe66af4c1fced08ebabe8fd18f714824163f352ba9d27fe68f6",
+          "size": 24626,
+          "start_line": null,
+          "visibility": "public"
+        }
+      ],
+      "status": "candidate",
+      "status_detail": null,
+      "structural_schema": null,
+      "superseded_by": null,
+      "supersedes": [],
+      "term": "Plan authoring source",
+      "use_carefully": "Do not copy calculated output fields back into the authoring source.",
+      "voices": {
+        "domain_context": "In Invoke Plan, this replaces scattered author-controlled fields across generated Work Pack files and receipts while retaining the current plan-execution-source v1 as migration evidence.",
+        "formal": "For one Plan candidate P, exactly one authored source S supplies all meaning-bearing inputs; every generated member of P must be a deterministic function of the exact bytes of S and its bound predecessor evidence.",
+        "normative": "The Plan authoring source is the sole machine-readable document whose authored fields state the proposed Work Pack, requested effect, route contracts, and readiness configuration for one Plan candidate.",
+        "operational": "Complete the source request, bind one admitted Design predecessor, author the canonical source into an absent file, and pass that file unchanged to the Plan compiler.",
+        "plain_language": "The one JSON file where we write what the Plan is supposed to contain before tools generate the rest."
+      }
+    },
+    {
+      "aliases": [
+        "generated Plan bundle"
+      ],
+      "boundary": {
+        "conditions": [
+          "Every bundle member comes from the same exact Plan authoring source and producer run."
+        ],
+        "excludes": [
+          "Independent admission, implementation readiness, owner acceptance, task execution, and product mutation."
+        ],
+        "includes": [
+          "Every required generated Plan file and the exact producer receipt for that generation."
+        ]
+      },
+      "challenge_contract": null,
+      "deferred_as": null,
+      "definition_version": "1",
+      "drift_route": "invoke-plan-owner",
+      "id": "PLAN-D2",
+      "misuse_warning": "Generation success alone does not prove that the bundle is current or accepted by its consumers.",
+      "notation": [],
+      "primary_consumers": [
+        "Plan bundle admission validator",
+        "Invoke capability-status resolver"
+      ],
+      "promotion_boundary": "Only an accepted Plan successor contract may make this inventory canonical.",
+      "relations": [
+        {
+          "id": "PLAN-D1",
+          "type": "depends-on"
+        }
+      ],
+      "source_kinds": [
+        "synthesis",
+        "local-inference"
+      ],
+      "source_refs": [
+        {
+          "end_line": null,
+          "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+          "role": "evidence",
+          "selector": "Plan Candidate Bundle",
+          "selector_type": "heading",
+          "sha256": "807eaf92f5450150bfdb6bee23d76772170072fba9a02592e3977b506cf5966c",
+          "size": 2394,
+          "start_line": null,
+          "visibility": "public"
+        },
+        {
+          "end_line": null,
+          "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md",
+          "role": "evidence",
+          "selector": "Artifact Boundary Summary",
+          "selector_type": "heading",
+          "sha256": "7f8aa4d74af790e9afed0501944596c2d21cdc9ae26cb18b1fe6c098a513b1a7",
+          "size": 6112,
+          "start_line": null,
+          "visibility": "public"
+        },
+        {
+          "end_line": null,
+          "path": "arcanum/spells/invoke/plan.md",
+          "role": "evidence",
+          "selector": "Mode Output Contract",
+          "selector_type": "heading",
+          "sha256": "b447d50d0cb023965c85a28f468faec360d261505e73c20a8bb48b3f3f577c5c",
+          "size": 39286,
+          "start_line": null,
+          "visibility": "public"
+        }
+      ],
+      "status": "candidate",
+      "status_detail": null,
+      "structural_schema": null,
+      "superseded_by": null,
+      "supersedes": [],
+      "term": "Plan candidate bundle",
+      "use_carefully": "Name the exact bundle inventory and producer identity whenever this term is used as evidence.",
+      "voices": {
+        "domain_context": "The bundle contains the Work Pack and its supporting planning, layering, trace, and producer evidence; it is not the execution of that Work Pack.",
+        "formal": "Bundle B is a candidate for source S only when the required inventory is complete and each byte sequence in B equals the compiler projection of S under one declared producer identity.",
+        "normative": "A Plan candidate bundle is the complete ordered set of files deterministically generated from one exact Plan authoring source and its bound predecessor evidence.",
+        "operational": "Compile the exact source into an absent directory, verify the required inventory, and keep the stage receipt with the bundle for independent admission.",
+        "plain_language": "All Plan files produced together from one source, held for checking before anyone treats them as accepted."
+      }
+    },
+    {
+      "aliases": [
+        "Plan admission result"
+      ],
+      "boundary": {
+        "conditions": [
+          "The admission validator is a different executable identity from the Plan bundle producer."
+        ],
+        "excludes": [
+          "Semantic invention, Design revision, owner acceptance, implementation readiness, execution authorization, and product mutation."
+        ],
+        "includes": [
+          "Clean replay, exact inventory comparison, predecessor freshness, structural validation, and declared consumer results."
+        ]
+      },
+      "challenge_contract": null,
+      "deferred_as": null,
+      "definition_version": "1",
+      "drift_route": "invoke-plan-owner",
+      "id": "PLAN-D3",
+      "misuse_warning": "Admission does not prove the Work Pack can execute safely and does not authorize any task.",
+      "notation": [],
+      "primary_consumers": [
+        "Invoke capability-status resolver",
+        "Plan successor design"
+      ],
+      "promotion_boundary": "The Invoke Plan owner owns the admitted inventory and consumer contract; execution owners retain later readiness decisions.",
+      "relations": [
+        {
+          "id": "PLAN-D2",
+          "type": "depends-on"
+        }
+      ],
+      "source_kinds": [
+        "synthesis",
+        "local-inference"
+      ],
+      "source_refs": [
+        {
+          "end_line": null,
+          "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+          "role": "evidence",
+          "selector": "Plan Bundle Admission",
+          "selector_type": "heading",
+          "sha256": "807eaf92f5450150bfdb6bee23d76772170072fba9a02592e3977b506cf5966c",
+          "size": 2394,
+          "start_line": null,
+          "visibility": "public"
+        },
+        {
+          "end_line": null,
+          "path": "arcanum/spells/invoke/scripts/prepare_plan_implementation_readiness.py",
+          "role": "evidence",
+          "selector": "main",
+          "selector_type": "symbol",
+          "sha256": "e83d0d264df0f606be993f6dfd8372af9c23cdeab7eb0c07b906ae078546893c",
+          "size": 4684,
+          "start_line": null,
+          "visibility": "public"
+        },
+        {
+          "end_line": null,
+          "path": "arcanum/spells/work-pack-readiness-audit/README.md",
+          "role": "evidence",
+          "selector": "Purpose",
+          "selector_type": "heading",
+          "sha256": "7942d0e7d80b74bc9a400773244ad071b79fe93c54ba204ab6ab3a31f3359401",
+          "size": 16849,
+          "start_line": null,
+          "visibility": "public"
+        },
+        {
+          "end_line": null,
+          "path": "arcanum/spells/implementation-readiness/README.md",
+          "role": "evidence",
+          "selector": "Work-Pack Execution Outer Loop",
+          "selector_type": "heading",
+          "sha256": "1556cee05fc11bcc553ba4760f4c85edfa0136927961d43bd967537d54b34bca",
+          "size": 12087,
+          "start_line": null,
+          "visibility": "public"
+        }
+      ],
+      "status": "candidate",
+      "status_detail": null,
+      "structural_schema": null,
+      "superseded_by": null,
+      "supersedes": [],
+      "term": "Plan bundle admission",
+      "use_carefully": "Treat admission as stale after any bound source, predecessor, producer, schema, inventory, or consumer change.",
+      "voices": {
+        "domain_context": "Plan admission sits after deterministic generation and before capability status. Work Pack Readiness Audit and Implementation Readiness remain separate later proofs.",
+        "formal": "Admission A(B,S) is current only when independent replay of S yields byte-equal B, required consumer checks pass, bound predecessor evidence is current, and the admitted inventory and producer identities equal the submitted ones.",
+        "normative": "Plan bundle admission is an independent point-in-time result that replays one exact Plan authoring source, compares every required bundle member, and runs the declared structural and consumer checks for that exact candidate.",
+        "operational": "Give the validator the exact candidate bundle; it must rehash inputs, replay generation in isolation, compare every file, collect all reachable blockers, and emit a separate receipt.",
+        "plain_language": "A second checker proves that this exact generated Plan still matches its source and works with the checks that depend on it."
+      }
+    },
+    {
+      "aliases": [
+        "Plan proof state"
+      ],
+      "boundary": {
+        "conditions": [
+          "Every positive axis is supported by current evidence owned by the producer or validator responsible for that axis."
+        ],
+        "excludes": [
+          "A single generic PASS, inferred readiness, inferred acceptance, and inferred execution permission."
+        ],
+        "includes": [
+          "Separate authored, admitted, readiness, acceptance, and execution-authority axes with exact receipt references."
+        ]
+      },
+      "challenge_contract": null,
+      "deferred_as": null,
+      "definition_version": "1",
+      "drift_route": "invoke-plan-owner",
+      "id": "PLAN-D4",
+      "misuse_warning": "Artifact-authored or bundle-admitted status must never be presented as implementation-ready, accepted, or execution-authorized.",
+      "notation": [],
+      "primary_consumers": [
+        "Invoke capability-status resolver",
+        "Plan handoff",
+        "Task Session admission"
+      ],
+      "promotion_boundary": "Each downstream owner controls only its evidence axis; no single resolver may manufacture missing authority.",
+      "relations": [
+        {
+          "id": "PLAN-D2",
+          "type": "references"
+        },
+        {
+          "id": "PLAN-D3",
+          "type": "references"
+        }
+      ],
+      "source_kinds": [
+        "synthesis",
+        "local-inference"
+      ],
+      "source_refs": [
+        {
+          "end_line": null,
+          "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+          "role": "evidence",
+          "selector": "Plan Evidence State",
+          "selector_type": "heading",
+          "sha256": "807eaf92f5450150bfdb6bee23d76772170072fba9a02592e3977b506cf5966c",
+          "size": 2394,
+          "start_line": null,
+          "visibility": "public"
+        },
+        {
+          "end_line": null,
+          "path": "arcanum/spells/invoke/README.md",
+          "role": "evidence",
+          "selector": "Evidence Capability Contract",
+          "selector_type": "heading",
+          "sha256": "489c0208cec0cceb9f7af8b98debfafe7aeabd36dea395007fd4bd8df3dcdcba",
+          "size": 39442,
+          "start_line": null,
+          "visibility": "public"
+        },
+        {
+          "end_line": null,
+          "path": "arcanum/spells/invoke/scripts/capability_status_resolver.py",
+          "role": "evidence",
+          "selector": "resolve_capability_status",
+          "selector_type": "symbol",
+          "sha256": "4bf4de651f6c747c54c9c76eddb558fa2a7635cd7d71ce1f0857a52074ad277f",
+          "size": 13465,
+          "start_line": null,
+          "visibility": "public"
+        }
+      ],
+      "status": "candidate",
+      "status_detail": null,
+      "structural_schema": null,
+      "superseded_by": null,
+      "supersedes": [],
+      "term": "Plan evidence state",
+      "use_carefully": "Report each evidence axis and its exact receipt instead of summarizing the Plan with an untyped PASS.",
+      "voices": {
+        "domain_context": "Invoke uses this state to hand a Plan successor into later readiness and execution workflows without collapsing artifact PASS into permission to mutate a product.",
+        "formal": "For Plan P, evidence state E is a product of independent axes including authored, admitted, implementation-ready, owner-accepted, and execution-authorized; truth on one axis does not imply truth on another.",
+        "normative": "A Plan evidence state is the typed statement of the highest Plan claim established by exact current receipts, while preserving all later unproved or unauthorized states as separate fields.",
+        "operational": "Resolve status from the exact producer and admission receipts, then attach later readiness, acceptance, and execution evidence only to their own named axes.",
+        "plain_language": "A precise answer to what we have proved about the Plan so far, without turning 'written' into 'ready' or 'approved.'"
+      }
+    }
+  ],
+  "owner_route": "definitions-governance",
+  "registry_id": "registry.invoke-plan-successor",
+  "registry_status": "candidate",
+  "schema_version": "definitions/v2",
+  "semantic_applications": [
+    {
+      "authority_binding_ids": [],
+      "definition_ids": [
+        "PLAN-D1"
+      ],
+      "disposition": "new-scoped-term",
+      "probe_id": "probe:plan-authoring-source",
+      "rationale": "The canonical registry contains no term for the single authored machine input to the Plan successor pipeline."
+    },
+    {
+      "authority_binding_ids": [],
+      "definition_ids": [
+        "PLAN-D2"
+      ],
+      "disposition": "new-scoped-term",
+      "probe_id": "probe:plan-candidate-bundle",
+      "rationale": "The canonical registry has general artifact terms but no scoped term for the complete deterministic Plan output set."
+    },
+    {
+      "authority_binding_ids": [],
+      "definition_ids": [
+        "PLAN-D3"
+      ],
+      "disposition": "new-scoped-term",
+      "probe_id": "probe:plan-bundle-admission",
+      "rationale": "No canonical term names an independent point-in-time replay of a generated Plan bundle while preserving later readiness gates."
+    },
+    {
+      "authority_binding_ids": [],
+      "definition_ids": [
+        "PLAN-D4"
+      ],
+      "disposition": "new-scoped-term",
+      "probe_id": "probe:plan-evidence-state",
+      "rationale": "The current Plan documents describe separate evidence ceilings, but the scoped state that preserves them has no canonical definition."
+    }
+  ],
+  "semantic_evidence": {
+    "closure_receipt_ref": {
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DEFINE-SEMANTIC-CLOSURE-RECEIPT-3.json",
+      "sha256": "f1e062e18e785f414154a42d08a13b83788b7764a2745892b0a00dfbb877ce97",
+      "size": 16498
+    },
+    "context_ref": {
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DEFINE-SEMANTIC-CONTEXT-3.json",
+      "sha256": "cdf0d4c0ec9bc9670f32e9be619e25334bd1ba24ea445fd87ec985f7b992cc90",
+      "size": 11098
+    }
+  },
+  "title": "Invoke Plan Successor Candidate Definitions",
+  "visibility": "public"
+}

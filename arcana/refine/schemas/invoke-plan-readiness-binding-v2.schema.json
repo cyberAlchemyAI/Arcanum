@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/refine/invoke-plan-readiness-binding/2-0-0",
+  "title": "InvokePlanReadinessBindingV2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "execution_designation",
+    "work_pack_id",
+    "invoke_plan_stage_receipt_ref",
+    "invoke_outputs",
+    "readiness_receipt_ref",
+    "non_execution_reason",
+    "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {"const": "refine.invoke-plan-readiness-binding/v2"},
+    "execution_designation": {"enum": ["execution-candidate", "non-executing"]},
+    "work_pack_id": {"type": ["string", "null"], "minLength": 1},
+    "invoke_plan_stage_receipt_ref": {"oneOf": [{"$ref": "#/$defs/exactArtifactRef"}, {"type": "null"}]},
+    "invoke_outputs": {"type": "array", "items": {"$ref": "#/$defs/invokeOutput"}},
+    "readiness_receipt_ref": {"oneOf": [{"$ref": "#/$defs/exactArtifactRef"}, {"type": "null"}]},
+    "non_execution_reason": {"type": ["string", "null"], "minLength": 1},
+    "authority_effect": {"const": "none"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"execution_designation": {"const": "execution-candidate"}}, "required": ["execution_designation"]},
+      "then": {
+        "properties": {
+          "work_pack_id": {"type": "string", "minLength": 1},
+          "invoke_plan_stage_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
+          "invoke_outputs": {"type": "array", "minItems": 6},
+          "readiness_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
+          "non_execution_reason": {"type": "null"}
+        }
+      },
+      "else": {
+        "properties": {
+          "work_pack_id": {"type": "null"},
+          "invoke_plan_stage_receipt_ref": {"type": "null"},
+          "invoke_outputs": {"type": "array", "maxItems": 0},
+          "readiness_receipt_ref": {"type": "null"},
+          "non_execution_reason": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "size_bytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "invokeOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["output_kind", "artifact_ref"],
+      "properties": {
+        "output_kind": {
+          "enum": [
+            "plan-artifact",
+            "work-pack",
+            "implementation-layering",
+            "distill-validation",
+            "invoke-result",
+            "implementation-readiness-preflight",
+            "task-contract",
+            "swu-manifest",
+            "execution-entry-projection",
+            "validation-strategy",
+            "transport-report",
+            "runtime-handoff"
+          ]
+        },
+        "artifact_ref": {"$ref": "#/$defs/exactArtifactRef"}
+      }
+    }
+  }
+}

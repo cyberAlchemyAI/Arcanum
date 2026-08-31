@@ -1,0 +1,167 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "display_name": {
+            "type": "string",
+            "minLength": 1
+        },
+        "mode_refs": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "path": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "sha256": {
+                                "type": "string"
+                            },
+                            "size_bytes": {
+                                "allOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "path",
+                            "sha256",
+                            "size_bytes"
+                        ]
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        },
+        "objection_categories": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "enum": [
+                            "boundary",
+                            "closure",
+                            "evidence",
+                            "evolution",
+                            "fit",
+                            "governance",
+                            "recomposition",
+                            "risk",
+                            "scope"
+                        ]
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        },
+        "output_contract_version": {
+            "type": "string",
+            "minLength": 1
+        },
+        "override_policy": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "allowed_fields": {
+                    "type": "array",
+                    "items": {
+                        "enum": [
+                            "tracks",
+                            "rounds_per_track"
+                        ]
+                    },
+                    "uniqueItems": true
+                },
+                "require_within_mode_maxima": {
+                    "const": true
+                }
+            },
+            "required": [
+                "allowed_fields",
+                "require_within_mode_maxima"
+            ]
+        },
+        "profile_id": {
+            "type": "string"
+        },
+        "schema_version": {
+            "const": "distill.profile.v2"
+        },
+        "technique_refs": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "path": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "sha256": {
+                                "type": "string"
+                            },
+                            "size_bytes": {
+                                "allOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "path",
+                            "sha256",
+                            "size_bytes"
+                        ]
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        }
+    },
+    "required": [
+        "display_name",
+        "mode_refs",
+        "objection_categories",
+        "output_contract_version",
+        "override_policy",
+        "profile_id",
+        "schema_version",
+        "technique_refs"
+    ]
+}

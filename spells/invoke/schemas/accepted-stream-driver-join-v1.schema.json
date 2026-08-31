@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/accepted-stream-driver-join/1-0-0",
+  "title": "InvokeAcceptedStreamDriverJoinV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "accepted_stream_id",
+    "graph_digest",
+    "epoch",
+    "requested_effect_digest",
+    "authority_digest",
+    "frontier_digest",
+    "baseline_digest",
+    "driver_identity",
+    "request_digest",
+    "receipt_digest",
+    "receipt_status",
+    "joined_receipt_count",
+    "no_effect",
+    "join_digest"
+  ],
+  "properties": {
+    "schema_version": {"const": "invoke.accepted-stream-driver-join.v1"},
+    "accepted_stream_id": {"$ref": "#/$defs/hash"},
+    "graph_digest": {"$ref": "#/$defs/hash"},
+    "epoch": {"type": "string", "minLength": 1},
+    "requested_effect_digest": {"$ref": "#/$defs/hash"},
+    "authority_digest": {"$ref": "#/$defs/hash"},
+    "frontier_digest": {"$ref": "#/$defs/hash"},
+    "baseline_digest": {"$ref": "#/$defs/hash"},
+    "driver_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["executable_ref", "invocation"],
+      "properties": {
+        "executable_ref": {"$ref": "#/$defs/exactRef"},
+        "invocation": {
+          "type": "array",
+          "prefixItems": [
+            {"const": "python3"},
+            {"const": "arcanum/spells/task-session-until-blocker/scripts/run_accepted_stream_driver.py"},
+            {"const": "--request"},
+            {"const": "<exact-request-path>"}
+          ],
+          "items": false,
+          "minItems": 4,
+          "maxItems": 4
+        }
+      }
+    },
+    "request_digest": {"$ref": "#/$defs/hash"},
+    "receipt_digest": {"$ref": "#/$defs/hash"},
+    "receipt_status": {"enum": ["complete", "blocked"]},
+    "joined_receipt_count": {"const": 1},
+    "no_effect": {"type": "boolean"},
+    "join_digest": {"$ref": "#/$defs/hash"}
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/hash"}
+      }
+    }
+  }
+}

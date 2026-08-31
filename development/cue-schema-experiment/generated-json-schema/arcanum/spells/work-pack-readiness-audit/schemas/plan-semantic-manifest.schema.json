@@ -1,0 +1,495 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "admission_timing": {
+            "const": "selected-unit-at-task-session"
+        },
+        "allowed_routes": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "capability": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "effect_class": {
+                                "const": "repository-local-reversible"
+                            },
+                            "expected_receipt": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "frontier_swu": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "mode": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "required_inputs": {
+                                "allOf": [
+                                    {
+                                        "prefixItems": [
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "minItems": 1,
+                                        "uniqueItems": true
+                                    }
+                                ]
+                            },
+                            "route_id": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "target": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "write_scope": {
+                                "allOf": [
+                                    {
+                                        "prefixItems": [
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "minItems": 1,
+                                        "uniqueItems": true
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "capability",
+                            "effect_class",
+                            "expected_receipt",
+                            "frontier_swu",
+                            "mode",
+                            "required_inputs",
+                            "route_id",
+                            "target",
+                            "write_scope"
+                        ]
+                    },
+                    "minItems": 1
+                }
+            ]
+        },
+        "allowed_routes_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+        },
+        "approval_status": {
+            "const": "unapproved"
+        },
+        "audit_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "authority_effect": {
+            "const": "none"
+        },
+        "canonical_semantic_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+        },
+        "completion_continuity": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "authority_effect": {
+                    "const": "none"
+                },
+                "completed_prefix": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "canonical_successor": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "closeout_binding_id": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "completion_artifact_ref": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "path": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "sha256": {
+                                        "type": "string",
+                                        "pattern": "^[a-f0-9]{64}$"
+                                    },
+                                    "size_bytes": {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "path",
+                                    "sha256",
+                                    "size_bytes"
+                                ]
+                            },
+                            "completion_binding_id": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "continuation_cursor_ref": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "path": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "sha256": {
+                                        "type": "string",
+                                        "pattern": "^[a-f0-9]{64}$"
+                                    },
+                                    "size_bytes": {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "path",
+                                    "sha256",
+                                    "size_bytes"
+                                ]
+                            },
+                            "evidence_profile": {
+                                "const": "task-session-joined-owner-closeout-v1"
+                            },
+                            "joined_owner_capability": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "joined_owner_receipt_ref": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "path": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "sha256": {
+                                        "type": "string",
+                                        "pattern": "^[a-f0-9]{64}$"
+                                    },
+                                    "size_bytes": {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "path",
+                                    "sha256",
+                                    "size_bytes"
+                                ]
+                            },
+                            "joined_owner_result": {
+                                "enum": [
+                                    "pass",
+                                    "no-op"
+                                ]
+                            },
+                            "owner_receipt_schema_binding_id": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "owner_receipt_schema_identity": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "owner_receipt_schema_ref": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "path": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "sha256": {
+                                        "type": "string",
+                                        "pattern": "^[a-f0-9]{64}$"
+                                    },
+                                    "size_bytes": {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "path",
+                                    "sha256",
+                                    "size_bytes"
+                                ]
+                            },
+                            "unit_contract_digest": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$"
+                            },
+                            "unit_id": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        },
+                        "required": [
+                            "canonical_successor",
+                            "closeout_binding_id",
+                            "completion_artifact_ref",
+                            "completion_binding_id",
+                            "continuation_cursor_ref",
+                            "evidence_profile",
+                            "joined_owner_capability",
+                            "joined_owner_receipt_ref",
+                            "joined_owner_result",
+                            "owner_receipt_schema_binding_id",
+                            "owner_receipt_schema_identity",
+                            "owner_receipt_schema_ref",
+                            "unit_contract_digest",
+                            "unit_id"
+                        ]
+                    },
+                    "uniqueItems": true
+                },
+                "continuity_digest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "next_unit": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    ]
+                },
+                "plan_epoch_id": {
+                    "type": "string",
+                    "pattern": "^epoch-[a-f0-9]{24}$"
+                },
+                "source_audit_id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "source_projection_digest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "work_pack_semantic_digest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                }
+            },
+            "required": [
+                "authority_effect",
+                "completed_prefix",
+                "continuity_digest",
+                "next_unit",
+                "plan_epoch_id",
+                "source_audit_id",
+                "source_projection_digest",
+                "work_pack_semantic_digest"
+            ]
+        },
+        "execution_entry": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "blocker_code": {
+                    "type": "null"
+                },
+                "entry_state": {
+                    "const": "selection-ready"
+                },
+                "next_owner": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "capability": {
+                            "const": "implementation-readiness"
+                        },
+                        "mode": {
+                            "const": "execute"
+                        },
+                        "target": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "required": [
+                        "capability",
+                        "mode",
+                        "target"
+                    ]
+                },
+                "route_id": {
+                    "type": "null"
+                },
+                "selected_unit": {
+                    "type": "null"
+                }
+            },
+            "required": [
+                "blocker_code",
+                "entry_state",
+                "next_owner",
+                "route_id",
+                "selected_unit"
+            ]
+        },
+        "manifest_id": {
+            "type": "string",
+            "pattern": "^psm-[a-f0-9]{24}$"
+        },
+        "mutation_ready": {
+            "const": false
+        },
+        "normalizer_version": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "plan_epoch_id": {
+            "type": "string",
+            "pattern": "^epoch-[a-f0-9]{24}$"
+        },
+        "ready_frontier": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        },
+        "runtime_admission_status": {
+            "const": "pending-selection"
+        },
+        "schema_version": {
+            "const": "1.0.0"
+        },
+        "selected_unit": {
+            "type": "null"
+        },
+        "selection_required": {
+            "const": true
+        },
+        "semantic_component_digests": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+            }
+        },
+        "source_snapshot_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+        },
+        "unit_contract_digests": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+            }
+        },
+        "work_pack_id": {
+            "type": "string",
+            "minLength": 1
+        }
+    },
+    "required": [
+        "admission_timing",
+        "allowed_routes",
+        "allowed_routes_digest",
+        "approval_status",
+        "audit_id",
+        "authority_effect",
+        "canonical_semantic_digest",
+        "completion_continuity",
+        "execution_entry",
+        "manifest_id",
+        "mutation_ready",
+        "normalizer_version",
+        "plan_epoch_id",
+        "ready_frontier",
+        "runtime_admission_status",
+        "schema_version",
+        "selected_unit",
+        "selection_required",
+        "semantic_component_digests",
+        "source_snapshot_digest",
+        "unit_contract_digests",
+        "work_pack_id"
+    ]
+}

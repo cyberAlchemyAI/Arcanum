@@ -1,0 +1,1062 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/define-bundle-admission-receipt/v2",
+  "title": "Invoke Define v3 Bundle Admission Receipt v2",
+  "description": "Point-in-time admission evidence for one exact Define v3 bundle. It records clean replay parity and typed semantic-drift classification without granting registry, mutation, publication, or promotion authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "receipt_id",
+    "validator",
+    "schema_bindings",
+    "bundle_root",
+    "bundle_digest",
+    "stage_receipt_ref",
+    "producer_binding",
+    "output_inventory",
+    "structural_schema_refs",
+    "replay",
+    "drift_analysis",
+    "intent_coverage",
+    "checks",
+    "blockers",
+    "result",
+    "authority_effect",
+    "receipt_digest"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "https://arcanum.dev/schemas/invoke/define-bundle-admission-receipt/v2"
+    },
+    "schema_version": {
+      "const": "invoke.define-bundle-admission-receipt.v2"
+    },
+    "receipt_id": {
+      "$ref": "#/$defs/id"
+    },
+    "validator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "identity": {
+          "const": "invoke.validate-define-bundle-admission.v2"
+        },
+        "path": {
+          "const": "arcanum/spells/invoke/scripts/validate_define_bundle_admission.py"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "schema_bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "admission_schema_ref",
+        "result_schema_ref",
+        "definitions_schema_ref",
+        "context_schema_ref",
+        "closure_schema_ref"
+      ],
+      "properties": {
+        "admission_schema_ref": {
+          "$ref": "#/$defs/exactRef"
+        },
+        "result_schema_ref": {
+          "$ref": "#/$defs/exactRef"
+        },
+        "definitions_schema_ref": {
+          "$ref": "#/$defs/exactRef"
+        },
+        "context_schema_ref": {
+          "$ref": "#/$defs/exactRef"
+        },
+        "closure_schema_ref": {
+          "$ref": "#/$defs/exactRef"
+        }
+      }
+    },
+    "bundle_root": {
+      "$ref": "#/$defs/relativePath"
+    },
+    "bundle_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "stage_receipt_ref": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/exactRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "producer_binding": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/producerBinding"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "output_inventory": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/outputRef"
+      }
+    },
+    "structural_schema_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/structuralSchemaRef"
+      }
+    },
+    "replay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_ref",
+        "discovery_roots",
+        "public_roots",
+        "clean_bundle_digest",
+        "comparison"
+      ],
+      "properties": {
+        "source_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/exactRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "discovery_roots": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "public_roots": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "clean_bundle_digest": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "comparison": {
+          "enum": [
+            "pass",
+            "block",
+            "not_evaluable"
+          ]
+        }
+      }
+    },
+    "drift_analysis": {
+      "$ref": "#/$defs/driftAnalysis"
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 14,
+      "maxItems": 14,
+      "uniqueItems": true,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:bundle-shape"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:stage-receipt"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:producer-identity"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:schema-bindings"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:ordered-inventory"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:semantic-closure"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "$ref": "#/$defs/intentMaterializationCheck"
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:clean-replay"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:definitions"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:generated-views"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:structural-schemas"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:semantic-outcome"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:authority-effect"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/check"
+            },
+            {
+              "properties": {
+                "check_id": {
+                  "const": "check:prior-admission"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/blocker"
+      }
+    },
+    "result": {
+      "enum": [
+        "pass",
+        "block"
+      ]
+    },
+    "authority_effect": {
+      "const": "none"
+    },
+    "receipt_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "intent_coverage": {
+      "$ref": "#/$defs/intentCoverage"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "pass"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "stage_receipt_ref": {
+            "$ref": "#/$defs/exactRef"
+          },
+          "producer_binding": {
+            "$ref": "#/$defs/producerBinding"
+          },
+          "output_inventory": {
+            "minItems": 13,
+            "maxItems": 13
+          },
+          "checks": {
+            "prefixItems": [
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "pass"
+                  }
+                }
+              }
+            ]
+          },
+          "blockers": {
+            "maxItems": 0
+          },
+          "replay": {
+            "properties": {
+              "source_ref": {
+                "$ref": "#/$defs/exactRef"
+              },
+              "clean_bundle_digest": {
+                "$ref": "#/$defs/digest"
+              },
+              "comparison": {
+                "const": "pass"
+              }
+            }
+          },
+          "drift_analysis": {
+            "properties": {
+              "compile_window": {
+                "const": "current"
+              },
+              "summary": {
+                "properties": {
+                  "evidence_state": {
+                    "const": "current"
+                  },
+                  "semantic_state": {
+                    "const": "unchanged"
+                  },
+                  "authority_state": {
+                    "const": "unchanged"
+                  },
+                  "topology_state": {
+                    "const": "unchanged"
+                  },
+                  "projection_state": {
+                    "const": "unchanged"
+                  },
+                  "overall": {
+                    "const": "current"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,191}$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "relativePath": {
+      "type": "string",
+      "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*://)(?!.*(?:^|/)\\.\\.(?:/|$)).+"
+    },
+    "pathSet": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/relativePath"
+      }
+    },
+    "exactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "outputRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "path",
+        "sha256",
+        "size"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "structuralSchemaRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "definition_id",
+        "path",
+        "sha256",
+        "size"
+      ],
+      "properties": {
+        "definition_id": {
+          "$ref": "#/$defs/id"
+        },
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "producerBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_id",
+        "receipt_digest",
+        "profile_id",
+        "producer"
+      ],
+      "properties": {
+        "receipt_id": {
+          "$ref": "#/$defs/id"
+        },
+        "receipt_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "profile_id": {
+          "const": "invoke.generic-definitions-baseline.v3"
+        },
+        "producer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "identity",
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "identity": {
+              "const": "invoke.compile-define-source.v3"
+            },
+            "path": {
+              "const": "arcanum/spells/invoke/scripts/compile_define_source_v3.py"
+            },
+            "sha256": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        }
+      }
+    },
+    "driftAnalysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "compile_window",
+        "prior_admission",
+        "summary",
+        "differences"
+      ],
+      "properties": {
+        "compile_window": {
+          "enum": [
+            "current",
+            "changed",
+            "not_evaluable"
+          ]
+        },
+        "prior_admission": {
+          "enum": [
+            "not_provided",
+            "current",
+            "changed",
+            "not_evaluable"
+          ]
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "evidence_state",
+            "semantic_state",
+            "authority_state",
+            "topology_state",
+            "projection_state",
+            "overall"
+          ],
+          "properties": {
+            "evidence_state": {
+              "enum": [
+                "current",
+                "stale",
+                "missing",
+                "not_evaluable"
+              ]
+            },
+            "semantic_state": {
+              "enum": [
+                "unchanged",
+                "changed",
+                "review_required",
+                "not_evaluable"
+              ]
+            },
+            "authority_state": {
+              "enum": [
+                "unchanged",
+                "changed",
+                "unresolved",
+                "not_evaluable"
+              ]
+            },
+            "topology_state": {
+              "enum": [
+                "unchanged",
+                "changed",
+                "not_evaluable"
+              ]
+            },
+            "projection_state": {
+              "enum": [
+                "unchanged",
+                "changed",
+                "not_evaluable"
+              ]
+            },
+            "overall": {
+              "enum": [
+                "current",
+                "recompile_required",
+                "closure_refresh_required",
+                "semantic_reassessment_required",
+                "blocked"
+              ]
+            }
+          }
+        },
+        "differences": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/difference"
+          }
+        }
+      }
+    },
+    "difference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "drift_id",
+        "category",
+        "locator",
+        "before_ref",
+        "after_ref",
+        "change",
+        "semantic_effect",
+        "invalidates",
+        "repair_route"
+      ],
+      "properties": {
+        "drift_id": {
+          "$ref": "#/$defs/id"
+        },
+        "category": {
+          "enum": [
+            "source_evidence",
+            "selector",
+            "label_alias",
+            "definition_meaning",
+            "boundary",
+            "relation",
+            "semantic_application",
+            "authority",
+            "registry_topology",
+            "consumer_topology",
+            "structural_schema",
+            "identity_denominator",
+            "generated_projection",
+            "bundle_inventory"
+          ]
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "before_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/exactRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "after_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/exactRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "change": {
+          "enum": [
+            "added",
+            "removed",
+            "modified",
+            "missing",
+            "not_evaluable"
+          ]
+        },
+        "semantic_effect": {
+          "enum": [
+            "none",
+            "meaning_changed",
+            "authority_changed",
+            "topology_changed",
+            "review_required",
+            "not_evaluable"
+          ]
+        },
+        "invalidates": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "semantic_context",
+              "semantic_closure",
+              "define_source",
+              "bundle",
+              "admission",
+              "artifact_pass"
+            ]
+          }
+        },
+        "repair_route": {
+          "enum": [
+            "recompile",
+            "rerun_semantic_closure",
+            "reauthor_define_source",
+            "definitions_governance",
+            "identity_denominator",
+            "stop"
+          ]
+        }
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_id",
+        "status",
+        "detail"
+      ],
+      "properties": {
+        "check_id": {
+          "$ref": "#/$defs/id"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "block",
+            "not_evaluable"
+          ]
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message",
+        "caused_by"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{2,95}$"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "caused_by": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        }
+      }
+    },
+    "intentMaterializationCheck": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/check"
+        },
+        {
+          "properties": {
+            "check_id": {
+              "const": "check:intent-obligation-materialization"
+            }
+          }
+        }
+      ]
+    },
+    "intentChainItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "obligation_id",
+        "kind",
+        "probe_ids",
+        "definition_ids",
+        "authority_binding_ids",
+        "status"
+      ],
+      "properties": {
+        "obligation_id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "concept",
+            "relationship",
+            "boundary"
+          ]
+        },
+        "probe_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "definition_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "authority_binding_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "status": {
+          "enum": [
+            "materialized",
+            "out-of-scope",
+            "missing",
+            "not_evaluable"
+          ]
+        }
+      }
+    },
+    "intentCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_ceiling",
+        "context_version",
+        "obligation_count",
+        "mapped_count",
+        "materialized_count",
+        "out_of_scope_count",
+        "missing_obligation_ids",
+        "chain"
+      ],
+      "properties": {
+        "claim_ceiling": {
+          "const": "enumerated-semantic-obligations"
+        },
+        "context_version": {
+          "const": "invoke.define-semantic-context.v2"
+        },
+        "obligation_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mapped_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "materialized_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "out_of_scope_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "missing_obligation_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "chain": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/intentChainItem"
+          }
+        }
+      }
+    }
+  }
+}

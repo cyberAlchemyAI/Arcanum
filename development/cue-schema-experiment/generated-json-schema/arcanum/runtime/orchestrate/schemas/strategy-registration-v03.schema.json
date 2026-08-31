@@ -1,0 +1,240 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "admission_receipt_ref": {
+            "anyOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 1
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "confirmation": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "binding_sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                },
+                "handle": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "material_equivalence_ref": {
+                    "anyOf": [
+                        {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "path": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 1
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "path",
+                                "sha256",
+                                "size"
+                            ]
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "mode": {
+                    "enum": [
+                        "exact_sheet",
+                        "material_projection"
+                    ]
+                }
+            },
+            "required": [
+                "binding_sha256",
+                "handle",
+                "material_equivalence_ref",
+                "mode"
+            ]
+        },
+        "execution_projection_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+        },
+        "ledger": {
+            "type": "string",
+            "minLength": 1
+        },
+        "profile_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "profile_ref": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                },
+                "size": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "path",
+                "sha256",
+                "size"
+            ]
+        },
+        "registration_envelope_ref": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                },
+                "size": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "path",
+                "sha256",
+                "size"
+            ]
+        },
+        "schema_version": {
+            "const": "arcanum.subagent-strategy-registration.v0.3"
+        },
+        "sheet_schema_version": {
+            "type": "string",
+            "minLength": 1
+        },
+        "source_lifecycle": {
+            "enum": [
+                "consumed",
+                "durable"
+            ]
+        },
+        "source_sheet_ref": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                },
+                "size": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "path",
+                "sha256",
+                "size"
+            ]
+        },
+        "temporary_close": {
+            "type": "string",
+            "minLength": 1
+        }
+    },
+    "required": [
+        "admission_receipt_ref",
+        "confirmation",
+        "execution_projection_sha256",
+        "ledger",
+        "profile_id",
+        "profile_ref",
+        "registration_envelope_ref",
+        "schema_version",
+        "sheet_schema_version",
+        "source_lifecycle",
+        "source_sheet_ref",
+        "temporary_close"
+    ]
+}

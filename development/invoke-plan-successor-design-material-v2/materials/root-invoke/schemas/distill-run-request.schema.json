@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/distill-run-request/1-0-0",
+  "title": "DistillRunRequest",
+  "description": "Structural projection of an Invoke-owned request to execute Distill. Schema validity is not execution evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "parent_invoke_run_id",
+    "invoke_mode",
+    "distill_mode",
+    "round_budget",
+    "reviewed_inputs",
+    "requested_techniques"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "parent_invoke_run_id": { "type": "string", "minLength": 1 },
+    "invoke_mode": { "type": "string", "minLength": 1 },
+    "distill_mode": { "type": "string", "minLength": 1 },
+    "round_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_rounds", "max_role_invocations"],
+      "properties": {
+        "max_rounds": { "type": "integer", "minimum": 1 },
+        "max_role_invocations": { "type": "integer", "minimum": 2 }
+      }
+    },
+    "reviewed_inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/exactArtifactRef" }
+    },
+    "requested_techniques": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "size_bytes": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/distill/source/2-0-0",
+  "title": "Distill v2 Normalized Source RunFrame",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "identity", "intent", "policy", "discovery", "constraints", "artifacts", "lineage"],
+  "properties": {
+    "schema_version": {"const": "distill.source.v2"},
+    "identity": {"$ref": "#/$defs/identity"},
+    "intent": {"$ref": "#/$defs/intent"},
+    "policy": {"$ref": "#/$defs/policy"},
+    "discovery": {"$ref": "#/$defs/discovery"},
+    "constraints": {"$ref": "#/$defs/constraints"},
+    "artifacts": {"$ref": "#/$defs/artifacts"},
+    "lineage": {"$ref": "#/$defs/lineage"},
+    "evidence_context": {"$ref": "#/$defs/evidence_context"}
+  },
+  "$defs": {
+    "string_array": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"}
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "run_id", "created_at", "invocation_source"],
+      "properties": {
+        "source_id": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"},
+        "run_id": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"},
+        "created_at": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/utc_timestamp"},
+        "invocation_source": {"enum": ["direct", "invoked_by"]}
+      }
+    },
+    "intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seed_point", "target_context", "objective", "output_artifact", "optimization_goal"],
+      "properties": {
+        "seed_point": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"},
+        "target_context": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"},
+        "objective": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"},
+        "output_artifact": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"},
+        "optimization_goal": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_ref", "mode_ref", "requested_technique_refs"],
+      "properties": {
+        "profile_ref": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/exact_artifact_reference"},
+        "mode_ref": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/exact_artifact_reference"},
+        "requested_technique_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/exact_artifact_reference"}
+        },
+        "overrides": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "tracks": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/positive_integer"},
+            "rounds_per_track": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/positive_integer"}
+          }
+        }
+      }
+    },
+    "discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provided_evidence", "searched_sources", "blocker_unknowns", "non_blocker_unknowns", "assumptions"],
+      "properties": {
+        "provided_evidence": {"$ref": "#/$defs/string_array"},
+        "searched_sources": {"$ref": "#/$defs/string_array"},
+        "blocker_unknowns": {"$ref": "#/$defs/string_array"},
+        "non_blocker_unknowns": {"$ref": "#/$defs/string_array"},
+        "assumptions": {"$ref": "#/$defs/string_array"}
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["governance", "cost", "time", "quality", "domain", "stop_rule_tightening"],
+      "properties": {
+        "governance": {"$ref": "#/$defs/string_array"},
+        "cost": {"$ref": "#/$defs/string_array"},
+        "time": {"$ref": "#/$defs/string_array"},
+        "quality": {"$ref": "#/$defs/string_array"},
+        "domain": {"$ref": "#/$defs/string_array"},
+        "stop_rule_tightening": {"$ref": "#/$defs/string_array"}
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["artifact_ref", "semantic_role"],
+        "properties": {
+          "artifact_ref": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/exact_artifact_reference"},
+          "semantic_role": {"enum": ["input", "context", "output_target", "reference"]}
+        }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parent_run_id", "parent_source_id", "objective_output_revision"],
+      "properties": {
+        "parent_run_id": {"oneOf": [{"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"}, {"type": "null"}]},
+        "parent_source_id": {"oneOf": [{"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"}, {"type": "null"}]},
+        "objective_output_revision": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["prior_objective", "prior_output_artifact", "reason"],
+              "properties": {
+                "prior_objective": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"},
+                "prior_output_artifact": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"},
+                "reason": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"}
+              }
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"objective_output_revision": {"type": "object"}}},
+          "then": {
+            "properties": {
+              "parent_run_id": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"},
+              "parent_source_id": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"}
+            }
+          }
+        }
+      ]
+    },
+    "evidence_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "refs", "authority_effect"],
+      "properties": {
+        "status": {"enum": ["accepted", "unavailable", "none"]},
+        "refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/exact_artifact_reference"}
+        },
+        "authority_effect": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/authority_effect_none"}
+      }
+    }
+  }
+}

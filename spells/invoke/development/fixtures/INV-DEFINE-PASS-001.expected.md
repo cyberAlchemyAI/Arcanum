@@ -8,13 +8,14 @@
 - Scope: library
 - Phase status: pass
 - Mode contract: arcanum/spells/invoke/define.md
-- Outputs: artifacts/mars-rover-maintenance/SPEC.md, artifacts/mars-rover-maintenance/GLOSSARY.md, .arcanum/necronomicon/sessions/demo/invoke-transports/define.md
-- Template selection: Module Formulae discovery profile
+- Outputs: artifacts/mars-rover-maintenance/SPEC.md, artifacts/mars-rover-maintenance/DEFINITIONS.json, artifacts/mars-rover-maintenance/DEFINITIONS.md, artifacts/mars-rover-maintenance/GLOSSARY.md, .arcanum/necronomicon/sessions/demo/invoke-transports/define.md
+- Template selection: `invoke.generic-definitions-baseline.v3`
 - Dispatch techniques: `sequence`, `owner_boundary_check`, `artifact_contract_bridge`
 - Distill validation: not required; request is one coherent module definition
 - Decisions: define the module boundary around daily inspection notes, component status, operator decisions, and unresolved repair questions
-- Glossary updates: rover maintenance log, inspection note, component status, operator decision, repair question
-- Glossary linking: exact or alias matches link; unsupported terms become candidates with no-match rationale
+- Candidate definitions: rover maintenance log, inspection note, component status, operator decision, repair question
+- Definition views: `DEFINITIONS.md` and `GLOSSARY.md` derive from `DEFINITIONS.json`
+- Authority effect: none; candidate definition promotion remains a separate definitions-governance decision
 - Implementation layering: seed emitted
 - Work-pack: n/a
 - Unresolved gaps: none blocking

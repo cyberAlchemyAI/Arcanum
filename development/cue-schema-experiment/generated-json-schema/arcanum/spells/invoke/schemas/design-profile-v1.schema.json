@@ -1,0 +1,652 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "const": "https://arcanum.dev/schemas/invoke/design-profile/v1"
+        },
+        "authority_effect": {
+            "const": "none"
+        },
+        "core_requirements": {
+            "const": [
+                {
+                    "fact_kind": "actor",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "system",
+                    "minimum": 1
+                },
+                {
+                    "fact_kind": "relationship",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "component",
+                    "minimum": 1
+                },
+                {
+                    "fact_kind": "rendered-surface",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "contract",
+                    "minimum": 1
+                },
+                {
+                    "fact_kind": "interface",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "workflow-step",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "state",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "decision",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "dependency",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "store",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "queue",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "writer",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "normative-rule",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "effect",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "data-log-sink",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "deployment",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "compatibility-boundary",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "quality-claim",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "acceptance-readiness-claim",
+                    "minimum": 0
+                },
+                {
+                    "fact_kind": "risk",
+                    "minimum": 0
+                }
+            ]
+        },
+        "fact_kinds": {
+            "const": [
+                "actor",
+                "system",
+                "relationship",
+                "component",
+                "rendered-surface",
+                "contract",
+                "interface",
+                "workflow-step",
+                "state",
+                "decision",
+                "dependency",
+                "store",
+                "queue",
+                "writer",
+                "normative-rule",
+                "effect",
+                "data-log-sink",
+                "deployment",
+                "compatibility-boundary",
+                "quality-claim",
+                "acceptance-readiness-claim",
+                "risk"
+            ]
+        },
+        "profile_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+        },
+        "profile_id": {
+            "const": "invoke.generic-design-baseline.v1"
+        },
+        "required_output_ids": {
+            "const": [
+                "architecture"
+            ]
+        },
+        "schema_version": {
+            "const": "invoke.design-profile.v1"
+        },
+        "view_order": {
+            "const": [
+                "view:context",
+                "view:high-level-structure",
+                "view:low-level-components",
+                "view:workflow-process",
+                "view:decision-flow",
+                "view:dependency-interface"
+            ]
+        },
+        "view_rules": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true,
+                        true,
+                        true,
+                        true,
+                        true,
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "prefixItems": [
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "allowed_fact_kinds": {
+                                            "const": [
+                                                "actor",
+                                                "system",
+                                                "relationship",
+                                                "rendered-surface"
+                                            ]
+                                        },
+                                        "view_id": {
+                                            "const": "view:context"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "allow_evidence_backed_na": {
+                                            "const": true
+                                        },
+                                        "allowed_fact_kinds": {
+                                            "allOf": [
+                                                {
+                                                    "prefixItems": [
+                                                        true
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "enum": [
+                                                            "actor",
+                                                            "system",
+                                                            "relationship",
+                                                            "component",
+                                                            "rendered-surface",
+                                                            "contract",
+                                                            "interface",
+                                                            "workflow-step",
+                                                            "state",
+                                                            "decision",
+                                                            "dependency",
+                                                            "store",
+                                                            "queue",
+                                                            "writer",
+                                                            "normative-rule",
+                                                            "effect",
+                                                            "data-log-sink",
+                                                            "deployment",
+                                                            "compatibility-boundary",
+                                                            "quality-claim",
+                                                            "acceptance-readiness-claim",
+                                                            "risk"
+                                                        ]
+                                                    },
+                                                    "minItems": 1,
+                                                    "uniqueItems": true
+                                                }
+                                            ]
+                                        },
+                                        "view_id": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "allow_evidence_backed_na",
+                                        "allowed_fact_kinds",
+                                        "view_id"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "allowed_fact_kinds": {
+                                            "const": [
+                                                "system",
+                                                "component",
+                                                "contract",
+                                                "interface",
+                                                "deployment"
+                                            ]
+                                        },
+                                        "view_id": {
+                                            "const": "view:high-level-structure"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "allow_evidence_backed_na": {
+                                            "const": true
+                                        },
+                                        "allowed_fact_kinds": {
+                                            "allOf": [
+                                                {
+                                                    "prefixItems": [
+                                                        true
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "enum": [
+                                                            "actor",
+                                                            "system",
+                                                            "relationship",
+                                                            "component",
+                                                            "rendered-surface",
+                                                            "contract",
+                                                            "interface",
+                                                            "workflow-step",
+                                                            "state",
+                                                            "decision",
+                                                            "dependency",
+                                                            "store",
+                                                            "queue",
+                                                            "writer",
+                                                            "normative-rule",
+                                                            "effect",
+                                                            "data-log-sink",
+                                                            "deployment",
+                                                            "compatibility-boundary",
+                                                            "quality-claim",
+                                                            "acceptance-readiness-claim",
+                                                            "risk"
+                                                        ]
+                                                    },
+                                                    "minItems": 1,
+                                                    "uniqueItems": true
+                                                }
+                                            ]
+                                        },
+                                        "view_id": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "allow_evidence_backed_na",
+                                        "allowed_fact_kinds",
+                                        "view_id"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "allowed_fact_kinds": {
+                                            "const": [
+                                                "component",
+                                                "rendered-surface",
+                                                "contract",
+                                                "interface",
+                                                "store",
+                                                "queue",
+                                                "writer",
+                                                "data-log-sink"
+                                            ]
+                                        },
+                                        "view_id": {
+                                            "const": "view:low-level-components"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "allow_evidence_backed_na": {
+                                            "const": true
+                                        },
+                                        "allowed_fact_kinds": {
+                                            "allOf": [
+                                                {
+                                                    "prefixItems": [
+                                                        true
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "enum": [
+                                                            "actor",
+                                                            "system",
+                                                            "relationship",
+                                                            "component",
+                                                            "rendered-surface",
+                                                            "contract",
+                                                            "interface",
+                                                            "workflow-step",
+                                                            "state",
+                                                            "decision",
+                                                            "dependency",
+                                                            "store",
+                                                            "queue",
+                                                            "writer",
+                                                            "normative-rule",
+                                                            "effect",
+                                                            "data-log-sink",
+                                                            "deployment",
+                                                            "compatibility-boundary",
+                                                            "quality-claim",
+                                                            "acceptance-readiness-claim",
+                                                            "risk"
+                                                        ]
+                                                    },
+                                                    "minItems": 1,
+                                                    "uniqueItems": true
+                                                }
+                                            ]
+                                        },
+                                        "view_id": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "allow_evidence_backed_na",
+                                        "allowed_fact_kinds",
+                                        "view_id"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "allowed_fact_kinds": {
+                                            "const": [
+                                                "actor",
+                                                "workflow-step",
+                                                "state",
+                                                "effect"
+                                            ]
+                                        },
+                                        "view_id": {
+                                            "const": "view:workflow-process"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "allow_evidence_backed_na": {
+                                            "const": true
+                                        },
+                                        "allowed_fact_kinds": {
+                                            "allOf": [
+                                                {
+                                                    "prefixItems": [
+                                                        true
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "enum": [
+                                                            "actor",
+                                                            "system",
+                                                            "relationship",
+                                                            "component",
+                                                            "rendered-surface",
+                                                            "contract",
+                                                            "interface",
+                                                            "workflow-step",
+                                                            "state",
+                                                            "decision",
+                                                            "dependency",
+                                                            "store",
+                                                            "queue",
+                                                            "writer",
+                                                            "normative-rule",
+                                                            "effect",
+                                                            "data-log-sink",
+                                                            "deployment",
+                                                            "compatibility-boundary",
+                                                            "quality-claim",
+                                                            "acceptance-readiness-claim",
+                                                            "risk"
+                                                        ]
+                                                    },
+                                                    "minItems": 1,
+                                                    "uniqueItems": true
+                                                }
+                                            ]
+                                        },
+                                        "view_id": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "allow_evidence_backed_na",
+                                        "allowed_fact_kinds",
+                                        "view_id"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "allowed_fact_kinds": {
+                                            "const": [
+                                                "decision",
+                                                "normative-rule",
+                                                "quality-claim",
+                                                "acceptance-readiness-claim",
+                                                "risk"
+                                            ]
+                                        },
+                                        "view_id": {
+                                            "const": "view:decision-flow"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "allow_evidence_backed_na": {
+                                            "const": true
+                                        },
+                                        "allowed_fact_kinds": {
+                                            "allOf": [
+                                                {
+                                                    "prefixItems": [
+                                                        true
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "enum": [
+                                                            "actor",
+                                                            "system",
+                                                            "relationship",
+                                                            "component",
+                                                            "rendered-surface",
+                                                            "contract",
+                                                            "interface",
+                                                            "workflow-step",
+                                                            "state",
+                                                            "decision",
+                                                            "dependency",
+                                                            "store",
+                                                            "queue",
+                                                            "writer",
+                                                            "normative-rule",
+                                                            "effect",
+                                                            "data-log-sink",
+                                                            "deployment",
+                                                            "compatibility-boundary",
+                                                            "quality-claim",
+                                                            "acceptance-readiness-claim",
+                                                            "risk"
+                                                        ]
+                                                    },
+                                                    "minItems": 1,
+                                                    "uniqueItems": true
+                                                }
+                                            ]
+                                        },
+                                        "view_id": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "allow_evidence_backed_na",
+                                        "allowed_fact_kinds",
+                                        "view_id"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "allowed_fact_kinds": {
+                                            "const": [
+                                                "relationship",
+                                                "contract",
+                                                "interface",
+                                                "dependency",
+                                                "compatibility-boundary"
+                                            ]
+                                        },
+                                        "view_id": {
+                                            "const": "view:dependency-interface"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "allow_evidence_backed_na": {
+                                            "const": true
+                                        },
+                                        "allowed_fact_kinds": {
+                                            "allOf": [
+                                                {
+                                                    "prefixItems": [
+                                                        true
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "enum": [
+                                                            "actor",
+                                                            "system",
+                                                            "relationship",
+                                                            "component",
+                                                            "rendered-surface",
+                                                            "contract",
+                                                            "interface",
+                                                            "workflow-step",
+                                                            "state",
+                                                            "decision",
+                                                            "dependency",
+                                                            "store",
+                                                            "queue",
+                                                            "writer",
+                                                            "normative-rule",
+                                                            "effect",
+                                                            "data-log-sink",
+                                                            "deployment",
+                                                            "compatibility-boundary",
+                                                            "quality-claim",
+                                                            "acceptance-readiness-claim",
+                                                            "risk"
+                                                        ]
+                                                    },
+                                                    "minItems": 1,
+                                                    "uniqueItems": true
+                                                }
+                                            ]
+                                        },
+                                        "view_id": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "allow_evidence_backed_na",
+                                        "allowed_fact_kinds",
+                                        "view_id"
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "maxItems": 6,
+                    "minItems": 6
+                }
+            ]
+        }
+    },
+    "required": [
+        "$schema",
+        "authority_effect",
+        "core_requirements",
+        "fact_kinds",
+        "profile_digest",
+        "profile_id",
+        "required_output_ids",
+        "schema_version",
+        "view_order",
+        "view_rules"
+    ]
+}

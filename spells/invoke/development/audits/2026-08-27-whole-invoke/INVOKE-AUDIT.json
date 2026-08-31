@@ -1,0 +1,116 @@
+{
+  "schema_version": "invoke.whole-capability-audit.v1",
+  "audit_id": "INVOKE-AUDIT-2026-08-27",
+  "scope": ["define", "design", "plan", "handoff", "refresh", "full", "validate", "capability-status", "preacceptance", "accepted-stream", "generated-mirrors"],
+  "overall_verdict": "block",
+  "mode_status": {
+    "define": "partial",
+    "design": "partial",
+    "plan": "partial-broken-terminal-closure",
+    "handoff": "contract-only",
+    "refresh": "partial-broken-apply-claim",
+    "full": "deferred-removal-candidate",
+    "validate": "deferred"
+  },
+  "findings": [
+    {
+      "id": "INV-AUDIT-001",
+      "severity": "critical",
+      "class": "untrusted-artifact-status",
+      "finding": "The capability-status resolver accepts a generic self-asserted artifact receipt and copies its status without validating the mode-specific required evidence or exact artifact references.",
+      "evidence": ["arcanum/spells/invoke/schemas/capability-status-request.schema.json", "arcanum/spells/invoke/scripts/capability_status_resolver.py", "arcanum/spells/invoke/development/test_capability_status_resolver.py"]
+    },
+    {
+      "id": "INV-AUDIT-002",
+      "severity": "critical",
+      "class": "preacceptance-regression-red",
+      "finding": "The aggregate canonical suite blocks: 14 preacceptance closure tests error during fixture setup because joined_driver_digest is required but omitted; only six teardown tests pass.",
+      "evidence": ["arcanum/spells/invoke/schemas/execution-entry-consumer-rehearsal-v1.schema.json", "arcanum/spells/invoke/development/preacceptance-closure/test_preacceptance_closure.py"]
+    },
+    {
+      "id": "INV-AUDIT-003",
+      "severity": "critical",
+      "class": "plan-producer-incomplete",
+      "finding": "Plan source v1 and its compiler emit only WPRA config, a generated human Work Pack, two WPRA runs, and a source-validation receipt; they cannot emit the complete high-complexity execution-candidate family promised by the Plan contract.",
+      "evidence": ["arcanum/spells/invoke/schemas/plan-execution-source-v1.schema.json", "arcanum/spells/invoke/scripts/compile_plan_execution_source.py", "arcanum/spells/invoke/plan.md"]
+    },
+    {
+      "id": "INV-AUDIT-004",
+      "severity": "high",
+      "class": "partial-mode-producers",
+      "finding": "Define and Design have real bounded validators but no atomic final-bundle producers; Handoff has no mode producer or validator; Refresh validates material/handoff evidence but does not produce or atomically apply its promised report and patch family.",
+      "evidence": ["arcanum/spells/invoke/define.md", "arcanum/spells/invoke/design.md", "arcanum/spells/invoke/handoff.md", "arcanum/spells/invoke/refresh.md"]
+    },
+    {
+      "id": "INV-AUDIT-005",
+      "severity": "high",
+      "class": "consumer-substitution",
+      "finding": "Preacceptance names actual consumer boundaries but uses development adapters for several stages, while Invoke closeout and Task Session terminal are schema consumers rather than production transformations.",
+      "evidence": ["arcanum/spells/invoke/scripts/preacceptance_closure.py", "arcanum/spells/invoke/development/preacceptance-closure/real_consumer_rehearsal.py"]
+    },
+    {
+      "id": "INV-AUDIT-006",
+      "severity": "high",
+      "class": "request-response-version-split",
+      "finding": "Preacceptance produces request v2 and validates response v1, while the accepted-stream bridge consumes response v2 and request v3 has no selected canonical producer route.",
+      "evidence": ["arcanum/spells/invoke/scripts/preacceptance_closure.py", "arcanum/spells/invoke/scripts/validate_owner_acceptance_response.py", "arcanum/spells/invoke/scripts/accepted_stream_driver_bridge.py"]
+    },
+    {
+      "id": "INV-AUDIT-007",
+      "severity": "high",
+      "class": "capability-table-contract-drift",
+      "finding": "The mode capability table omits mandatory evidence newly required by Define, Design, Plan and Refresh contracts, so capability resolution cannot enforce the published contracts.",
+      "evidence": ["arcanum/spells/invoke/mode-capabilities.json", "arcanum/spells/invoke/README.md"]
+    },
+    {
+      "id": "INV-AUDIT-008",
+      "severity": "medium",
+      "class": "fixture-specific-self-checks",
+      "finding": "Accepted-stream schemas/runtime are increasingly frontier-generic, but self-check CLIs require historical SWU-MVLR sentinel IDs and the producer-closure matrix proves only one 14-unit fixture.",
+      "evidence": ["arcanum/spells/invoke/scripts/accepted_stream_contract.py", "arcanum/spells/invoke/scripts/accepted_stream_state.py", "arcanum/spells/invoke/contracts/accepted-stream-producer-matrix-v1.json"]
+    },
+    {
+      "id": "INV-AUDIT-009",
+      "severity": "medium",
+      "class": "status-overstatement",
+      "finding": "Root documentation labels five modes active or implemented although none currently has proven complete end-to-end production and consumer closure.",
+      "evidence": ["arcanum/spells/invoke/README.md", "arcanum/spells/invoke/mode-capabilities.json"]
+    },
+    {
+      "id": "INV-AUDIT-010",
+      "severity": "medium",
+      "class": "deferred-mode-surface",
+      "finding": "Full is unsupported and has no implementation. It can be removed, but removal must update the root router, mode table, capability schemas/fixtures, Handoff route choices, templates, generated mirrors, and compatibility expectations as one bounded change.",
+      "evidence": ["arcanum/spells/invoke/full.md", "arcanum/spells/invoke/mode-capabilities.json", "arcanum/spells/invoke/handoff.md"]
+    },
+    {
+      "id": "INV-AUDIT-011",
+      "severity": "medium",
+      "class": "publication-boundary-review",
+      "finding": "Public Invoke documentation and templates contain a named private product-family coupling; publication policy should replace it with a generic profile or explicitly document an approved public boundary.",
+      "evidence": ["arcanum/spells/invoke/README.md", "arcanum/spells/invoke/define.md", "arcanum/spells/invoke/templates/"]
+    }
+  ],
+  "passing_evidence": {
+    "define_identity_denominator": "17/17 cases pass",
+    "design_selection": "28 cases plus 27 mutations pass",
+    "material_refresh": "23/23 cases pass",
+    "capability_status_tests": "13/13 tests pass but prove the weak current contract",
+    "plan_source": "5/5 tests pass",
+    "plan_implementation_readiness": "5/5 tests pass",
+    "accepted_stream_driver_bridge": "9/9 tests pass",
+    "focused_preacceptance_companions": "13/13 tests pass",
+    "generated_payload_parity": "244 canonical/generated payload comparisons pass"
+  },
+  "recommended_repair_order": [
+    "Harden capability-status evidence admission and correct mode status claims.",
+    "Restore the red preacceptance regression and require the complete suite green.",
+    "Implement one versioned source-to-complete-Plan-package producer.",
+    "Replace schema/development consumer substitutions and select one request-response family.",
+    "Complete or downgrade Define, Design, Handoff and Refresh mode claims.",
+    "Remove deferred Full as a separate compatibility-closed slice.",
+    "Run one new generic end-to-end laboratory workflow through Refine, Invoke and downstream consumers."
+  ],
+  "effects": {"source_mutation": false, "request": false, "acceptance": false, "selection": false, "admission": false, "execution": false, "git": false, "publication": false, "deployment": false, "external_effect": false},
+  "authority_effect": "none"
+}

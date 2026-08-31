@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/work-pack-readiness-audit/report/1-0-0",
+  "title": "WorkPackReadinessAuditReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "canonical_spell_id",
+    "verdict",
+    "plan_contract_status",
+    "runtime_admission_status",
+    "receipt_semantics_status",
+    "snapshot",
+    "unit_counts",
+    "ready_frontier",
+    "selected_unit",
+    "findings",
+    "unit_results",
+    "authority_effect",
+    "mutation_ready",
+    "next_owner"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "audit_id": {"type": "string", "minLength": 1},
+    "canonical_spell_id": {"const": "work-pack-readiness-audit"},
+    "verdict": {"enum": ["pass", "flag", "block"]},
+    "plan_contract_status": {"enum": ["pass", "flag", "block"]},
+    "runtime_admission_status": {"enum": ["pass", "flag", "block"]},
+    "receipt_semantics_status": {"enum": ["pass", "block"]},
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["digest", "artifact_count", "drift"],
+      "properties": {
+        "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "artifact_count": {"type": "integer", "minimum": 1},
+        "drift": {"type": "boolean"}
+      }
+    },
+    "unit_counts": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "ready_frontier": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "selected_unit": {"type": "null"},
+    "findings": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/finding"}
+    },
+    "unit_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["unit_id", "plan_contract", "runtime_admission", "blocker_ids"],
+        "properties": {
+          "unit_id": {"type": "string", "minLength": 1},
+          "plan_contract": {"enum": ["pass", "block"]},
+          "runtime_admission": {"enum": ["pass", "block"]},
+          "blocker_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "authority_effect": {"const": "none"},
+    "mutation_ready": {"const": false},
+    "next_owner": {"const": "invoke:refresh"}
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "severity",
+        "scope",
+        "claim",
+        "evidence",
+        "target_paths"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "category": {
+          "enum": [
+            "snapshot",
+            "graph",
+            "command",
+            "path",
+            "write-algebra",
+            "runtime-admission",
+            "dependency-receipt",
+            "receipt-semantics",
+            "attempt",
+            "closeout",
+            "handoff",
+            "authority"
+          ]
+        },
+        "severity": {"enum": ["blocker", "flag"]},
+        "scope": {"type": "string", "minLength": 1},
+        "claim": {"type": "string", "minLength": 1},
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "target_paths": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

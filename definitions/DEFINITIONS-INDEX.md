@@ -15,6 +15,7 @@ Canonical source: [DEFINITIONS.md](DEFINITIONS.md)
 | DEF-ARC-DEVELOPMENT-ARTIFACT | development artifact | active | [Development Artifact](DEFINITIONS.md#def-arc-development-artifact-development-artifact) | Working evidence. It can suggest source truth, but it is not source truth by itself. |
 | DEF-ARC-CANONICAL-ARTIFACT | canonical artifact | active | [Canonical Artifact](DEFINITIONS.md#def-arc-canonical-artifact-canonical-artifact) | The place the repository agrees to treat as source truth for a specific kind of work. |
 | DEF-ARC-PROMOTION-PATCH | promotion patch | active | [Promotion Patch](DEFINITIONS.md#def-arc-promotion-patch-promotion-patch) | The careful move from "this looks right in development" to "this is now the source rule." |
+| DEF-ARC-CAPABILITY | agent capability | active | [Agent Capability](DEFINITIONS.md#def-arc-capability-agent-capability) | A named job an agent can do again, with clear inputs, outputs, limits, failure behavior, and an owner. |
 | DS-D1 | meta-type system | active | [DS-D1](DEFINITIONS.md#ds-d1-meta-type-system) | The allowed concept-type vocabulary (25 backend + 11 UI types). |
 | DS-D2 | typed relationship system | active | [DS-D2](DEFINITIONS.md#ds-d2-typed-relationship-system) | The allowed relationship verbs (29 edges), partitioned by layer role. |
 | DS-D3 | concept graph | active | [DS-D3](DEFINITIONS.md#ds-d3-concept-graph) | Every feature is a typed graph of nodes and edges. |
@@ -29,22 +30,23 @@ Canonical source: [DEFINITIONS.md](DEFINITIONS.md)
 
 | Alias | Definition ID |
 | --- | --- |
+| apply token | DEF-ARC-APPROVAL-TOKEN |
 | artifact contract | DEF-ARC-CONTRACT |
 | artifact schema | DEF-ARC-SCHEMA |
-| apply token | DEF-ARC-APPROVAL-TOKEN |
 | authoritative artifact | DEF-ARC-CANONICAL-ARTIFACT |
 | autonomous goal loop | DEF-ARC-GOAL-SPELL |
 | batch approval token | DEF-ARC-APPROVAL-TOKEN |
+| candidate artifact | DEF-ARC-DEVELOPMENT-ARTIFACT |
 | canonical patch | DEF-ARC-PROMOTION-PATCH |
 | canonical source | DEF-ARC-CANONICAL-ARTIFACT |
 | canonicalization patch | DEF-ARC-PROMOTION-PATCH |
-| candidate artifact | DEF-ARC-DEVELOPMENT-ARTIFACT |
 | DAG goal loop | DEF-ARC-GOAL-SPELL |
 | development package | DEF-ARC-DEVELOPMENT-ARTIFACT |
 | development-to-canonical patch | DEF-ARC-PROMOTION-PATCH |
 | dispatch schema | DEF-ARC-SCHEMA |
 | execution contract | DEF-ARC-CONTRACT |
 | goal loop | DEF-ARC-GOAL-SPELL |
+| governed agent capability | DEF-ARC-CAPABILITY |
 | handoff contract | DEF-ARC-CONTRACT |
 | invoke artifact | DEF-ARC-DEVELOPMENT-ARTIFACT |
 | JSON Schema | DEF-ARC-SCHEMA |
@@ -53,10 +55,11 @@ Canonical source: [DEFINITIONS.md](DEFINITIONS.md)
 | output contract | DEF-ARC-CONTRACT |
 | promoted artifact | DEF-ARC-CANONICAL-ARTIFACT |
 | promotion delta | DEF-ARC-PROMOTION-PATCH |
+| promotion token | DEF-ARC-APPROVAL-TOKEN |
 | proposed delta | DEF-ARC-STAGED-DELTA |
 | proposed ledger delta | DEF-ARC-STAGED-DELTA |
-| promotion token | DEF-ARC-APPROVAL-TOKEN |
 | refinement artifact | DEF-ARC-DEVELOPMENT-ARTIFACT |
+| reusable agent capability | DEF-ARC-CAPABILITY |
 | row-family schema | DEF-ARC-SCHEMA |
 | run artifact | DEF-ARC-DEVELOPMENT-ARTIFACT |
 | source artifact | DEF-ARC-CANONICAL-ARTIFACT |

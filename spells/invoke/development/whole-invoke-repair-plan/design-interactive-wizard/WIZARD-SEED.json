@@ -1,0 +1,244 @@
+{
+  "document_kind": "draft-design-interactive-wizard-seed",
+  "document_version": "0.2.0-draft",
+  "schema_status": "unregistered-draft",
+  "artifact_status": "seed-only-not-accepted",
+  "implementation_status": "deferred-until-current-design-producer-fix-is-freshly-validated",
+  "objective": "Keep one evidence-backed Design question visible and resumable across terminal and chat while producing a complete request for the existing stateless deterministic CLI.",
+  "architecture_boundary": {
+    "relationship_to_existing_cli": "wrapper-not-replacement",
+    "existing_cli_character": "stateless-deterministic-machine-authoring-surface",
+    "wizard_character": "persistent-human-interaction-layer",
+    "active_question_limit": 1,
+    "canonical_question_shared_by": [
+      "terminal",
+      "chat"
+    ],
+    "transcript_authority": "none",
+    "final_output": "complete-draft-request-for-existing-deterministic-cli"
+  },
+  "evidence_anchors": [
+    {
+      "path": "spells/invoke/README.md",
+      "contract": "stateless deterministic CLI and interactive one-question clarification"
+    },
+    {
+      "path": "arcana/structured-interview-kits/SKILL.md",
+      "contract": "evidence-backed one-question cadence and immediate structured decision trace"
+    },
+    {
+      "path": "spells/invoke/development/whole-invoke-repair-plan/WORK-PACK.md",
+      "contract": "current repair frontier and no-authority execution boundary"
+    },
+    {
+      "path": "spells/invoke/development/whole-invoke-repair-plan/GAP-LEDGER.md",
+      "contract": "unwaived current repair gaps"
+    },
+    {
+      "path": "spells/invoke/development/whole-invoke-repair-plan/design-process/PROCESS-DEFINITION.md",
+      "contract": "two-source separation, monotonic Design chain, and evidence ceiling"
+    }
+  ],
+  "proposed_session_records": [
+    {
+      "name": "SESSION.json",
+      "purpose": "session identity, target, format version, state, and revision"
+    },
+    {
+      "name": "QUESTIONS.jsonl",
+      "purpose": "immutable canonical question revisions"
+    },
+    {
+      "name": "DECISIONS.jsonl",
+      "purpose": "structured selected answer, rejected alternatives, rationale, and affected targets"
+    },
+    {
+      "name": "EVIDENCE.jsonl",
+      "purpose": "exact source refs, digests, observation state, and freshness classification"
+    },
+    {
+      "name": "EVIDENCE-COVERAGE.json",
+      "purpose": "declared historical-evidence boundary and denominator, total discovered-ref classification, coverage digests, evidence gaps, and bidirectional source traceability"
+    },
+    {
+      "name": "CHECKPOINT.json",
+      "purpose": "last complete session revision, evidence snapshot, active question, and next safe action"
+    },
+    {
+      "name": "DRAFT-REQUEST.json",
+      "purpose": "incrementally assembled complete request for the existing deterministic CLI"
+    },
+    {
+      "name": "EVENTS.jsonl",
+      "purpose": "non-authoritative operational events and diagnostics"
+    }
+  ],
+  "historical_evidence_coverage_contract": {
+    "record": "EVIDENCE-COVERAGE.json",
+    "completeness_claim": "complete-only-relative-to-the-declared-selected-boundary",
+    "forbidden_completeness_claims": [
+      "repository-global-completeness",
+      "whole-history-completeness",
+      "knowledge-of-evidence-outside-the-declared-boundary"
+    ],
+    "boundary_fields": [
+      "boundary_id",
+      "target_identity",
+      "source_roots",
+      "selectors",
+      "required_evidence_classes",
+      "session_or_thread_locators",
+      "time_or_revision_bounds",
+      "discovery_methods",
+      "explicit_out_of_scope_rules"
+    ],
+    "denominator_rule": "every evidence reference discovered under the declared boundary and discovery rules",
+    "classification_enum": [
+      "included",
+      "explicitly_excluded",
+      "stale",
+      "unavailable",
+      "conflicting"
+    ],
+    "classification_requirements": {
+      "included": "exact source identity and digest",
+      "explicitly_excluded": "rationale and authorizing boundary rule",
+      "stale": "newer or missing identity that prevents current use",
+      "unavailable": "failed locator or access reason and affected targets",
+      "conflicting": "all known incompatible refs and unresolved issue"
+    },
+    "coverage_digests": [
+      "boundary_digest",
+      "denominator_digest",
+      "classification_digest",
+      "traceability_digest"
+    ],
+    "traceability": {
+      "source_to_question": "every included source identifies all canonical question revisions it informed",
+      "question_to_source": "every evidence-backed canonical question identifies its source refs",
+      "source_to_draft_field": "every included source identifies all draft request fields it supports",
+      "draft_field_to_source": "every evidence-backed draft request field identifies its source refs",
+      "unused_included_source_policy": "remain visible and classified rather than silently dropped"
+    },
+    "loss_policy": {
+      "loss_classes": [
+        "conversation_compaction",
+        "missing_prior_thread",
+        "truncated_handoff",
+        "unreadable_historical_source"
+      ],
+      "required_result": "classify the expected ref as unavailable, record an evidence gap, and identify affected questions and draft fields",
+      "forbidden_result": "silent reconstruction from inference, partial summary, memory, or unbound transcript"
+    }
+  },
+  "canonical_question_fields": [
+    "question_id",
+    "session_id",
+    "revision",
+    "stage",
+    "status",
+    "prompt",
+    "context",
+    "why_it_matters",
+    "recommended_default",
+    "answer_contract",
+    "choices",
+    "evidence_refs",
+    "evidence_snapshot_digest",
+    "relevant_evidence_coverage_digests",
+    "source_to_question_trace_refs",
+    "target_json_pointers",
+    "unresolved_effect"
+  ],
+  "session_invariants": [
+    "At most one question is active.",
+    "The canonical question and checkpoint are durable before either surface renders the question.",
+    "A decision binds the exact active question ID, question revision, and expected session revision.",
+    "Terminal and chat render the same canonical question record.",
+    "Raw transcript content is never decision authority.",
+    "Evidence completeness is stated only relative to the declared selected boundary.",
+    "Every discovered denominator ref has exactly one current coverage classification.",
+    "Included sources are traceable to questions and draft fields, and evidence-backed questions and draft fields trace back to sources.",
+    "Compaction, thread loss, truncation, or unreadable history remains a visible unavailable-evidence gap and is never silently reconstructed.",
+    "Interruptions preserve the last complete checkpoint and never synthesize an answer.",
+    "A stale or conflicting answer fails closed without overwriting the canonical record.",
+    "Relevant evidence drift marks affected questions and decisions stale and invalidates dependent draft fields.",
+    "Finalize cannot manufacture owner approval or independent evidence."
+  ],
+  "state_boundaries": {
+    "resume": [
+      "verify session format and target identity",
+      "verify expected session revision",
+      "recompute and compare evidence snapshot",
+      "recompute and compare boundary, denominator, classification, and traceability digests",
+      "render the same active question or reopen the earliest stale dependency"
+    ],
+    "conflict": [
+      "reject non-active or stale question revisions",
+      "preserve competing submissions as visible conflict evidence",
+      "require explicit reconciliation for semantically different answers"
+    ],
+    "staleness": [
+      "detect relevant source identity changes",
+      "detect boundary, denominator, classification, or traceability changes",
+      "mark affected questions and decisions stale",
+      "invalidate dependent draft request fields",
+      "reopen the earliest affected question"
+    ],
+    "finalize_blocks_on": [
+      "active or unanswered consequential question",
+      "stale or conflicted required decision",
+      "changed evidence identity",
+      "incomplete draft request",
+      "missing or unclassified required evidence",
+      "unresolved evidence conflict",
+      "required evidence represented only by a compaction or thread-loss gap",
+      "incomplete source-to-question or source-to-draft-field traceability",
+      "missing required owner or independent evidence"
+    ]
+  },
+  "future_command_sketch": {
+    "status": "non-operative-unregistered-placeholders",
+    "commands": [
+      "tools/arcanum invoke design wizard start --request <draft-request> --session-root <path>",
+      "tools/arcanum invoke design wizard next --session <session-id>",
+      "tools/arcanum invoke design wizard answer --session <session-id> --question <question-id> --expected-revision <n> --answer <record>",
+      "tools/arcanum invoke design wizard status --session <session-id>",
+      "tools/arcanum invoke design wizard resume --session <session-id>",
+      "tools/arcanum invoke design wizard finalize --session <session-id> --output <complete-request>"
+    ]
+  },
+  "post_fix_resume_criteria": [
+    "Fresh passing validation covers the exact post-fix Design producer bytes and declared real consumers.",
+    "The Design process definition and deterministic CLI contracts are re-read from that validated baseline.",
+    "Changed stages, request fields, evidence identities, and authority boundaries are reconciled explicitly.",
+    "Session location, record schemas, chat bridge ownership, conflict policy, historical-evidence boundary ownership, coverage and traceability rules, privacy policy, and retention policy are decided.",
+    "A bounded implementation unit, acceptance checks, and independent review are separately authorized."
+  ],
+  "open_design_decisions": [
+    "session storage root and lifecycle",
+    "record schema ownership and versioning",
+    "chat bridge ownership and transport contract",
+    "answer normalization and explicit confirmation rules",
+    "conflict reconciliation interaction",
+    "evidence freshness dependency graph",
+    "historical-evidence boundary and denominator ownership",
+    "coverage classification, digest, and bidirectional traceability contract",
+    "privacy, retention, export, and cleanup policy",
+    "final request handoff to deterministic CLI"
+  ],
+  "non_claims": [
+    "registered schema",
+    "accepted Design artifact",
+    "implemented command",
+    "runtime behavior",
+    "Design production or admission",
+    "owner approval or independent review",
+    "registry release or runtime readiness",
+    "execution authority",
+    "publication or deployment authority",
+    "repository-global or whole-history evidence completeness"
+  ],
+  "authority_effect": "none",
+  "next_route": "deferred-design-wizard-refinement-after-current-design-producer-repair"
+}

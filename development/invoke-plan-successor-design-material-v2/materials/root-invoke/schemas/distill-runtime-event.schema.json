@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/distill-runtime-event/1-0-0",
+  "title": "DistillRuntimeEvent",
+  "description": "One append-only Invoke-side runtime evidence event. Event validity carries no verdict or mutation authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "run_id",
+    "sequence",
+    "event_type",
+    "execution_path",
+    "role",
+    "invocation_ref",
+    "payload_ref",
+    "emitted_at"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "event_id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "sequence": { "type": "integer", "minimum": 0 },
+    "event_type": {
+      "enum": ["capability_probe", "role_start", "role_result", "reconciliation", "termination"]
+    },
+    "execution_path": { "enum": ["true_subagent", "role_simulation"] },
+    "role": { "enum": [null, "proposer", "balancer"] },
+    "invocation_ref": { "type": ["string", "null"] },
+    "payload_ref": { "$ref": "#/$defs/exactArtifactRef" },
+    "emitted_at": { "type": "string", "format": "date-time" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "event_type": { "enum": ["role_start", "role_result"] } } },
+      "then": { "properties": { "role": { "enum": ["proposer", "balancer"] } } },
+      "else": {
+        "properties": {
+          "role": { "const": null },
+          "invocation_ref": { "const": null }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "execution_path": { "const": "role_simulation" } } },
+      "then": { "properties": { "invocation_ref": { "const": null } } }
+    },
+    {
+      "if": {
+        "properties": {
+          "execution_path": { "const": "true_subagent" },
+          "event_type": { "enum": ["role_start", "role_result"] }
+        }
+      },
+      "then": { "properties": { "invocation_ref": { "type": "string", "minLength": 1 } } }
+    }
+  ],
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "size_bytes": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

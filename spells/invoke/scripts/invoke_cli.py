@@ -746,6 +746,13 @@ def handle_produce(
             command.extend(["--discovery-root", discovery_root])
         for public_root in args.public_root:
             command.extend(["--public-root", public_root])
+    elif mode == "plan" and stage == "bundle":
+        source = resolve_input_option(args.source, root, "--source")
+        inputs.append(file_ref(source, root))
+        command.extend([
+            str(source), "--repo-root", str(root), "--schema-dir", str(SCHEMA_DIR),
+            "--output-dir", str(output),
+        ])
     elif mode == "design" and stage in {"input-bundle", "final-bundle"}:
         closure = resolve_input_option(args.closure, root, "--closure")
         inputs.append(file_ref(closure, root))
@@ -822,7 +829,7 @@ def handle_admit(
             repair_route="repair-installed-invoke-package",
         )
     inputs = [directory_ref(bundle, root)]
-    if mode == "define":
+    if mode in {"define", "plan"}:
         command = [
             sys.executable,
             str(runner),

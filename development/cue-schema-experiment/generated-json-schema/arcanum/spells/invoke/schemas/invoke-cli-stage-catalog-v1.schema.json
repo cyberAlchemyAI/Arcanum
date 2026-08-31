@@ -1,0 +1,448 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "const": "https://arcanum.dev/schemas/invoke/cli-stage-catalog/v1"
+        },
+        "cli_version": {
+            "const": "0.5.0"
+        },
+        "modes": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "define": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "native_skill_route": {
+                            "const": ".agents/skills/invoke/SKILL.md"
+                        },
+                        "stages": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "derived_digests": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "pointer": {
+                                                    "type": "string",
+                                                    "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"
+                                                },
+                                                "projection": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string",
+                                                                "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"
+                                                            },
+                                                            "uniqueItems": true
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "pointer",
+                                                "projection"
+                                            ]
+                                        }
+                                    },
+                                    "derived_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "pointer": {
+                                                    "type": "string",
+                                                    "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"
+                                                },
+                                                "prefix": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                                                }
+                                            },
+                                            "required": [
+                                                "pointer",
+                                                "prefix"
+                                            ]
+                                        }
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "pattern": ".*\\S.*"
+                                    },
+                                    "fixed_fields": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "pointer": {
+                                                    "type": "string",
+                                                    "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"
+                                                },
+                                                "value": true
+                                            },
+                                            "required": [
+                                                "pointer",
+                                                "value"
+                                            ]
+                                        }
+                                    },
+                                    "next_stage": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    },
+                                    "operations": {
+                                        "allOf": [
+                                            {
+                                                "prefixItems": [
+                                                    true
+                                                ]
+                                            },
+                                            {
+                                                "type": "array",
+                                                "items": {
+                                                    "enum": [
+                                                        "check",
+                                                        "author",
+                                                        "produce",
+                                                        "admit",
+                                                        "status"
+                                                    ]
+                                                },
+                                                "minItems": 1,
+                                                "uniqueItems": true
+                                            }
+                                        ]
+                                    },
+                                    "output_schema": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    },
+                                    "request_schema": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    },
+                                    "runner": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "derived_digests",
+                                    "derived_ids",
+                                    "description",
+                                    "fixed_fields",
+                                    "next_stage",
+                                    "operations",
+                                    "output_schema",
+                                    "request_schema",
+                                    "runner"
+                                ]
+                            }
+                        },
+                        "status": {
+                            "const": "active"
+                        }
+                    },
+                    "required": [
+                        "native_skill_route",
+                        "stages",
+                        "status"
+                    ]
+                },
+                "design": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "native_skill_route": {
+                            "const": ".agents/skills/invoke/SKILL.md"
+                        },
+                        "stages": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "derived_digests": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "pointer": {
+                                                    "type": "string",
+                                                    "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"
+                                                },
+                                                "projection": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string",
+                                                                "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"
+                                                            },
+                                                            "uniqueItems": true
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "pointer",
+                                                "projection"
+                                            ]
+                                        }
+                                    },
+                                    "derived_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "pointer": {
+                                                    "type": "string",
+                                                    "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"
+                                                },
+                                                "prefix": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                                                }
+                                            },
+                                            "required": [
+                                                "pointer",
+                                                "prefix"
+                                            ]
+                                        }
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "pattern": ".*\\S.*"
+                                    },
+                                    "fixed_fields": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "pointer": {
+                                                    "type": "string",
+                                                    "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"
+                                                },
+                                                "value": true
+                                            },
+                                            "required": [
+                                                "pointer",
+                                                "value"
+                                            ]
+                                        }
+                                    },
+                                    "next_stage": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    },
+                                    "operations": {
+                                        "allOf": [
+                                            {
+                                                "prefixItems": [
+                                                    true
+                                                ]
+                                            },
+                                            {
+                                                "type": "array",
+                                                "items": {
+                                                    "enum": [
+                                                        "check",
+                                                        "author",
+                                                        "produce",
+                                                        "admit",
+                                                        "status"
+                                                    ]
+                                                },
+                                                "minItems": 1,
+                                                "uniqueItems": true
+                                            }
+                                        ]
+                                    },
+                                    "output_schema": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    },
+                                    "request_schema": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    },
+                                    "runner": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "derived_digests",
+                                    "derived_ids",
+                                    "description",
+                                    "fixed_fields",
+                                    "next_stage",
+                                    "operations",
+                                    "output_schema",
+                                    "request_schema",
+                                    "runner"
+                                ]
+                            }
+                        },
+                        "status": {
+                            "const": "active"
+                        }
+                    },
+                    "required": [
+                        "native_skill_route",
+                        "stages",
+                        "status"
+                    ]
+                },
+                "handoff": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "native_skill_route": {
+                            "const": ".agents/skills/invoke/SKILL.md"
+                        },
+                        "reason": {
+                            "type": "string",
+                            "pattern": ".*\\S.*"
+                        },
+                        "status": {
+                            "const": "unsupported"
+                        }
+                    },
+                    "required": [
+                        "native_skill_route",
+                        "reason",
+                        "status"
+                    ]
+                },
+                "plan": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "native_skill_route": {
+                            "const": ".agents/skills/invoke/SKILL.md"
+                        },
+                        "reason": {
+                            "type": "string",
+                            "pattern": ".*\\S.*"
+                        },
+                        "status": {
+                            "const": "unsupported"
+                        }
+                    },
+                    "required": [
+                        "native_skill_route",
+                        "reason",
+                        "status"
+                    ]
+                },
+                "refresh": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "native_skill_route": {
+                            "const": ".agents/skills/invoke/SKILL.md"
+                        },
+                        "reason": {
+                            "type": "string",
+                            "pattern": ".*\\S.*"
+                        },
+                        "status": {
+                            "const": "unsupported"
+                        }
+                    },
+                    "required": [
+                        "native_skill_route",
+                        "reason",
+                        "status"
+                    ]
+                }
+            },
+            "required": [
+                "define",
+                "design",
+                "handoff",
+                "plan",
+                "refresh"
+            ]
+        },
+        "schema_version": {
+            "const": "invoke.cli-stage-catalog.v1"
+        }
+    },
+    "required": [
+        "$schema",
+        "cli_version",
+        "modes",
+        "schema_version"
+    ]
+}

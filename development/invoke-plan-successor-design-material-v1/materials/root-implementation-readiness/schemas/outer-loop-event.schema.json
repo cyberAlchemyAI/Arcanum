@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/implementation-readiness/outer-loop-event/1-1-0",
+  "title": "WorkPackOuterLoopEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "action_id",
+    "event_type",
+    "receipt_id",
+    "session_id",
+    "result",
+    "selected_unit",
+    "route_fingerprint",
+    "next_entry",
+    "stop_decision",
+    "blocker_code",
+    "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.1.0"},
+    "action_id": {"type": "string", "pattern": "^wpoa-[a-f0-9]{24}$"},
+    "event_type": {
+      "enum": ["selection-materialized", "owner-joined", "task-session-joined"]
+    },
+    "receipt_id": {"type": ["string", "null"], "minLength": 1},
+    "session_id": {"type": ["string", "null"], "minLength": 1},
+    "result": {"enum": ["pass", "block", "retry"]},
+    "selected_unit": {"type": ["string", "null"], "minLength": 1},
+    "route_fingerprint": {
+      "oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]
+    },
+    "next_entry": {"type": ["object", "null"]},
+    "stop_decision": {"type": ["string", "null"], "minLength": 1},
+    "blocker_code": {"type": ["string", "null"], "minLength": 1},
+    "authority_effect": {"const": "none"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"result": {"const": "retry"}},
+        "required": ["result"]
+      },
+      "then": {
+        "properties": {
+          "event_type": {"const": "owner-joined"},
+          "receipt_id": {"type": "string", "minLength": 1},
+          "session_id": {"type": "null"},
+          "selected_unit": {"type": "string", "minLength": 1},
+          "route_fingerprint": {"$ref": "#/$defs/sha256"},
+          "next_entry": {"type": "object"},
+          "stop_decision": {"type": "null"},
+          "blocker_code": {"const": "REPAIRABLE_OWNER_CONDITION"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

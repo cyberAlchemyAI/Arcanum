@@ -1,0 +1,25 @@
+{
+  "technique": {
+    "technique_id": "abstraction_level_guard",
+    "activation": {
+      "operator": "any",
+      "predicates": [
+        {"kind": "risk", "minimum": "medium"},
+        {"kind": "user_request", "technique_id": "abstraction_level_guard"}
+      ]
+    },
+    "emits": {"summary": {"kind": "scalar", "value_type": "string"}},
+    "failure_actions": [{"kind": "skip", "reason": "not applicable"}]
+  },
+  "mode": {
+    "mode_id": "compact",
+    "role_program": [{"sequence": 1, "role": "proposer", "action": "propose"}],
+    "technique_policy": [{"technique_id": "abstraction_level_guard", "state": "user_requested", "reason_required": true}],
+    "human_gate_policy": {"gates": [{"gate": "readiness"}]},
+    "pitch_off": {"enabled": false}
+  },
+  "source": {
+    "identity": {"run_id": "cue_stressor_002"},
+    "intent": {"statement": "A minimal source with optional groups omitted."}
+  }
+}

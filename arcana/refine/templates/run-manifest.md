@@ -17,6 +17,7 @@
 - Runtime handoff: `RUNTIME-HANDOFF.md`
 - Result: `RESULT.md`
 - Invoke Plan readiness binding: `INVOKE-PLAN-READINESS-BINDING.json`
+- Invoke Plan stage receipt: `stages/09-invoke-plan-stage-receipt.json` for execution-candidates
 - Stage artifacts: `stages/`
 
 ## Stage Evidence
@@ -38,6 +39,7 @@
 
 - Execution designation: `execution-candidate | non-executing`
 - Binding: `INVOKE-PLAN-READINESS-BINDING.json`
+- Stage receipt: `stages/09-invoke-plan-stage-receipt.json | n/a`
 - Validator: `scripts/validate-invoke-plan-readiness.py`
 - Result: `pass | not-applicable | block`
 - Exact acceptance: `required after candidate hashing | n/a`

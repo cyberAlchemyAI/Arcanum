@@ -42,7 +42,7 @@ Refine owns the seed, research decision, dispatch request, run manifest, evidenc
 | Capability | Required For | Evidence Required |
 | --- | --- | --- |
 | `context-builder` | Build the evidence baseline and runtime handoff context. | Context pack path or blocked coverage reason. |
-| `invoke` | Produce Define, Redefine/Design, and Plan artifacts. | Invoke artifact path, mode, capability handle, verdict, execution designation, and Implementation Readiness receipt for execution-candidate plans. |
+| `invoke` | Produce Define, Redefine/Design, and Plan artifacts. | Invoke artifact path, mode, capability handle, terminal stage receipt, exact output refs, execution designation, and the same exact Implementation Readiness receipt for execution-candidate plans. |
 | `interrogation` | Critique Define, Design, and final synthesis. | Interrogation artifact path, mode, capability handle, and pass/flag/block verdict. |
 | `distill` | Select the coherent unit and run repair/validation before planning. | Distill artifact path, mode, selected unit or repair verdict, and rejected alternatives. |
 | `dispatch-spec` | Validate the canonical stage route, technique references, gates, handoffs, subagent strategy, and observability grouping before execution. | `REFINE-DISPATCH.json`, validation status, blocked fields, cited techniques, subagent strategy, and permission state. |
@@ -177,7 +177,7 @@ Default configuration:
 - Invoke Redefine / Design: capability `invoke`; mode `design`; request explicitly frames the run as redefining/designing from prior artifacts.
 - Interrogation 2: capability `interrogation`; mode `refine-design-review`.
 - Distill Repair: capability `distill`; mode `validate` or an explicitly repair-focused request.
-- Invoke Plan: capability `invoke`; mode `plan`; output is a non-executed plan artifact. Implementation outcomes request `execution-candidate` and must include Invoke's proof-only `IMPLEMENTATION-READINESS-PREFLIGHT.json`; conceptual or research-only outcomes declare `non-executing` with a reason.
+- Invoke Plan: capability `invoke`; mode `plan`; output is an Invoke-owned plan artifact set plus `refine.invoke-plan-stage-receipt/v1`. Implementation outcomes request `execution-candidate` and require terminal/result `pass`, matching Work Pack identity/designation, exact Invoke output refs, and the same proof-only `IMPLEMENTATION-READINESS-PREFLIGHT.json` bound by `refine.invoke-plan-readiness-binding/v2`; conceptual or research-only outcomes declare `non-executing` with a reason. Historical v1 bindings cannot establish new execution-candidates.
 - Final Interrogation and Synthesis: capability `interrogation`; mode `refine-final`, followed by Refine-owned synthesis.
 
 </stage-configuration>
@@ -318,7 +318,7 @@ If no preset is supplied, use `standard`.
 12. Dispatch approved stages through the parent native runtime surface. If a durable adapter handoff is needed, record it as compatibility or handoff preparation; do not count command-interface execution as the native stage proof.
 13. Record every stage artifact, subagent receipt, or blocked reason in `RUN-MANIFEST.md` and `evidence-index.json`.
 14. Run bounded research only when selected or when `research-if-gap-appears` is triggered by a named gap and the user confirms.
-15. After Invoke Plan, validate `INVOKE-PLAN-READINESS-BINDING.json` with `scripts/validate-invoke-plan-readiness.py`. An execution-candidate blocks final implementation-ready synthesis unless the exact Invoke-owned receipt is schema-valid and byte-current. A non-executing plan must carry its reason and cannot recommend Task Session.
+15. After Invoke Plan, validate `INVOKE-PLAN-READINESS-BINDING.json` with `scripts/validate-invoke-plan-readiness.py`. An execution-candidate blocks final implementation-ready synthesis unless binding v2 points to an exact Invoke-owned stage receipt with mode `plan`, terminal/result `pass`, matching Work Pack identity/designation and output set, and the same exact schema-valid byte-current Implementation Readiness receipt. Refine/self-issued, stale, flag/block, mismatched, or v1 execution-candidate evidence blocks. A non-executing plan must carry its reason and cannot recommend Task Session.
 16. After final interrogation, synthesize `RESULT.md` from the seed, dispatch validation, subagent receipts, stage artifacts, research decision, distill repair, invoke plan, readiness binding, and final verdict; render its user-facing result in Outcome Brief -> Boundary and Next Decision -> Technical Details order.
 17. Recommend next routes only after the final synthesis; do not execute them as part of refine.
 </process>

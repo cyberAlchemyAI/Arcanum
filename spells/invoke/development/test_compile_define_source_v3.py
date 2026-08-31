@@ -12,7 +12,6 @@ import tempfile
 import unittest
 from pathlib import Path
 from typing import Any, Callable
-from unittest import mock
 
 from jsonschema import Draft202012Validator, RefResolver
 
@@ -70,51 +69,6 @@ class CompileDefineSourceV3Test(unittest.TestCase):
             (fixture.output_dir / "INVOKE-DEFINE-STAGE-RECEIPT.json").read_text(encoding="utf-8")
         )
 
-    def test_publication_dispatches_to_linux_backend(self) -> None:
-        with (
-            mock.patch.object(COMPILER_MODULE.sys, "platform", "linux"),
-            mock.patch.object(COMPILER_MODULE, "publish_linux_no_replace") as publisher,
-        ):
-            COMPILER_MODULE.publish_no_replace(Path("stage"), Path("output"))
-        publisher.assert_called_once_with(Path("stage"), Path("output"))
-
-    def test_publication_dispatches_to_macos_backend(self) -> None:
-        with (
-            mock.patch.object(COMPILER_MODULE.sys, "platform", "darwin"),
-            mock.patch.object(COMPILER_MODULE, "publish_macos_no_replace") as publisher,
-        ):
-            COMPILER_MODULE.publish_no_replace(Path("stage"), Path("output"))
-        publisher.assert_called_once_with(Path("stage"), Path("output"))
-
-    def test_publication_dispatches_to_windows_backend(self) -> None:
-        with (
-            mock.patch.object(COMPILER_MODULE.sys, "platform", "win32"),
-            mock.patch.object(COMPILER_MODULE, "publish_windows_no_replace") as publisher,
-        ):
-            COMPILER_MODULE.publish_no_replace(Path("stage"), Path("output"))
-        publisher.assert_called_once_with(Path("stage"), Path("output"))
-
-    def test_publication_fails_closed_on_unknown_platform(self) -> None:
-        with mock.patch.object(COMPILER_MODULE.sys, "platform", "unknown"):
-            with self.assertRaisesRegex(ValueError, "unavailable on unknown"):
-                COMPILER_MODULE.publish_no_replace(Path("stage"), Path("output"))
-
-    def test_linux_backend_requests_no_replace_rename(self) -> None:
-        renameat2 = mock.Mock(return_value=0)
-        libc = mock.Mock(renameat2=renameat2)
-        with mock.patch.object(COMPILER_MODULE.ctypes, "CDLL", return_value=libc):
-            COMPILER_MODULE.publish_linux_no_replace(Path("stage"), Path("output"))
-        self.assertEqual(-100, renameat2.call_args.args[0])
-        self.assertEqual(-100, renameat2.call_args.args[2])
-        self.assertEqual(1, renameat2.call_args.args[4])
-
-    def test_macos_backend_requests_exclusive_rename(self) -> None:
-        renamex_np = mock.Mock(return_value=0)
-        libc = mock.Mock(renamex_np=renamex_np)
-        with mock.patch.object(COMPILER_MODULE.ctypes, "CDLL", return_value=libc):
-            COMPILER_MODULE.publish_macos_no_replace(Path("stage"), Path("output"))
-        self.assertEqual(0x00000004, renamex_np.call_args.args[2])
-
     def test_mixed_bundle_is_exact_complete_and_schema_valid(self) -> None:
         temporary, fixture = self.fixture()
         self.addCleanup(temporary.cleanup)
@@ -144,6 +98,40 @@ class CompileDefineSourceV3Test(unittest.TestCase):
         result_schema = schemas["define-result-v3.schema.json"]
         store = {schema["$id"]: schema for schema in schemas.values()}
         Draft202012Validator(result_schema, resolver=RefResolver.from_schema(result_schema, store=store)).validate(receipt)
+
+    def test_v2_complete_obligations_compile_without_changing_bundle_shape(self) -> None:
+        temporary, fixture = self.fixture()
+        self.addCleanup(temporary.cleanup)
+        fixture.upgrade_define_to_v2()
+        result = fixture.compile()
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual(13, len(list(fixture.output_dir.iterdir())))
+        copied_context = json.loads(
+            (fixture.output_dir / "DEFINE-SEMANTIC-CONTEXT.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual("invoke.define-semantic-context.v2", copied_context["schema_version"])
+
+    def test_v2_required_relationship_must_be_materialized(self) -> None:
+        temporary, fixture = self.fixture()
+        self.addCleanup(temporary.cleanup)
+        fixture.upgrade_define_to_v2()
+        fixture.add_v2_relationship_obligation()
+        passing = fixture.compile(fixture.root / "passing")
+        self.assertEqual(0, passing.returncode, passing.stderr)
+
+        specialized = next(
+            item
+            for item in fixture.source["definition_registry"]["definitions"]
+            if item["id"] == "FIX-D2"
+        )
+        specialized["relations"] = []
+        fixture.write_source()
+        blocked = fixture.compile(fixture.root / "blocked")
+        self.assertEqual(2, blocked.returncode, blocked.stderr)
+        self.assertIn(
+            "obligation:feature-contract-depends-on-semantic-closure",
+            blocked.stderr,
+        )
 
     def test_reference_only_bundle_contains_references_without_canonical_normative_copy(self) -> None:
         temporary, fixture = self.fixture("reference-only")

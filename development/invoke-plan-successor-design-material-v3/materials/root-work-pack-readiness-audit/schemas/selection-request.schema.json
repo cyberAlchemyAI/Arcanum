@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/work-pack-readiness-audit/selection-request/1-0-0",
+  "title": "PlanSelectionRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "manifestRef",
+    "auditConfigPath",
+    "taskId",
+    "swuId",
+    "dependencyReceipts",
+    "lifecycleEligibility"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"},
+    "manifestRef": {"$ref": "#/$defs/exactArtifactRef"},
+    "auditConfigPath": {"type": "string", "minLength": 1},
+    "taskId": {"type": "string", "minLength": 1},
+    "swuId": {"type": "string", "minLength": 1},
+    "explicitConfirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["confirmed", "confirmedBy", "confirmationId"],
+      "properties": {
+        "confirmed": {"const": true},
+        "confirmedBy": {"type": "string", "minLength": 1},
+        "confirmationId": {"type": "string", "minLength": 1}
+      }
+    },
+    "executionIntentBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindingId",
+        "sourceInvocationId",
+        "workPackId",
+        "bindingDigest",
+        "authorityEffect"
+      ],
+      "properties": {
+        "bindingId": {"type": "string", "pattern": "^wpeb-[a-f0-9]{24}$"},
+        "sourceInvocationId": {"type": "string", "minLength": 1},
+        "workPackId": {"type": "string", "minLength": 1},
+        "bindingDigest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "authorityEffect": {"const": "bounded-execution-only"}
+      }
+    },
+    "dependencyReceipts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dependencyId", "artifactRef"],
+        "properties": {
+          "dependencyId": {"type": "string", "minLength": 1},
+          "artifactRef": {"$ref": "#/$defs/exactArtifactRef"}
+        }
+      }
+    },
+    "lifecycleEligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eligible", "state", "evidenceRefs"],
+      "properties": {
+        "eligible": {"const": true},
+        "state": {"type": "string", "minLength": 1},
+        "evidenceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/exactArtifactRef"}
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "required": ["executionIntentBinding"],
+      "not": {"required": ["explicitConfirmation"]}
+    },
+    {
+      "required": ["explicitConfirmation"],
+      "not": {"required": ["executionIntentBinding"]}
+    }
+  ],
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

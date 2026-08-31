@@ -1,0 +1,1867 @@
+{
+  "$schema": "https://arcanum.dev/schemas/invoke/define-source-v3-authoring-request/v1",
+  "schema_version": "invoke.cli-authoring-request.v1",
+  "mode": "define",
+  "stage": "source",
+  "document": {
+    "upstream_bindings": {
+      "semantic_context_ref": {
+        "path": "arcanum/spells/invoke/development/plan-successor-define/DEFINE-SEMANTIC-CONTEXT-8.json"
+      },
+      "semantic_closure_receipt_ref": {
+        "path": "arcanum/spells/invoke/development/plan-successor-define/DEFINE-SEMANTIC-CLOSURE-RECEIPT-8.json"
+      }
+    },
+    "template_selection": {
+      "eligible": [
+        "invoke.generic-definitions-baseline.v3"
+      ]
+    },
+    "spec_declarations": [
+      {
+        "id": "declaration:one-plan-authoring-source",
+        "title": "One authored source",
+        "statement": "The Plan successor must have one machine-readable semantic source; Work Pack, task, wave, layering, and Execution Pack files are deterministic views, while lifecycle evidence remains external."
+      },
+      {
+        "id": "declaration:admission-is-independent",
+        "title": "Admission is independent",
+        "statement": "A generated Plan bundle may establish a new artifact PASS only after a separate validator replays the source, compares every required file, and runs the declared Plan consumers."
+      },
+      {
+        "id": "declaration:readiness-remains-separate",
+        "title": "Readiness remains separate",
+        "statement": "Bundle admission does not establish Work Pack readiness, implementation readiness, owner acceptance, or execution authority; each later state requires its own exact evidence."
+      },
+      {
+        "id": "declaration:design-input-is-bound",
+        "title": "Admitted Design is bound input",
+        "statement": "Plan consumes one exact admitted Design result and may expose a missing planning detail, but it must not silently revise the Design decision while producing the Work Pack."
+      },
+      {
+        "id": "declaration:historical-plan-is-input-only",
+        "title": "Current Plan remains historical input",
+        "statement": "The Plan v1 source, compiler, and receipts remain available for validation and migration evidence but cannot establish a new successor-format PASS."
+      },
+      {
+        "id": "declaration:thin-representation-not-contract",
+        "title": "Thin representation, complete obligations",
+        "statement": "The successor may omit unnecessary split views for simple Plans, but it must preserve the complete slices, layers, waves, tasks, SWUs, validation, gates, residue, route, and closeout contracts in the semantic source."
+      }
+    ],
+    "definition_registry": {
+      "registry_id": "registry.invoke-plan-successor",
+      "title": "Invoke Plan Successor Candidate Definitions",
+      "owner_route": "definitions-governance",
+      "authority_scope": {
+        "kind": "feature",
+        "ref": "invoke-plan-successor"
+      },
+      "visibility": "public",
+      "definitions": [
+        {
+          "id": "PLAN-D5",
+          "term": "Invoke Plan",
+          "aliases": [
+            "governed implementation plan"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "An Invoke Plan is a governed translation of one admitted Design into ordered, bounded, and verifiable implementation work without revising that Design or executing the work.",
+            "formal": "For admitted Design D, Plan P preserves D's decisions while projecting a finite Work Pack, decomposition graph, evidence obligations, gates, and one typed execution-entry boundary.",
+            "operational": "Bind one admitted Design, state the implementation objective and constraints, author the Work Pack and companion artifacts, validate their composition, and hand off only the selected execution entry.",
+            "plain_language": "The checked map from an approved design to the exact work people or agents can perform next.",
+            "domain_context": "Invoke Plan sits after Define and Design and before Implementation Readiness or Task Session; it authors executable planning evidence but performs no implementation mutation."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Implementation objective, decomposition, ordering, evidence, gates, blockers, gaps, and handoff boundary."
+            ],
+            "excludes": [
+              "Redesigning admitted decisions, executing tasks, accepting product changes, and granting mutation authority."
+            ],
+            "conditions": [
+              "The Plan binds one exact admitted Design predecessor."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Plan",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/plan.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Purpose",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Plan successor source schema",
+            "Plan compiler",
+            "Plan authoring guide"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D1",
+              "type": "references"
+            },
+            {
+              "id": "PLAN-D4",
+              "type": "references"
+            }
+          ],
+          "use_carefully": "Keep the Plan's implementation decisions within the admitted Design boundary.",
+          "misuse_warning": "A Plan is not the implementation and does not authorize execution.",
+          "challenge_contract": null,
+          "promotion_boundary": "The Invoke Plan owner controls the successor Plan contract; Design ownership remains upstream.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D1",
+          "term": "Plan authoring source",
+          "aliases": [
+            "Plan semantic source",
+            "Plan source document"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "The Plan authoring source is the sole machine-readable source of Plan meaning: it owns the admitted Design binding, objective, decomposition, implementation details, validation obligations, residue, eligible routes, and closeout obligations.",
+            "formal": "For one Plan candidate P, exactly one authored source S supplies all meaning-bearing inputs; every planning view is a deterministic function of S, while admission, readiness, selection, acceptance, execution, and closeout results are external evidence bound back to S.",
+            "operational": "Bind one admitted Design, author every semantic Plan record in the canonical source, compile only necessary views into an absent bundle, and pass the unchanged source and bundle to independent admission.",
+            "plain_language": "The one JSON file where the Plan is actually written; everything readable is generated from it and every later result points back to it.",
+            "domain_context": "Invoke Plan replaces scattered author-controlled Markdown and status fields with one semantic source while retaining the current plan-execution-source v1 as migration evidence."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Admitted Design binding, objective, slices, layers, waves, tasks, SWUs, implementation details, validation, blockers, gaps, eligible routes, and closeout obligations."
+            ],
+            "excludes": [
+              "Generated views, calculated IDs and digests, gate results, readiness state, selected-unit state, owner approvals, execution results, and closeout receipts."
+            ],
+            "conditions": [
+              "The source must bind the exact admitted Design result it consumes."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Plan Authoring Source",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/schemas/plan-execution-source-v1.schema.json",
+              "visibility": "public",
+              "selector_type": "json-pointer",
+              "selector": "/properties",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/scripts/compile_plan_execution_source.py",
+              "visibility": "public",
+              "selector_type": "symbol",
+              "selector": "compile_source",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/design.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Activation Gate",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Plan successor compiler",
+            "Plan bundle admission validator"
+          ],
+          "relations": [],
+          "use_carefully": "Do not copy calculated view fields or downstream lifecycle results back into the semantic source.",
+          "misuse_warning": "A schema-valid source is not an admitted bundle, a selected execution unit, an accepted Plan, or execution authority.",
+          "challenge_contract": null,
+          "promotion_boundary": "The Invoke Plan owner must accept any later change to the canonical Plan source contract.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D6",
+          "term": "Work Pack",
+          "aliases": [
+            "Plan coordinator view"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "A Work Pack is a deterministic coordinator view of one exact Plan authoring source; it summarizes objective, decomposition, navigation, gate summary, blockers, gaps, and the next eligible boundary without owning Plan meaning or lifecycle state.",
+            "formal": "Work Pack view W = render(S,E), where S is the exact Plan semantic source and E is an optional set of independently verified status references; W may summarize but cannot introduce or alter semantic records or evidence outcomes.",
+            "operational": "Generate a compact Work Pack from the source, link useful task and wave views only when complexity requires them, and regenerate instead of editing the view.",
+            "plain_language": "The readable control panel for the Plan, generated from the real source rather than becoming another place to edit it.",
+            "domain_context": "`WORK-PACK.md` is always a generated coordinator view; simple Plans keep it compact, while larger Plans link generated wave, task, and Execution Pack views."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Objective summary, slice/task/SWU navigation, dependencies, validation summary, blockers, gaps, gate summary, and next eligible boundary."
+            ],
+            "excludes": [
+              "Authored semantic authority, duplicated task/SWU detail, readiness decisions, selected-unit state, acceptance, and execution results."
+            ],
+            "conditions": [
+              "Every displayed semantic value resolves to the same exact Plan authoring source and every displayed status resolves to independent evidence."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Work Pack",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Artifact Boundary Summary",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Plan compiler",
+            "Work Pack Readiness Audit",
+            "Implementation Readiness",
+            "Task Session"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D1",
+              "type": "depends-on"
+            },
+            {
+              "id": "PLAN-D5",
+              "type": "depends-on"
+            }
+          ],
+          "use_carefully": "Regenerate the Work Pack from source; never repair semantic or status drift by editing the view.",
+          "misuse_warning": "A readable Work Pack is not source truth, independent admission, selected-unit evidence, or execution readiness.",
+          "challenge_contract": null,
+          "promotion_boundary": "Invoke Plan owns the Work Pack renderer; the Plan source owns semantics and downstream owners own lifecycle evidence.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D7",
+          "term": "Delivery slice",
+          "aliases": [
+            "Plan delivery slice"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "A delivery slice is one coherent outcome that can be demonstrated or evaluated as part of an Invoke Plan's implementation objective.",
+            "formal": "Slice S groups one or more Plan tasks by delivered behavior; S does not determine execution order and need not be an atomic execution unit.",
+            "operational": "Group tasks under the smallest useful delivered outcome, name its acceptance evidence, and keep ordering in Plan waves.",
+            "plain_language": "A meaningful piece of the result we can show, separate from the order in which we build it.",
+            "domain_context": "Delivery slices organize Work Pack outcomes while waves organize execution and SWUs define atomic work."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "A coherent delivered behavior and its evaluation boundary."
+            ],
+            "excludes": [
+              "Execution ordering, task instructions, and SWU atomicity."
+            ],
+            "conditions": [
+              "Every slice maps to at least one Plan task."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Delivery Slice",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/plan.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Planning Artifact Boundary Policy",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Work Pack",
+            "Plan task board",
+            "validation strategy"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D5",
+              "type": "depends-on"
+            }
+          ],
+          "use_carefully": "Do not use delivery slices as a substitute for dependency-aware waves.",
+          "misuse_warning": "A slice may contain multiple independently executable units and is not automatically an SWU.",
+          "challenge_contract": null,
+          "promotion_boundary": "Invoke Plan owns slice composition within the admitted delivery boundary.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D8",
+          "term": "Implementation layer",
+          "aliases": [
+            "Plan layer"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "method-vocabulary",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "An implementation layer is one L0-L3 decision boundary that names the question being resolved, required promotion evidence, and deferred concerns.",
+            "formal": "Layer L_i constrains its mapped waves and may advance to L_(i+1) only when L_i's named evidence satisfies its gate.",
+            "operational": "State the layer question, mapped waves, required evidence, deferrals, and promotion gate without placing task instructions in the layer artifact.",
+            "plain_language": "A checkpoint in implementation where we answer one kind of question before taking on the next kind.",
+            "domain_context": "`IMPLEMENTATION-LAYERING.md` governs L0-L3 decisions and waves but does not own task status or SWU contracts."
+          },
+          "notation": [
+            {
+              "symbol": "L0-L3",
+              "meaning": "Ordered implementation decision boundaries, not completion percentages."
+            }
+          ],
+          "boundary": {
+            "includes": [
+              "Layer question, mapped waves, promotion evidence, deferrals, and gate."
+            ],
+            "excludes": [
+              "Task implementation details and execution status tracking."
+            ],
+            "conditions": [
+              "Promotion cites evidence from the prior layer."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Implementation Layer",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/plan.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Layering Policy",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Implementation layering artifact",
+            "Plan waves",
+            "Plan gates"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D5",
+              "type": "depends-on"
+            }
+          ],
+          "use_carefully": "Keep layer decisions separate from work status and task instructions.",
+          "misuse_warning": "Preference or elapsed work does not constitute layer-promotion evidence.",
+          "challenge_contract": null,
+          "promotion_boundary": "Implementation Layering owns the L0-L3 method; Invoke Plan maps its work into that method.",
+          "drift_route": "implementation-layering",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D9",
+          "term": "Plan wave",
+          "aliases": [
+            "execution-order wave"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "A Plan wave is an authored layer-aligned execution-order record that names included tasks and SWUs, dependencies, safe parallel work, entry conditions, and exit evidence; any wave file is a deterministic view of that record.",
+            "formal": "Wave V is an ordered subgraph of the Plan source whose members respect dependency and write-scope constraints and whose exit gate consumes all required evidence for V.",
+            "operational": "Author the wave record in the Plan source, validate its graph, and generate a separate wave view only when complexity makes it useful.",
+            "plain_language": "A batch of work that can proceed together after its prerequisites and before the next checkpoint.",
+            "domain_context": "The Plan source owns wave ordering and parallelization; optional wave Markdown is generated navigation, while task and SWU records retain detailed contracts."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Layer mapping, ordering, dependencies, parallel boundaries, entry gate, and exit evidence."
+            ],
+            "excludes": [
+              "Detailed algorithms and source-of-truth SWU definitions."
+            ],
+            "conditions": [
+              "Wave order must not contradict task or SWU dependencies."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Plan Wave",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Artifact Boundary Summary",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Work Pack",
+            "Execution Pack",
+            "Plan gate evaluator"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D5",
+              "type": "depends-on"
+            },
+            {
+              "id": "PLAN-D8",
+              "type": "depends-on"
+            }
+          ],
+          "use_carefully": "Parallelize only units with satisfied dependencies and non-conflicting write scopes or an explicit merge plan.",
+          "misuse_warning": "A wave view must not be edited as a competing graph or duplicate task and SWU execution contracts.",
+          "challenge_contract": null,
+          "promotion_boundary": "Invoke Plan owns wave topology; execution owners act only within an admitted selected unit.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D10",
+          "term": "Plan task",
+          "aliases": [
+            "implementation task contract"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "A Plan task is one authored implementation responsibility with an objective, dependencies, write scope, done criteria, validation, and SWU decomposition when it is not already atomic; any task file is a deterministic view of that record.",
+            "formal": "Task T belongs to at least one wave and delivery slice and owns a finite set of SWUs; every non-exempt SWU belongs to exactly one T.",
+            "operational": "Author the complete task record in the Plan source, link its context, decompose it into SWUs when needed, and generate a task view only when it materially improves execution readability.",
+            "plain_language": "One responsibility in the plan, detailed enough that its smaller work units can be assigned and checked.",
+            "domain_context": "Split `TASK-*.md` files are generated task-local views and must contain useful detail when present; they never become a second authoring surface."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Objective, slice/layer mapping, dependencies, scope, SWUs, done criteria, validation, handoff, and synchronization."
+            ],
+            "excludes": [
+              "Unrelated task state, global Plan rationale, and independently edited view state."
+            ],
+            "conditions": [
+              "The authored task record is complete and any split task view is useful, deterministic, and byte-consistent with it."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Plan Task",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Split Work-Pack Minimum Useful Content",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Work Pack",
+            "Plan wave",
+            "Task Session",
+            "runtime worker"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D5",
+              "type": "depends-on"
+            },
+            {
+              "id": "PLAN-D7",
+              "type": "references"
+            },
+            {
+              "id": "PLAN-D9",
+              "type": "references"
+            }
+          ],
+          "use_carefully": "Split a task when its behaviors can be independently verified or assigned.",
+          "misuse_warning": "A task title or outcome without implementation and validation detail is not an executable contract, and editing a task view does not repair the source.",
+          "challenge_contract": null,
+          "promotion_boundary": "Invoke Plan authors tasks; later execution owners report evidence without expanding their scope.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D11",
+          "term": "Smallest Working Unit",
+          "aliases": [
+            "SWU"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "method-vocabulary",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "A Smallest Working Unit is the smallest independently executable and reviewable change or decision owned by exactly one Plan task.",
+            "formal": "SWU U has one parent task, one primary behavior, one bounded write scope, explicit dependencies, one independently reviewable acceptance boundary, and evidence that can establish U without establishing sibling units.",
+            "operational": "Split plausible independent behaviors, then record the retained unit's objective, parent, dependencies, scope, context, done criteria, validation, owner recommendation, and handoff note.",
+            "plain_language": "The smallest piece of work that can be assigned, completed, and proved correct on its own.",
+            "domain_context": "SWUs are the preferred handoff boundary for Goal, Task Session, subagents, or a labeled local fallback."
+          },
+          "notation": [
+            {
+              "symbol": "SWU",
+              "meaning": "Smallest Working Unit."
+            }
+          ],
+          "boundary": {
+            "includes": [
+              "One primary behavior, one parent task, bounded scope, dependencies, completion criteria, validation, and handoff context."
+            ],
+            "excludes": [
+              "Multiple independently verifiable behaviors bundled for convenience."
+            ],
+            "conditions": [
+              "The unit passes split analysis and has one independently reviewable acceptance boundary."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Smallest Working Unit",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "SWU Responsibility",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Plan task",
+            "Distill",
+            "Work Pack Readiness Audit",
+            "Task Session",
+            "Goal"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D10",
+              "type": "depends-on"
+            }
+          ],
+          "use_carefully": "Atomic means independently executable and reviewable, not merely small in line count.",
+          "misuse_warning": "A task-shaped bundle of separable concerns is not an SWU.",
+          "challenge_contract": null,
+          "promotion_boundary": "Invoke Plan owns SWU contracts; execution owners may only execute the admitted selected unit.",
+          "drift_route": "distill",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D12",
+          "term": "Implementation detail contract",
+          "aliases": [
+            "task implementation specification"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "An implementation detail contract records the concrete algorithm, interfaces, data flow, inputs, outputs, edge cases, failures, constraints, and checks required to make a Plan task executable.",
+            "formal": "Detail contract I(T) is sufficient only when a worker can derive T's implementation choices and validation surface without reopening the admitted Design or inventing acceptance-critical behavior.",
+            "operational": "For algorithmic or domain work, state steps or pseudocode, interfaces, data movement, edge cases, failures, constraints, and exact validation; block when missing detail changes acceptance.",
+            "plain_language": "The practical instructions that turn a task name into work someone can implement safely.",
+            "domain_context": "Medium and high complexity Plan tasks require useful implementation-detail specifications rather than outcome-only prose."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Algorithm or steps, interfaces, data flow, inputs, outputs, edge cases, failure handling, constraints, and validation."
+            ],
+            "excludes": [
+              "New architecture decisions that belong in Design and unrelated implementation choices."
+            ],
+            "conditions": [
+              "Acceptance-critical missing detail blocks Plan handoff."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Implementation Detail Contract",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/plan.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Implementation Detail Policy",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Plan task",
+            "Smallest Working Unit",
+            "runtime worker"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D10",
+              "type": "depends-on"
+            }
+          ],
+          "use_carefully": "Escalate architecture choices back to Design instead of burying them in task detail.",
+          "misuse_warning": "Naming a component or outcome is not an implementation detail contract.",
+          "challenge_contract": null,
+          "promotion_boundary": "Invoke Plan may detail implementation within admitted Design; Design owns architecture changes.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D13",
+          "term": "Validation obligation",
+          "aliases": [
+            "Plan verification requirement"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "A validation obligation is one exact command, deterministic check, or reviewable observation required to prove a Plan unit or gate.",
+            "formal": "Obligation O binds a target unit, execution timing, validation method, expected result, and evidence output; O is satisfied only by current observed evidence, never by planned future execution.",
+            "operational": "Name the exact check, when it can run, expected result, produced receipt or observation, and the owner responsible for resolving failure.",
+            "plain_language": "The specific check and result we need before we can say a piece of the Plan worked.",
+            "domain_context": "Plan validation distinguishes pre-execution, post-produce, and post-apply checks so a validator is never required before its producing SWU runs."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Target, timing, command or review, expected result, evidence output, and failure owner."
+            ],
+            "excludes": [
+              "Unrunnable aspirations and future evidence represented as current PASS."
+            ],
+            "conditions": [
+              "The obligation's timing matches when its required artifact can exist."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Validation Obligation",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/plan.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Mode Gates",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Plan task",
+            "Smallest Working Unit",
+            "Plan wave",
+            "Plan gate"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D10",
+              "type": "references"
+            },
+            {
+              "id": "PLAN-D11",
+              "type": "references"
+            }
+          ],
+          "use_carefully": "Separate checks by lifecycle timing and evidence owner.",
+          "misuse_warning": "A planned command or fixture is not evidence that the obligation has passed.",
+          "challenge_contract": null,
+          "promotion_boundary": "The Plan declares obligations; the responsible validator or reviewer owns their results.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D14",
+          "term": "Plan gate",
+          "aliases": [
+            "Plan evidence gate"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "A Plan gate is a typed condition that consumes named evidence before a layer, wave, task, or handoff may advance.",
+            "formal": "Gate G(target,E) passes only when every required member of evidence set E is present, current, structurally valid, and semantically consistent with target; otherwise G blocks.",
+            "operational": "Bind the gate to one target, enumerate required evidence and accepted results, evaluate all reachable checks, and block on missing, stale, failed, unknown, or contradictory evidence.",
+            "plain_language": "A checkpoint that opens only when the exact proof it asks for is present and valid.",
+            "domain_context": "Plan gates control layer promotion, wave exit, Work Pack status, and execution handoff without converting confidence or prose into evidence."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Named target, required evidence, accepted outcomes, decision, and blocker causes."
+            ],
+            "excludes": [
+              "Implicit approval and generic PASS without typed evidence."
+            ],
+            "conditions": [
+              "Every positive decision cites current evidence for the bound target."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Plan Gate",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Execution Readiness Gate",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Implementation layer",
+            "Plan wave",
+            "Work Pack",
+            "Execution entry"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D13",
+              "type": "depends-on"
+            }
+          ],
+          "use_carefully": "Keep artifact admission, implementation readiness, acceptance, and execution authority in separate gates.",
+          "misuse_warning": "A gate cannot infer missing evidence from a previous lifecycle PASS.",
+          "challenge_contract": null,
+          "promotion_boundary": "Each evidence owner controls its result; Invoke Plan composes but does not manufacture it.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D15",
+          "term": "Plan blocker",
+          "aliases": [
+            "blocking Plan condition"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "A Plan blocker is a known condition that prevents a bounded Plan state, selected unit, gate, or handoff from proceeding.",
+            "formal": "Blocker B names a cause, affected boundary, responsible owner, and repair route; while B is unresolved, every dependent decision is block or not_evaluable.",
+            "operational": "Record the exact cause, affected unit or gate, causal dependencies, owner, and repair route and stop the dependent transition.",
+            "plain_language": "A specific problem that must be fixed before this part of the Plan can move forward.",
+            "domain_context": "Acceptance-critical ambiguity, missing evidence, invalid structure, dependency conflict, and unsafe execution scope are Plan blockers."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Cause, affected boundary, dependencies, owner, and repair route."
+            ],
+            "excludes": [
+              "Non-blocking future improvement and unowned vague concern."
+            ],
+            "conditions": [
+              "The condition prevents a named current transition or claim."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Plan Blocker",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/plan.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Mode Gates",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Work Pack blocker board",
+            "Plan gate",
+            "Plan handoff"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D14",
+              "type": "references"
+            }
+          ],
+          "use_carefully": "State which exact claim or transition the blocker prevents.",
+          "misuse_warning": "Do not downgrade acceptance or safety blockers to gaps to preserve a PASS.",
+          "challenge_contract": null,
+          "promotion_boundary": "The named repair owner resolves the cause; the affected gate independently re-evaluates it.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D16",
+          "term": "Plan gap",
+          "aliases": [
+            "non-blocking Plan gap"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "A Plan gap is known missing information or evidence that remains owned but does not prevent the current bounded Plan state from proceeding.",
+            "formal": "Gap H names an affected future or optional boundary, owner, repair route, and escalation condition; if H affects current acceptance or safe execution, H reclassifies as a Plan blocker.",
+            "operational": "Record the missing item, current non-blocking rationale, owner, repair route, and exact condition that would make it blocking.",
+            "plain_language": "Something still missing that we can safely carry for now, with a named owner and a clear point where it would stop us.",
+            "domain_context": "Distill flags and non-acceptance-critical detail omissions may become Plan gaps; unsafe or acceptance-critical omissions may not."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Missing item, non-blocking rationale, owner, repair route, and escalation condition."
+            ],
+            "excludes": [
+              "Conditions that already prevent acceptance, readiness, or safe execution."
+            ],
+            "conditions": [
+              "The current bounded claim remains valid without the missing item."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Plan Gap",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/plan.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Automatic Distill Validation",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Work Pack gap ledger",
+            "Distill",
+            "Plan handoff"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D15",
+              "type": "contrasts-with"
+            }
+          ],
+          "use_carefully": "Reclassify the gap immediately when it affects the current acceptance or safety boundary.",
+          "misuse_warning": "A gap label must not be used to hide a current blocker.",
+          "challenge_contract": null,
+          "promotion_boundary": "Invoke Plan records classification; the affected gate determines whether the condition blocks.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D17",
+          "term": "Execution entry",
+          "aliases": [
+            "Plan execution-entry boundary"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "An execution entry is an authored eligibility contract for handing one task or SWU class from Invoke Plan to an execution-readiness or Task Session owner; downstream selection evidence binds the exact unit for one attempt.",
+            "formal": "Entry contract C binds eligible unit identity or class, dependencies, allowed capability/mode/target/write/effect/input/receipt tuple, timing policy, evidence requirements, and stop conditions; selection receipt R later binds one exact unit and attempt to a current C.",
+            "operational": "Author eligible entry contracts in the Plan source, validate their routes and scopes, then require a separate downstream selection receipt before any exact unit is admitted.",
+            "plain_language": "The Plan defines which doorways into execution are allowed; a later receipt chooses the exact doorway and unit for this run.",
+            "domain_context": "New mutation-capable Plans default to selected-unit admission at Task Session; selected unit, live baselines, and single-use admission remain external to Plan authoring."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Eligible unit or class, dependencies, route, write and effect scope, required evidence, admission timing, and stop conditions."
+            ],
+            "excludes": [
+              "Exact selected-unit state, live baselines, single-use admission, task execution, and broader mutation authority."
+            ],
+            "conditions": [
+              "A separate downstream selection receipt binds one exact unit and current evidence before execution admission."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Execution Entry",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/plan.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Work-Pack Execution Entry Policy",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Implementation Readiness",
+            "Task Session",
+            "Continuation Router"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D11",
+              "type": "depends-on"
+            },
+            {
+              "id": "PLAN-D14",
+              "type": "depends-on"
+            }
+          ],
+          "use_carefully": "Do not store current selected-unit state in the Plan source; bind it in the downstream selection receipt.",
+          "misuse_warning": "A valid eligibility contract is not unit selection, owner acceptance, runtime admission, or permission to execute.",
+          "challenge_contract": null,
+          "promotion_boundary": "Invoke Plan authors eligibility; Implementation Readiness and Task Session own selection, live admission, and execution.",
+          "drift_route": "implementation-readiness",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D18",
+          "term": "Execution Pack",
+          "aliases": [
+            "Plan choreography view"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "An Execution Pack is a deterministic medium/high-complexity choreography view projected from one exact Plan authoring source; it orders waves and cross-task dependencies without owning Plan or lifecycle state.",
+            "formal": "Execution Pack X = render_choreography(S) for Plan source S; every referenced unit and dependency resolves unchanged to S, and X contains no independently authored selection, readiness, acceptance, or execution result.",
+            "operational": "Generate the Execution Pack directly from the Plan source when cross-task choreography is useful, show stage coverage and parallelization boundaries, and reject byte or semantic drift.",
+            "plain_language": "The coordination map for a larger Plan, showing what runs when without becoming a second set of task instructions.",
+            "domain_context": "`EXECUTION-PACK.md` is an optional generated view for medium/high complexity; the Plan source retains normative wave, task, and SWU records."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Wave order, cross-task dependencies, stage coverage, closure obligations, and parallelization boundaries."
+            ],
+            "excludes": [
+              "Authored Plan meaning, selected-unit state, readiness, acceptance, and execution results."
+            ],
+            "conditions": [
+              "Every referenced unit and dependency agrees with the exact Plan source graph."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Execution Pack",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Artifact Boundary Summary",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Work Pack coordinator",
+            "Plan wave",
+            "runtime coordinator"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D1",
+              "type": "depends-on"
+            },
+            {
+              "id": "PLAN-D9",
+              "type": "depends-on"
+            },
+            {
+              "id": "PLAN-D10",
+              "type": "references"
+            }
+          ],
+          "use_carefully": "Treat the Execution Pack as deterministic choreography, not a mutable competing plan.",
+          "misuse_warning": "Changing a task or SWU only in the Execution Pack creates contract drift and blocks handoff.",
+          "challenge_contract": null,
+          "promotion_boundary": "Invoke Plan owns the projection contract; the Plan authoring source retains all semantic authority.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D2",
+          "term": "Plan candidate bundle",
+          "aliases": [
+            "generated Plan bundle"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "A Plan candidate bundle is the complete ordered set of files deterministically generated from one exact Plan authoring source and its bound predecessor evidence.",
+            "formal": "Bundle B is a candidate for source S only when the required inventory is complete and each byte sequence in B equals the compiler projection of S under one declared producer identity.",
+            "operational": "Compile the exact source into an absent directory, verify the required inventory, and keep the stage receipt with the bundle for independent admission.",
+            "plain_language": "All Plan files produced together from one source, held for checking before anyone treats them as accepted.",
+            "domain_context": "The bundle contains the Work Pack and its supporting planning, layering, trace, and producer evidence; it is not the execution of that Work Pack."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Every required generated Plan file and the exact producer receipt for that generation."
+            ],
+            "excludes": [
+              "Independent admission, implementation readiness, owner acceptance, task execution, and product mutation."
+            ],
+            "conditions": [
+              "Every bundle member comes from the same exact Plan authoring source and producer run."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Plan Candidate Bundle",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Artifact Boundary Summary",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/plan.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Mode Output Contract",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Plan bundle admission validator",
+            "Invoke capability-status resolver"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D1",
+              "type": "depends-on"
+            }
+          ],
+          "use_carefully": "Name the exact bundle inventory and producer identity whenever this term is used as evidence.",
+          "misuse_warning": "Generation success alone does not prove that the bundle is current or accepted by its consumers.",
+          "challenge_contract": null,
+          "promotion_boundary": "Only an accepted Plan successor contract may make this inventory canonical.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D3",
+          "term": "Plan bundle admission",
+          "aliases": [
+            "Plan admission result"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "Plan bundle admission is an independent point-in-time result that replays one exact Plan authoring source, compares every required bundle member, and runs the declared structural and consumer checks for that exact candidate.",
+            "formal": "Admission A(B,S) is current only when independent replay of S yields byte-equal B, required consumer checks pass, bound predecessor evidence is current, and the admitted inventory and producer identities equal the submitted ones.",
+            "operational": "Give the validator the exact candidate bundle; it must rehash inputs, replay generation in isolation, compare every file, collect all reachable blockers, and emit a separate receipt.",
+            "plain_language": "A second checker proves that this exact generated Plan still matches its source and works with the checks that depend on it.",
+            "domain_context": "Plan admission sits after deterministic generation and before capability status. Work Pack Readiness Audit and Implementation Readiness remain separate later proofs."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Clean replay, exact inventory comparison, predecessor freshness, structural validation, and declared consumer results."
+            ],
+            "excludes": [
+              "Semantic invention, Design revision, owner acceptance, implementation readiness, execution authorization, and product mutation."
+            ],
+            "conditions": [
+              "The admission validator is a different executable identity from the Plan bundle producer."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Plan Bundle Admission",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/scripts/prepare_plan_implementation_readiness.py",
+              "visibility": "public",
+              "selector_type": "symbol",
+              "selector": "main",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/work-pack-readiness-audit/README.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Purpose",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/implementation-readiness/README.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Work-Pack Execution Outer Loop",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Invoke capability-status resolver",
+            "Plan successor design"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D2",
+              "type": "depends-on"
+            }
+          ],
+          "use_carefully": "Treat admission as stale after any bound source, predecessor, producer, schema, inventory, or consumer change.",
+          "misuse_warning": "Admission does not prove the Work Pack can execute safely and does not authorize any task.",
+          "challenge_contract": null,
+          "promotion_boundary": "The Invoke Plan owner owns the admitted inventory and consumer contract; execution owners retain later readiness decisions.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        },
+        {
+          "id": "PLAN-D4",
+          "term": "Plan evidence state",
+          "aliases": [
+            "Plan proof state"
+          ],
+          "status": "candidate",
+          "status_detail": null,
+          "deferred_as": null,
+          "supersedes": [],
+          "superseded_by": null,
+          "source_kinds": [
+            "synthesis",
+            "local-inference"
+          ],
+          "voices": {
+            "normative": "A Plan evidence state is the typed statement of the highest Plan claim established by exact current receipts, while preserving all later unproved or unauthorized states as separate fields.",
+            "formal": "For Plan P, evidence state E is a product of independent axes including authored, admitted, implementation-ready, owner-accepted, and execution-authorized; truth on one axis does not imply truth on another.",
+            "operational": "Resolve status from the exact producer and admission receipts, then attach later readiness, acceptance, and execution evidence only to their own named axes.",
+            "plain_language": "A precise answer to what we have proved about the Plan so far, without turning 'written' into 'ready' or 'approved.'",
+            "domain_context": "Invoke uses this state to hand a Plan successor into later readiness and execution workflows without collapsing artifact PASS into permission to mutate a product."
+          },
+          "notation": [],
+          "boundary": {
+            "includes": [
+              "Separate authored, admitted, readiness, acceptance, and execution-authority axes with exact receipt references."
+            ],
+            "excludes": [
+              "A single generic PASS, inferred readiness, inferred acceptance, and inferred execution permission."
+            ],
+            "conditions": [
+              "Every positive axis is supported by current evidence owned by the producer or validator responsible for that axis."
+            ]
+          },
+          "source_refs": [
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Plan Evidence State",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/README.md",
+              "visibility": "public",
+              "selector_type": "heading",
+              "selector": "Evidence Capability Contract",
+              "start_line": null,
+              "end_line": null
+            },
+            {
+              "role": "evidence",
+              "path": "arcanum/spells/invoke/scripts/capability_status_resolver.py",
+              "visibility": "public",
+              "selector_type": "symbol",
+              "selector": "resolve_capability_status",
+              "start_line": null,
+              "end_line": null
+            }
+          ],
+          "primary_consumers": [
+            "Invoke capability-status resolver",
+            "Plan handoff",
+            "Task Session admission"
+          ],
+          "relations": [
+            {
+              "id": "PLAN-D2",
+              "type": "references"
+            },
+            {
+              "id": "PLAN-D3",
+              "type": "references"
+            }
+          ],
+          "use_carefully": "Report each evidence axis and its exact receipt instead of summarizing the Plan with an untyped PASS.",
+          "misuse_warning": "Artifact-authored or bundle-admitted status must never be presented as implementation-ready, accepted, or execution-authorized.",
+          "challenge_contract": null,
+          "promotion_boundary": "Each downstream owner controls only its evidence axis; no single resolver may manufacture missing authority.",
+          "drift_route": "invoke-plan-owner",
+          "definition_version": "1",
+          "structural_schema": null
+        }
+      ],
+      "authority_bindings": []
+    },
+    "semantic_applications": [
+      {
+        "probe_id": "probe:plan-authoring-source",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D1"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "The canonical registry contains no term for the sole authored semantic source that separates Plan meaning from views and lifecycle evidence."
+      },
+      {
+        "probe_id": "probe:plan-candidate-bundle",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D2"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "The canonical registry has general artifact terms but no scoped term for the complete deterministic Plan output set."
+      },
+      {
+        "probe_id": "probe:plan-bundle-admission",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D3"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "No canonical term names an independent point-in-time replay of a generated Plan bundle while preserving later readiness gates."
+      },
+      {
+        "probe_id": "probe:plan-evidence-state",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D4"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "The current Plan documents describe separate evidence ceilings, but the scoped state that preserves them has no canonical definition."
+      },
+      {
+        "probe_id": "probe:invoke-plan",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D5"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "The canonical registry does not define the Invoke-local artifact that translates admitted Design into implementation work."
+      },
+      {
+        "probe_id": "probe:work-pack",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D6"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "No canonical definition owns the Work Pack's role as a generated coordinator view that preserves navigation without becoming source truth."
+      },
+      {
+        "probe_id": "probe:delivery-slice",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D7"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "The canonical registry has no scoped meaning for the outcome grouping used inside a Work Pack."
+      },
+      {
+        "probe_id": "probe:implementation-layer",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D8"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "No canonical definition owns the Plan-local L0-L3 decision boundary and its promotion evidence."
+      },
+      {
+        "probe_id": "probe:plan-wave",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D9"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "The canonical registry has no term for the Plan-local execution-order group governed by implementation layers."
+      },
+      {
+        "probe_id": "probe:plan-task",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D10"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "No canonical definition owns the executable responsibility and contract fields of an Invoke Plan task."
+      },
+      {
+        "probe_id": "probe:smallest-working-unit",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D11"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "The canonical registry does not define the Plan-local atomic execution and review boundary represented by an SWU."
+      },
+      {
+        "probe_id": "probe:implementation-detail-contract",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D12"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "No canonical term owns the task-level detail required when a title or outcome cannot guide implementation safely."
+      },
+      {
+        "probe_id": "probe:validation-obligation",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D13"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "The canonical registry has no Plan-local term for an exact check and the evidence it must produce."
+      },
+      {
+        "probe_id": "probe:plan-gate",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D14"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "No canonical definition owns the Plan-local evidence condition that controls advancement or handoff."
+      },
+      {
+        "probe_id": "probe:plan-blocker",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D15"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "The canonical registry has no Plan-scoped meaning for a condition that must stop current advancement."
+      },
+      {
+        "probe_id": "probe:plan-gap",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D16"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "No canonical definition distinguishes an owned non-blocking Plan gap from an acceptance-critical blocker."
+      },
+      {
+        "probe_id": "probe:execution-entry",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D17"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "The canonical registry has no term that separates authored execution eligibility from downstream exact-unit selection and admission."
+      },
+      {
+        "probe_id": "probe:execution-pack",
+        "disposition": "new-scoped-term",
+        "definition_ids": [
+          "PLAN-D18"
+        ],
+        "authority_binding_ids": [],
+        "rationale": "No canonical definition owns the Execution Pack's source-derived choreography role and exclusion of lifecycle state."
+      }
+    ],
+    "layering": {
+      "kind": "gap",
+      "rationale": "Define fixes the meanings and boundaries only; Design must decide the successor schemas, compiler, admission validator, capability-status integration, and migration layers."
+    },
+    "dispatch_trace": {
+      "techniques": [
+        "sequence",
+        "owner_boundary_check",
+        "artifact_contract_bridge",
+        "concrete_path_evidence",
+        "validation_loop"
+      ]
+    },
+    "distill": {
+      "classification": "not-required",
+      "rationale": "The eighteen terms form one bounded semantic system: the Plan and its executable parts, plus the authoring, admission, and evidence chain that governs them."
+    },
+    "identity_denominator": {
+      "classification": "not-applicable",
+      "rationale": "The candidate introduces no label-to-executable mapping or exact identity denominator beyond stable definition IDs."
+    },
+    "output_contracts": {
+      "semantic_context": "DEFINE-SEMANTIC-CONTEXT.json",
+      "semantic_closure_receipt": "DEFINE-SEMANTIC-CLOSURE-RECEIPT.json",
+      "spec": "SPEC.md",
+      "definitions": "DEFINITIONS.json",
+      "definitions_view": "DEFINITIONS.md",
+      "glossary": "GLOSSARY.md",
+      "layering": "LAYERING-GAP.md",
+      "template_selection": "TEMPLATE-SELECTION-RECEIPT.json",
+      "dispatch_trace": "DISPATCH-TRACE.json",
+      "distill": "DISTILL-RECEIPT.json",
+      "identity_denominator": "IDENTITY-DENOMINATOR-RECEIPT.json",
+      "transport": "DEFINE-TRANSPORT-REPORT.json",
+      "stage_receipt": "INVOKE-DEFINE-STAGE-RECEIPT.json"
+    },
+    "transport_policy": {
+      "append_existing_only": true,
+      "upstream_mutation": false,
+      "targets": []
+    },
+    "next_route": "design"
+  },
+  "evidence_paths": [
+    {
+      "pointer": "/upstream_bindings/semantic_context_ref",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DEFINE-SEMANTIC-CONTEXT-8.json"
+    },
+    {
+      "pointer": "/upstream_bindings/semantic_closure_receipt_ref",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DEFINE-SEMANTIC-CLOSURE-RECEIPT-8.json"
+    },
+    {
+      "pointer": "/definition_registry/definitions/1/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/1/source_refs/1",
+      "path": "arcanum/spells/invoke/schemas/plan-execution-source-v1.schema.json"
+    },
+    {
+      "pointer": "/definition_registry/definitions/1/source_refs/2",
+      "path": "arcanum/spells/invoke/scripts/compile_plan_execution_source.py"
+    },
+    {
+      "pointer": "/definition_registry/definitions/1/source_refs/3",
+      "path": "arcanum/spells/invoke/design.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/15/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/15/source_refs/1",
+      "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/15/source_refs/2",
+      "path": "arcanum/spells/invoke/plan.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/16/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/16/source_refs/1",
+      "path": "arcanum/spells/invoke/scripts/prepare_plan_implementation_readiness.py"
+    },
+    {
+      "pointer": "/definition_registry/definitions/16/source_refs/2",
+      "path": "arcanum/spells/work-pack-readiness-audit/README.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/16/source_refs/3",
+      "path": "arcanum/spells/implementation-readiness/README.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/17/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/17/source_refs/1",
+      "path": "arcanum/spells/invoke/README.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/17/source_refs/2",
+      "path": "arcanum/spells/invoke/scripts/capability_status_resolver.py"
+    },
+    {
+      "pointer": "/definition_registry/definitions/0/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/0/source_refs/1",
+      "path": "arcanum/spells/invoke/plan.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/2/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/2/source_refs/1",
+      "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/3/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/3/source_refs/1",
+      "path": "arcanum/spells/invoke/plan.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/4/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/4/source_refs/1",
+      "path": "arcanum/spells/invoke/plan.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/5/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/5/source_refs/1",
+      "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/6/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/6/source_refs/1",
+      "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/7/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/7/source_refs/1",
+      "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/8/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/8/source_refs/1",
+      "path": "arcanum/spells/invoke/plan.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/9/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/9/source_refs/1",
+      "path": "arcanum/spells/invoke/plan.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/10/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/10/source_refs/1",
+      "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/11/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/11/source_refs/1",
+      "path": "arcanum/spells/invoke/plan.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/12/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/12/source_refs/1",
+      "path": "arcanum/spells/invoke/plan.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/13/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/13/source_refs/1",
+      "path": "arcanum/spells/invoke/plan.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/14/source_refs/0",
+      "path": "arcanum/spells/invoke/development/plan-successor-define/DISCOVERY.md"
+    },
+    {
+      "pointer": "/definition_registry/definitions/14/source_refs/1",
+      "path": "arcanum/spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"
+    }
+  ]
+}

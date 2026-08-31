@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://arcanum.dev/schemas/invoke/plan-stage-receipt/v2",
+  "type": "object", "additionalProperties": false,
+  "required": ["$schema", "schema_version", "receipt_id", "source_ref", "design_binding", "producer", "outputs", "consumer_results", "result", "authority_effect", "receipt_digest"],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/plan-stage-receipt/v2"}, "schema_version": {"const": "invoke.plan-stage-receipt.v2"},
+    "receipt_id": {"type": "string"}, "source_ref": {"$ref": "#/$defs/ref"}, "design_binding": {"type": "object"},
+    "producer": {"type": "object", "required": ["identity", "path", "sha256"], "properties": {"identity": {"const": "invoke.compile-plan-bundle.v2"}, "path": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}, "additionalProperties": false},
+    "outputs": {"type": "array", "items": {"$ref": "#/$defs/ref"}}, "consumer_results": {"type": "array", "minItems": 7, "maxItems": 7},
+    "result": {"const": "pass"}, "authority_effect": {"const": "none"}, "receipt_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }, "$defs": {"ref": {"type": "object", "additionalProperties": false, "required": ["path", "sha256", "size"], "properties": {"path": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "size": {"type": "integer", "minimum": 0}}}}
+}

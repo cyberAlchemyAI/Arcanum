@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/invocation-input-closure/1-0-0",
+  "title": "TaskSessionInvocationInputClosureV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "closure_id",
+    "owner_package_roots",
+    "explicit_refs",
+    "input_refs",
+    "closure_digest"
+  ],
+  "properties": {
+    "schema_version": {"const": "task-session.invocation-input-closure.v1"},
+    "closure_id": {"$ref": "#/$defs/nonEmptyString"},
+    "owner_package_roots": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/path"}
+    },
+    "explicit_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/exactArtifactRef"}
+    },
+    "input_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/exactArtifactRef"}
+    },
+    "closure_digest": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "nonEmptyString": {"type": "string", "minLength": 1, "pattern": "^[^\\u0000]+$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$))[^\\u0000]+$"},
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

@@ -56,6 +56,16 @@ Every sigil Quality Bar should answer:
 - What failure mode would make the result unacceptable?
 - What level of completeness is enough for this sigil's tier?
 
+For governed work that can cross an owner or effect boundary, the Quality Bar must
+also name the terminal outcome contract. Component PASS receipts are insufficient:
+success requires a schema-valid terminal receipt whose exact boundary, effects,
+postimages, authority ceiling, and successor state satisfy the frozen predicate.
+
+Preacceptance checks collect every reachable blocker and preserve the first nonzero.
+Effectful execution fails fast. A task is bounded only when it is the smallest
+complete vertical slice that traverses all required consumers and can reach that
+terminal predicate.
+
 ## Example Criteria
 
 For a Formulae sigil:

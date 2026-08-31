@@ -1,0 +1,20 @@
+{
+  "schema_version": "arcanum.preacceptance-bridge-implementation-plan.v2",
+  "execution_designation": "non-executing",
+  "current_implementation_status": "block",
+  "objective": "Implement a generic candidate-finalization and acceptance-bundle bridge that closes Plan to execution without inferred fields, substituted consumers, stale IDs, or version splits.",
+  "units": [
+    {"swu_id":"PCS-001","behavior":"repair joined_driver_digest regression","scope":"derive and bind joined_driver_digest in the canonical fixture/producer and restore the complete preacceptance suite","validation":"20-test preacceptance suite PASS with no fixture setup errors","depends_on":[]},
+    {"swu_id":"PCS-002","behavior":"versioned deterministic preacceptance source extension","scope":"add only Plan-owned declarations, explicit authority owners, epoch domains, stage topology, derivation rules and candidate materialization contracts while preserving v1","validation":"schema tests plus authored-live-independent ownership negatives","depends_on":["PCS-001"]},
+    {"swu_id":"PCS-003","behavior":"atomic candidate finalization producer","scope":"consume validated Plan plus isolated produced outputs; resolve exact postimages, installed consumers and deterministic IDs; publish nothing on failure","validation":"missing/extra/write/validator/determinism/partial-publication and stale-ID negatives","depends_on":["PCS-002"]},
+    {"swu_id":"PCS-004","behavior":"real execution-entry and accepted-stream binding","scope":"derive execution-entry rehearsal and eligibility with exact driver request/receipt/join identities and completed-prefix support","validation":"joined-driver, stream, frontier, ordinal, suffix and stale-ref matrix","depends_on":["PCS-003"]},
+    {"swu_id":"PCS-005","behavior":"actual closeout and terminal transformation consumers","scope":"replace schema-only substitution with production no-effect transformations while retaining schema checks","validation":"schema-only substitution blocks; actual precloseout/Invoke/terminal/continuity chain passes","depends_on":["PCS-004"]},
+    {"swu_id":"PCS-006","behavior":"one canonical request-response family","scope":"select and implement one end-to-end request, response, validator and accepted-stream bridge version family","validation":"cross-version combinations block; selected family emits, validates and bridges exactly","depends_on":["PCS-005"]},
+    {"swu_id":"PCS-007","behavior":"atomic closure-review-adoption-request gate","scope":"atomically publish closure preparation; join independently materialized review/adoption; emit exactly one request after all PASS","validation":"review, adoption, graph, stale epoch, request-before-review and duplicate-request negatives","depends_on":["PCS-006"]},
+    {"swu_id":"PCS-008","behavior":"full cross-capability regression and Laboratory proof","scope":"run complete negative denominator twice, arbitrary frontiers/completed prefixes, installed mirror equality, one-SWU then three-SWU positive fixtures","validation":"all negatives block before request/write; positives PASS twice with no authority effects","depends_on":["PCS-007"]}
+  ],
+  "first_unit_rationale": "PCS-001 restores the already-broken canonical regression before new contracts can rely on it.",
+  "continuous_execution_policy": "A later Invoke Plan may authorize the exact eight-unit candidate as one accepted finite stream; continue only while graph, authority, baselines, versions and acceptance-critical validation remain exact.",
+  "implementation_not_started": true,
+  "authority_effect": "none"
+}

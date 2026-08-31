@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/plan-graph/v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["$schema", "schema_version", "source_id", "nodes", "edges", "next_actions", "authority_effect"],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/plan-graph/v1"},
+    "schema_version": {"const": "invoke.plan-graph.v1"},
+    "source_id": {"type": "string", "minLength": 1},
+    "nodes": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "kind", "data"], "properties": {"id": {"type": "string"}, "kind": {"type": "string"}, "data": {"type": "object"}}}},
+    "edges": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["from", "relation", "to"], "properties": {"from": {"type": "string"}, "relation": {"type": "string"}, "to": {"type": "string"}}}},
+    "next_actions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "authority_effect": {"const": "none"}
+  }
+}

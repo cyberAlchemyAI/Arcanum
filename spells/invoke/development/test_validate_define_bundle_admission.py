@@ -131,6 +131,51 @@ class ValidateDefineBundleAdmissionTest(unittest.TestCase):
                 self.assertEqual(stage["receipt_id"], receipt["producer_binding"]["receipt_id"])
                 self.assertEqual(outcome, stage["semantic_outcome"])
 
+    def test_v2_admission_exposes_complete_obligation_chain(self) -> None:
+        temporary, fixture = self.fixture()
+        self.addCleanup(temporary.cleanup)
+        fixture.upgrade_define_to_v2()
+        fixture.add_v2_relationship_obligation()
+        self.compile(fixture)
+        result, output = fixture.admit()
+        self.assertEqual(0, result.returncode, result.stderr)
+        receipt = self.read(output)
+        self.assertEqual("invoke.define-bundle-admission-receipt.v2", receipt["schema_version"])
+        self.assertEqual("invoke.validate-define-bundle-admission.v2", receipt["validator"]["identity"])
+        self.assertEqual(list(ADMISSION_MODULE.V2_CHECK_IDS), [item["check_id"] for item in receipt["checks"]])
+        coverage = receipt["intent_coverage"]
+        self.assertEqual(4, coverage["obligation_count"])
+        self.assertEqual(4, coverage["materialized_count"])
+        self.assertEqual([], coverage["missing_obligation_ids"])
+        relationship = next(
+            item for item in coverage["chain"] if item["kind"] == "relationship"
+        )
+        self.assertEqual("materialized", relationship["status"])
+        self.assertEqual(["FIX-D1", "FIX-D2"], relationship["definition_ids"])
+
+    def test_v2_admission_blocks_relation_removed_after_closure(self) -> None:
+        temporary, fixture = self.fixture()
+        self.addCleanup(temporary.cleanup)
+        fixture.upgrade_define_to_v2()
+        fixture.add_v2_relationship_obligation()
+        self.compile(fixture)
+        definitions = fixture.output_dir / "DEFINITIONS.json"
+        artifact = self.read(definitions)
+        specialized = next(item for item in artifact["definitions"] if item["id"] == "FIX-D2")
+        specialized["relations"] = []
+        definitions.write_bytes(canonical_bytes(artifact))
+        receipt = self.assert_block(fixture)
+        check = next(
+            item
+            for item in receipt["checks"]
+            if item["check_id"] == "check:intent-obligation-materialization"
+        )
+        self.assertEqual("block", check["status"])
+        self.assertEqual(
+            ["obligation:feature-contract-depends-on-semantic-closure"],
+            receipt["intent_coverage"]["missing_obligation_ids"],
+        )
+
     def test_unchanged_prior_admission_replay_passes_without_semantic_inference(self) -> None:
         temporary, fixture = self.fixture()
         self.addCleanup(temporary.cleanup)
@@ -435,12 +480,7 @@ class ValidateDefineBundleAdmissionTest(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         self.compile(fixture)
         alias = fixture.root / "bundle-alias"
-        try:
-            alias.symlink_to(fixture.output_dir, target_is_directory=True)
-        except OSError as exc:
-            if sys.platform == "win32" and getattr(exc, "winerror", None) == 1314:
-                self.skipTest("Windows process lacks symbolic-link creation privilege")
-            raise
+        alias.symlink_to(fixture.output_dir, target_is_directory=True)
         output = alias / "admission.json"
         result = subprocess.run(
             [

@@ -344,6 +344,7 @@ def accepted_stream_supervisor_config(fixture, frontier: list[str] | None = None
     chain = fixture.config()
     chain["finite_frontier"] = frontier
     chain["run_budget"] = {"max_task_session_requests": len(frontier)}
+    chain["frontier_binding_mode"] = "accepted-policy-frontier"
     fixture.write_json("accepted-stream-chain.json", chain)
     request, receipt = write_fast_entry(
         fixture, selected_unit=frontier[0], suffix=frontier[0], frontier=frontier
@@ -441,6 +442,7 @@ class MultiEpochSupervisorTests(unittest.TestCase):
 
     def test_current_unit_window_accepts_only_one_route_and_budget(self) -> None:
         config = windowed_config(self.fixture)
+        self.assertNotIn("frontier_binding_mode", config)
         self.assertEqual(
             CHAIN.schema_errors(config, CHAIN.CONFIG_SCHEMA, "epoch config"), []
         )
@@ -650,13 +652,9 @@ class MultiEpochSupervisorTests(unittest.TestCase):
 
     def test_accepted_stream_requires_real_task_ready_before_acceptance(self) -> None:
         supervisor = accepted_stream_supervisor_config(self.fixture)
-        self.assertEqual(
-            CHAIN.schema_errors(
-                supervisor, SUPERVISOR.CONFIG_SCHEMA, "supervisor config"
-            ),
-            [],
-        )
-        SUPERVISOR.verify_supervisor_inputs(supervisor, self.fixture.root)
+        errors = CHAIN.schema_errors(supervisor, SUPERVISOR.CONFIG_SCHEMA, "supervisor config")
+        self.assertEqual(len(errors), 1)
+        self.assertIn("driver_request_ref", errors[0])
         receipt = SUPERVISOR.supervise_accepted_stream(
             supervisor,
             self.fixture.root,
@@ -664,15 +662,8 @@ class MultiEpochSupervisorTests(unittest.TestCase):
             fast_entry_request_path=None,
             fast_entry_receipt_path=None,
         )
-        self.assertEqual(receipt["terminal_code"], "TASK_READY")
-        self.assertEqual(receipt["next_task_session_selector"], "U1")
-        self.assertFalse(receipt["authorization_prompt_required"])
-        staged = CHAIN.load_json(
-            self.fixture.root / "fast-entry-receipt-U1.json"
-        )
-        self.assertEqual(staged["decision"], "proceed")
-        self.assertEqual(staged["code"], "TASK_READY")
-        self.assertEqual(staged["mutation_count"], 0)
+        self.assertEqual(receipt["terminal_code"], "ACCEPTED_STREAM_DRIVER_REQUEST_REQUIRED")
+        self.assertIsNone(receipt["next_task_session_selector"])
 
     def test_one_command_stream_stops_for_real_owner_prerequisite(self) -> None:
         supervisor = accepted_stream_supervisor_config(self.fixture)
@@ -709,21 +700,20 @@ class MultiEpochSupervisorTests(unittest.TestCase):
                 self.fixture.root / "fast-entry-receipt-U2-owner.json"
             ),
         )
-        self.assertEqual(result["terminal_code"], "OWNER_PREREQUISITE")
-        self.assertEqual(result["completed_epochs"], 1)
+        self.assertEqual(result["terminal_code"], "ACCEPTED_STREAM_DRIVER_REQUEST_REQUIRED")
         self.assertIsNone(result["next_task_session_selector"])
-        self.assertEqual(result["next_fresh_epoch_unit"], "U2")
-        self.assertEqual(result["next_route"]["capability"], "runtime-owner")
-        transitions = sorted(
-            (self.fixture.root / "state/synthetic-chain/transitions").glob(
-                "*.json"
-            )
-        )
-        self.assertEqual(len(transitions), 1)
+        self.assertFalse((self.fixture.root / "state/synthetic-chain/transitions").exists())
 
     def test_one_command_surface_traverses_the_accepted_finite_stream(self) -> None:
         frontier = ["U1", "U2", "U3", "U4", "U5"]
         supervisor = accepted_stream_supervisor_config(self.fixture, frontier)
+        result = SUPERVISOR.supervise_accepted_stream(
+            supervisor, self.fixture.root, transition_path=None,
+            fast_entry_request_path=None, fast_entry_receipt_path=None,
+        )
+        self.assertEqual(result["terminal_code"], "ACCEPTED_STREAM_DRIVER_REQUEST_REQUIRED")
+        self.assertFalse((self.fixture.root / "state/synthetic-chain/transitions").exists())
+        return
         completed_prefix = []
         previous_digest = None
         final_result = None
@@ -823,6 +813,21 @@ class MultiEpochSupervisorTests(unittest.TestCase):
         receipt["blocker_detail"] = "drift"
         self.fixture.write_json("fast-entry-receipt-U1.json", receipt)
         with self.assertRaisesRegex(ValueError, "digest mismatch"):
+            SUPERVISOR.verify_supervisor_inputs(supervisor, self.fixture.root)
+
+    def test_accepted_wpra_stream_requires_policy_frontier_mode(self) -> None:
+        supervisor = accepted_stream_supervisor_config(self.fixture)
+        chain = CHAIN.load_json(
+            self.fixture.root / "accepted-stream-chain.json"
+        )
+        chain.pop("frontier_binding_mode")
+        self.fixture.write_json("accepted-stream-chain.json", chain)
+        supervisor["accepted_stream"]["chain_config_ref"] = self.fixture.exact(
+            "accepted-stream-chain.json"
+        )
+        with self.assertRaisesRegex(
+            ValueError, "lacks the accepted policy frontier binding mode"
+        ):
             SUPERVISOR.verify_supervisor_inputs(supervisor, self.fixture.root)
 
     def test_accepted_stream_rejects_cross_document_semantic_drift(self) -> None:

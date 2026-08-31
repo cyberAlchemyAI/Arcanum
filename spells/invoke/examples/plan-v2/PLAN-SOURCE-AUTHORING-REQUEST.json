@@ -1,0 +1,32 @@
+{
+  "$schema": "https://arcanum.dev/schemas/invoke/plan-source-v2-authoring-request/v1",
+  "schema_version": "invoke.plan-source-v2-authoring-request.v1",
+  "mode": "plan",
+  "stage": "source",
+  "document": {
+    "target_id": "example:plan-successor",
+    "design_binding": {
+      "stage_receipt": {"path": "arcanum/development/invoke-plan-successor-design/design-bundle-v6/INVOKE-DESIGN-STAGE-RECEIPT.json"},
+      "admission_receipt": {"path": "arcanum/development/invoke-plan-successor-design/DESIGN-BUNDLE-ADMISSION-V6.json"}
+    },
+    "summary": "Build and admit one deterministic Plan bundle without starting implementation.",
+    "mutation_capable": true,
+    "objectives": [{"id": "objective:bundle", "statement": "Produce a reproducible Plan bundle from one JSON source.", "success_criteria": ["Independent admission reproduces every path and byte."]}],
+    "slices": [{"id": "slice:producer", "objective_ids": ["objective:bundle"], "description": "Deliver source validation, graph compilation, generated views, and admission."}],
+    "layers": [{"id": "layer:contract", "name": "Machine contract", "exit_evidence": ["Source and graph schemas validate."]}],
+    "waves": [{"id": "wave:producer", "slice_ids": ["slice:producer"], "layer_id": "layer:contract", "depends_on": [], "task_ids": ["task:producer"], "gate_id": "gate:producer"}],
+    "tasks": [{"id": "task:producer", "wave_id": "wave:producer", "slice_id": "slice:producer", "title": "Compile and admit the Plan bundle", "owner": "invoke-plan-owner", "swu_ids": ["swu:producer"], "validation_ids": ["validation:replay"], "status": "ready", "next_action": "Implement the versioned producer and run deterministic replay."}],
+    "swus": [{"id": "swu:producer", "task_id": "task:producer", "description": "Validate the source, compile the normalized graph, render views, and publish one absent directory.", "write_scope": ["arcanum/spells/invoke/plan.md"], "validation_ids": ["validation:replay"]}],
+    "implementation_details": [{"id": "detail:atomic", "task_id": "task:producer", "description": "Write every output into a sibling staging directory and rename it only after all graph and consumer validations pass."}],
+    "validation_obligations": [{"id": "validation:replay", "description": "Compile the same source twice and compare ordered paths and bytes.", "command": "python3 arcanum/spells/invoke/development/test_plan_successor_v2.py", "expected_result": "Both bundles and the independent admission receipt pass."}],
+    "gates": [{"id": "gate:producer", "after_wave": "wave:producer", "required_validation_ids": ["validation:replay"], "pass_condition": "The Plan test suite and independent replay admission pass.", "failure_route": "repair-plan-producer"}],
+    "blockers": [], "gaps": [],
+    "execution_entries": [{"id": "entry:producer", "unit_id": "swu:producer", "route": "task-session", "delegated": true, "bounded_context_execution": true, "expected_receipt_ref": "arcanum/spells/invoke/development/plan-producer-receipt.json", "transient_outputs": ["arcanum/spells/invoke/development/replay-bundle.json"]}],
+    "closeout_obligations": [{"id": "closeout:tests", "description": "Preserve the stage and admission receipts with the exact bundle.", "evidence": ["PLAN-STAGE-RECEIPT.json", "PLAN-BUNDLE-ADMISSION.json"]}],
+    "consumer_inputs": {"dispatch": {"multi_owner": true, "delegated": true, "protected_scope": false, "reusable_graph": false}, "observability": {"configured": true, "observer_contract_admitted": true}}
+  },
+  "evidence_paths": [
+    {"pointer": "/design_binding/stage_receipt", "path": "arcanum/development/invoke-plan-successor-design/design-bundle-v6/INVOKE-DESIGN-STAGE-RECEIPT.json", "kind": "file"},
+    {"pointer": "/design_binding/admission_receipt", "path": "arcanum/development/invoke-plan-successor-design/DESIGN-BUNDLE-ADMISSION-V6.json", "kind": "file"}
+  ]
+}

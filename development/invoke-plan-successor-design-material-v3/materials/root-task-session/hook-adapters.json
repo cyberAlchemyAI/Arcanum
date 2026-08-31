@@ -1,0 +1,43 @@
+{
+  "schema_version": "task-session.owner-hook-adapter-manifest.v1",
+  "manifest_version": "1.0.0",
+  "adapters": [
+    {
+      "adapter_id": "task-session.synthetic-owner-hook.v1",
+      "purpose": "Validation-only adapter for the generic owner-hook protocol; it performs no live owner effect.",
+      "phase": "closeout-owner-hook",
+      "owner_identity": {
+        "capability": "task-session",
+        "subject": "synthetic-owner-hook-fixture"
+      },
+      "executable_argv": [
+        "python3",
+        "arcanum/arcana/task-session/scripts/run-owner-hook.py",
+        "--fixture-adapter"
+      ],
+      "executable_ref": {
+        "path": "arcanum/arcana/task-session/scripts/run-owner-hook.py",
+        "sha256": "9de8c101ed548f5a1f4beb4197214a5f22496315d92b173009aed23c32d7f2f2",
+        "size_bytes": 26109
+      },
+      "cwd": ".",
+      "allowed_output_prefixes": [
+        "runs/owner-hooks"
+      ],
+      "request_schema_ref": {
+        "path": "arcanum/arcana/task-session/schemas/owner-hook-request.schema.json",
+        "sha256": "6db59c5b3b42b6aefa814a85325794d0b641b40b02af0cb6c27f9403e6714177",
+        "size_bytes": 2877
+      },
+      "receipt_schema_ref": {
+        "path": "arcanum/arcana/task-session/schemas/owner-hook-receipt.schema.json",
+        "sha256": "7bf9432e2495326366f31ff055028319413b7da71680ca9320381601fc5e131a",
+        "size_bytes": 3095
+      },
+      "timeout_seconds": 1,
+      "max_output_bytes": 1024,
+      "idempotency_namespace": "task-session.synthetic-owner-hook.v1"
+    }
+  ],
+  "manifest_digest": "b48e75efee08ff8345a9e1df42dad1b6d25570c6aef3aeb79040d02a2401999a"
+}

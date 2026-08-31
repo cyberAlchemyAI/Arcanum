@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/distill/stage-receipt/2-0-0",
+  "title": "Distill v2 StageReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "run_id", "created_at", "producer_id", "producer_sha256",
+    "finalizer_id", "finalizer_sha256", "schema_inventory", "artifact_inventory",
+    "validation_state", "publication", "receipt_digest", "receipt_digest_method", "authority_effect"
+  ],
+  "properties": {
+    "schema_version": {"const": "distill.stage_receipt.v2"},
+    "run_id": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"},
+    "created_at": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/utc_timestamp"},
+    "producer_id": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"},
+    "producer_sha256": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/sha256"},
+    "finalizer_id": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"},
+    "finalizer_sha256": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/sha256"},
+    "schema_inventory": {
+      "type": "array", "minItems": 8, "maxItems": 8, "uniqueItems": true,
+      "items": {"$ref": "#/$defs/schema_inventory_entry"}
+    },
+    "artifact_inventory": {
+      "type": "array", "minItems": 4, "maxItems": 4, "uniqueItems": true,
+      "items": {"$ref": "#/$defs/artifact_inventory_entry"},
+      "allOf": [
+        {"contains": {"properties": {"role": {"const": "source"}}, "required": ["role"]}, "minContains": 1, "maxContains": 1},
+        {"contains": {"properties": {"role": {"const": "trace"}}, "required": ["role"]}, "minContains": 1, "maxContains": 1},
+        {"contains": {"properties": {"role": {"const": "result"}}, "required": ["role"]}, "minContains": 1, "maxContains": 1},
+        {"contains": {"properties": {"role": {"const": "markdown"}}, "required": ["role"]}, "minContains": 1, "maxContains": 1}
+      ]
+    },
+    "validation_state": {"$ref": "#/$defs/validation_state"},
+    "publication": {"$ref": "#/$defs/publication"},
+    "receipt_digest": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/sha256"},
+    "receipt_digest_method": {"$ref": "#/$defs/receipt_digest_method"},
+    "authority_effect": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/authority_effect_none"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"validation_state": {"properties": {"status": {"const": "pass"}}}}},
+      "then": {"properties": {"validation_state": {"properties": {"blockers": {"maxItems": 0}}}}}
+    },
+    {
+      "if": {"properties": {"validation_state": {"properties": {"status": {"const": "block"}}}}},
+      "then": {"properties": {"validation_state": {"properties": {"blockers": {"minItems": 1}}}}}
+    }
+  ],
+  "$defs": {
+    "schema_inventory_entry": {
+      "type": "object", "additionalProperties": false, "required": ["schema_kind", "schema_ref"],
+      "properties": {
+        "schema_kind": {"enum": ["common", "mode_spec", "technique_spec", "profile", "source", "trace_event", "result", "stage_receipt"]},
+        "schema_ref": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/exact_artifact_reference"}
+      }
+    },
+    "artifact_inventory_entry": {
+      "type": "object", "additionalProperties": false, "required": ["role", "artifact_ref"],
+      "properties": {
+        "role": {"enum": ["source", "trace", "result", "markdown"]},
+        "artifact_ref": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/exact_artifact_reference"}
+      }
+    },
+    "validation_state": {
+      "type": "object", "additionalProperties": false, "required": ["status", "checks", "blockers"],
+      "properties": {
+        "status": {"enum": ["pass", "block"]},
+        "checks": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/unique_non_empty_string_array"},
+        "blockers": {"type": "array", "uniqueItems": true, "items": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"}}
+      }
+    },
+    "publication": {
+      "type": "object", "additionalProperties": false, "required": ["method", "status", "output_directory"],
+      "properties": {
+        "method": {"const": "atomic_directory_rename"},
+        "status": {"enum": ["published", "rolled_back", "indeterminate_preserved"]},
+        "output_directory": {"$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/repository_relative_path"}
+      }
+    },
+    "receipt_digest_method": {
+      "type": "object", "additionalProperties": false, "required": ["algorithm", "canonicalization", "excluded_fields"],
+      "properties": {
+        "algorithm": {"const": "sha256"},
+        "canonicalization": {"const": "canonical_utf8_json"},
+        "excluded_fields": {
+          "type": "array", "prefixItems": [{"const": "receipt_digest"}], "items": false, "minItems": 1, "maxItems": 1
+        }
+      }
+    }
+  }
+}

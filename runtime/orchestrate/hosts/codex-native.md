@@ -34,6 +34,8 @@ spawn_contract:
     - fork_turns
   prepare_command: scripts/native_dispatch_driver.py prepare-spawn
   record_command: scripts/native_dispatch_driver.py record-spawn
+  record_request_binding_required: true
+  returned_agent_id_task_name_match: basename_exact
 join_contract:
   join_policy: all
   wait_operation: collaboration.wait_agent
@@ -56,6 +58,7 @@ join_contract:
 evidence_contract:
   causal_append_command: scripts/native_dispatch_driver.py append-event
   residue_append_command: scripts/native_dispatch_driver.py append-residue
+  binding_correction_command: scripts/native_dispatch_driver.py correct-agent-binding
   source_time_append_required: true
   pure_reduce_live_evidence: false
 ---
@@ -104,12 +107,25 @@ For one admitted `spawn` action, call `collaboration.spawn_agent` exactly once w
 Use `native_dispatch_driver.py prepare-spawn` to revalidate the canonical
 briefing digest and action-policy equality before persisting `action_attempted`.
 Expose the exact request only after both validation and append succeed.
-On success, use `record-spawn --agent-id` to persist
-`host_spawn_returned` with the native `agent_id` bound to the action. On error
+On success, use `record-spawn --request <prepared-request> --agent-id` to
+persist `host_spawn_returned` with the native `agent_id` bound to the action.
+The returned identifier basename must equal the prepared request's exact
+`task_name`; mismatch blocks without changing the stream. On error
 or a missing identifier, use `record-spawn --failed`, preserve any diagnostic
 text in the separate residue stream, and block without implicit retry. Waiting
 for the returned identifier belongs to the later join action, not spawn
 mapping.
+
+## Binding Correction
+
+The Codex host returns a canonical agent path whose basename is the requested
+`task_name`. An owner-accepted `agent_binding_corrected` batch may repair a
+transcription error only before same-wave terminal or gate evidence. The
+dedicated command validates the persisted action and prepared request, retains
+the original host and registration events, and appends one correction. Generic
+`append-event` is not the correction workflow. The mailbox-wide wait itself
+is not replayed; only its non-causal pending-set projection is rebuilt for
+audit.
 
 ## Join Mapping
 

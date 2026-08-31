@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/pre-execution-failure-terminal-receipt/1-0-0",
+  "title": "TaskSessionPreExecutionFailureTerminalReceiptV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_profile",
+    "result",
+    "work_pack_id",
+    "task_id",
+    "swu_id",
+    "attempt_id",
+    "request_ref",
+    "owner_acceptance_request_ref",
+    "owner_acceptance_response_ref",
+    "control_evidence_partition_ref",
+    "failure_terminal_schema_ref",
+    "invoke_owner_schema_ref",
+    "continuity_schema_ref",
+    "blocker_refs",
+    "control_refs",
+    "blocker_fingerprint",
+    "terminalization_contract_digest",
+    "phase_availability",
+    "effect_summary",
+    "successor_executed",
+    "receipt_digest"
+  ],
+  "properties": {
+    "schema_version": {"const": "task-session.pre-execution-failure-terminal-receipt.v1"},
+    "receipt_profile": {"const": "pre-execution-failure-terminalization-v1"},
+    "result": {"const": "block"},
+    "work_pack_id": {"$ref": "#/$defs/nonEmptyString"},
+    "task_id": {"$ref": "#/$defs/nonEmptyString"},
+    "swu_id": {"$ref": "#/$defs/nonEmptyString"},
+    "attempt_id": {"$ref": "#/$defs/nonEmptyString"},
+    "request_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "owner_acceptance_request_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "owner_acceptance_response_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "control_evidence_partition_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "failure_terminal_schema_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "invoke_owner_schema_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "continuity_schema_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "blocker_refs": {"$ref": "#/$defs/nonEmptyExactRefSet"},
+    "control_refs": {"$ref": "#/$defs/nonEmptyExactRefSet"},
+    "blocker_fingerprint": {"$ref": "#/$defs/sha256"},
+    "terminalization_contract_digest": {"$ref": "#/$defs/sha256"},
+    "phase_availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["admission", "ticket", "executor", "reconciliation", "commit", "successful_owner_closeout"],
+      "properties": {
+        "admission": {"const": false},
+        "ticket": {"const": false},
+        "executor": {"const": false},
+        "reconciliation": {"const": false},
+        "commit": {"const": false},
+        "successful_owner_closeout": {"const": false}
+      }
+    },
+    "effect_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["material_writes", "external_effects", "admission_consumed", "publication", "deployment"],
+      "properties": {
+        "material_writes": {"const": 0},
+        "external_effects": {"const": 0},
+        "admission_consumed": {"const": false},
+        "publication": {"const": false},
+        "deployment": {"const": false}
+      }
+    },
+    "successor_executed": {"const": false},
+    "receipt_digest": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "nonEmptyString": {"type": "string", "minLength": 1, "pattern": "^[^\\u0000]+$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$))[^\\u0000]+$"},
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "nonEmptyExactRefSet": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/exactArtifactRef"}
+    }
+  }
+}

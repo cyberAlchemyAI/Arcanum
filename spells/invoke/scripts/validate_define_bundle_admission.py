@@ -33,6 +33,7 @@ from compile_define_source_v3 import (  # noqa: E402
     OUTPUT_ORDER,
     PRODUCER_PATH,
     compile_source,
+    intent_materialization_chain,
     render_definitions,
     render_glossary,
     semantic_outcome,
@@ -51,6 +52,9 @@ from validate_define_semantic_closure import (  # noqa: E402
 SCHEMA_URI = "https://arcanum.dev/schemas/invoke/define-bundle-admission-receipt/v1"
 SCHEMA_VERSION = "invoke.define-bundle-admission-receipt.v1"
 IDENTITY = "invoke.validate-define-bundle-admission.v1"
+V2_SCHEMA_URI = "https://arcanum.dev/schemas/invoke/define-bundle-admission-receipt/v2"
+V2_SCHEMA_VERSION = "invoke.define-bundle-admission-receipt.v2"
+V2_IDENTITY = "invoke.validate-define-bundle-admission.v2"
 VALIDATOR_PATH = "arcanum/spells/invoke/scripts/validate_define_bundle_admission.py"
 PROFILE = "invoke.generic-definitions-baseline.v3"
 STAGE_RECEIPT_NAME = "INVOKE-DEFINE-STAGE-RECEIPT.json"
@@ -78,6 +82,11 @@ CHECK_IDS = (
     "check:semantic-outcome",
     "check:authority-effect",
     "check:prior-admission",
+)
+V2_CHECK_IDS = (
+    *CHECK_IDS[:6],
+    "check:intent-obligation-materialization",
+    *CHECK_IDS[6:],
 )
 
 
@@ -241,11 +250,11 @@ def recursive_changes(before: Any, after: Any, parts: tuple[str | int, ...] = ()
 
 
 class AdmissionEvaluation:
-    def __init__(self, root: Path) -> None:
+    def __init__(self, root: Path, check_ids: tuple[str, ...] = CHECK_IDS) -> None:
         self.root = root
         self.checks: dict[str, dict[str, str]] = {
             check_id: {"check_id": check_id, "status": "not_evaluable", "detail": "not evaluated"}
-            for check_id in CHECK_IDS
+            for check_id in check_ids
         }
         self.blockers: list[dict[str, Any]] = []
         self.differences: list[dict[str, Any]] = []
@@ -362,11 +371,20 @@ class AdmissionEvaluation:
 
 
 def load_schemas(
-    root: Path, schema_dir: Path
+    root: Path, schema_dir: Path, *, is_v2: bool = False
 ) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]], dict[str, Any]]:
+    schema_names = dict(SCHEMA_NAMES)
+    if is_v2:
+        schema_names.update(
+            {
+                "admission": "define-bundle-admission-receipt-v2.schema.json",
+                "context": "define-semantic-context-v2.schema.json",
+                "closure": "define-semantic-closure-receipt-v2.schema.json",
+            }
+        )
     schemas: dict[str, dict[str, Any]] = {}
     refs: dict[str, dict[str, Any]] = {}
-    for key, name in SCHEMA_NAMES.items():
+    for key, name in schema_names.items():
         path = schema_dir / name
         try:
             path = path.resolve(strict=True)
@@ -478,8 +496,19 @@ def evaluate_admission(
     if not schema_dir.is_dir() or schema_dir.is_symlink():
         raise AdmissionInvocationError("schema directory is not a regular directory")
     prior_path = confined(root, prior_admission, "prior admission", require_file=True) if prior_admission else None
-    schemas, schema_refs, store = load_schemas(root, schema_dir)
-    evaluation = AdmissionEvaluation(root)
+    bundled_context_path = bundle / "DEFINE-SEMANTIC-CONTEXT.json"
+    bundled_context_version: str | None = None
+    if bundled_context_path.is_file() and not bundled_context_path.is_symlink():
+        try:
+            bundled_context, _ = load_json(bundled_context_path, "bundled semantic context")
+            if isinstance(bundled_context, dict):
+                bundled_context_version = bundled_context.get("schema_version")
+        except ValueError:
+            pass
+    is_v2 = bundled_context_version == "invoke.define-semantic-context.v2"
+    check_ids = V2_CHECK_IDS if is_v2 else CHECK_IDS
+    schemas, schema_refs, store = load_schemas(root, schema_dir, is_v2=is_v2)
+    evaluation = AdmissionEvaluation(root, check_ids)
     bundle_relative = relative(root, bundle)
 
     entries = sorted(bundle.iterdir(), key=lambda item: item.name)
@@ -772,6 +801,86 @@ def evaluate_admission(
         evaluation.check("check:definitions", "block", "DEFINITIONS.json is missing")
         evaluation.block("DEFINE_ADMISSION_DEFINITIONS_MISSING", "DEFINITIONS.json is missing", "check:definitions")
 
+    intent_coverage: dict[str, Any] | None = None
+    if is_v2:
+        intent_check = "check:intent-obligation-materialization"
+        if source is None or context is None or artifact is None:
+            obligations = (
+                context.get("intent_coverage", {}).get("obligations", [])
+                if isinstance(context, dict)
+                else []
+            )
+            intent_coverage = {
+                "claim_ceiling": "enumerated-semantic-obligations",
+                "context_version": "invoke.define-semantic-context.v2",
+                "obligation_count": len(obligations),
+                "mapped_count": sum(bool(item.get("probe_ids")) for item in obligations),
+                "materialized_count": 0,
+                "out_of_scope_count": sum(
+                    item.get("status") == "out-of-scope" for item in obligations
+                ),
+                "missing_obligation_ids": [
+                    item["obligation_id"]
+                    for item in obligations
+                    if item.get("status") == "covered"
+                ],
+                "chain": [
+                    {
+                        "obligation_id": item["obligation_id"],
+                        "kind": item["kind"],
+                        "probe_ids": item.get("probe_ids", []),
+                        "definition_ids": [],
+                        "authority_binding_ids": [],
+                        "status": (
+                            "out-of-scope"
+                            if item.get("status") == "out-of-scope"
+                            else "not_evaluable"
+                        ),
+                    }
+                    for item in obligations
+                ],
+            }
+            evaluation.check(
+                intent_check,
+                "not_evaluable",
+                "v2 source, context, or DEFINITIONS.json is unavailable",
+            )
+        else:
+            material_source = copy.deepcopy(source)
+            material_source["definition_registry"]["definitions"] = copy.deepcopy(
+                artifact["definitions"]
+            )
+            material_source["definition_registry"]["authority_bindings"] = copy.deepcopy(
+                artifact["authority_bindings"]
+            )
+            material_source["semantic_applications"] = copy.deepcopy(
+                artifact["semantic_applications"]
+            )
+            intent_coverage = intent_materialization_chain(material_source, context)
+            if intent_coverage is None:
+                evaluation.check(intent_check, "not_evaluable", "context is not v2")
+            elif intent_coverage["missing_obligation_ids"]:
+                missing = ", ".join(intent_coverage["missing_obligation_ids"])
+                evaluation.check(
+                    intent_check,
+                    "block",
+                    f"semantic intent obligations are not materialized: {missing}",
+                )
+                evaluation.block(
+                    "DEFINE_ADMISSION_INTENT_MATERIALIZATION",
+                    f"semantic intent obligations are not materialized: {missing}",
+                    intent_check,
+                )
+            else:
+                evaluation.check(
+                    intent_check,
+                    "pass",
+                    (
+                        "all independently enumerated semantic obligations terminate "
+                        "in definitions, authority bindings, relations, or evidenced exclusions"
+                    ),
+                )
+
     if artifact is not None and (bundle / "DEFINITIONS.md") in regular and (bundle / "GLOSSARY.md") in regular:
         view_ok = (
             render_definitions(artifact) == (bundle / "DEFINITIONS.md").read_bytes()
@@ -974,11 +1083,11 @@ def evaluate_admission(
     stage_ref = nullable_exact_ref(root, stage_path)
     bundle_digest = inventory_digest(ordered_inventory)
     receipt: dict[str, Any] = {
-        "$schema": SCHEMA_URI,
-        "schema_version": SCHEMA_VERSION,
+        "$schema": V2_SCHEMA_URI if is_v2 else SCHEMA_URI,
+        "schema_version": V2_SCHEMA_VERSION if is_v2 else SCHEMA_VERSION,
         "receipt_id": "admission:pending",
         "validator": {
-            "identity": IDENTITY,
+            "identity": V2_IDENTITY if is_v2 else IDENTITY,
             "path": VALIDATOR_PATH,
             "sha256": sha256_bytes(Path(__file__).read_bytes()),
         },
@@ -1008,7 +1117,8 @@ def evaluate_admission(
             "summary": summary,
             "differences": evaluation.differences,
         },
-        "checks": [evaluation.checks[check_id] for check_id in CHECK_IDS],
+        **({"intent_coverage": intent_coverage} if intent_coverage is not None else {}),
+        "checks": [evaluation.checks[check_id] for check_id in check_ids],
         "blockers": sorted(evaluation.blockers, key=lambda item: (item["code"], item["message"])),
         "result": result,
         "authority_effect": "none",

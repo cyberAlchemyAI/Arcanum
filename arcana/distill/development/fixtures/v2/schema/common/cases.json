@@ -1,0 +1,44 @@
+{
+  "schema_version": "distill.schema_fixture_manifest.v2",
+  "manifest_id": "distill.common.schema_fixtures.v2",
+  "artifact": "common",
+  "schema_path": "arcana/distill/schemas/distill-common-v2.schema.json",
+  "schema_id": "https://arcanum.dev/schemas/distill/common/2-0-0",
+  "positive_fixture": "valid-common-primitives.json",
+  "expected_case_count": 27,
+  "groups": [
+    {"id": "common-positive", "kind": "canonical_positive"},
+    {
+      "id": "common-policy-mutations",
+      "kind": "generated_policy_mutations",
+      "mutations": [
+        {"id": "common-wrong-type", "operation": "set", "pointer": "/canonical_identifier", "value": 1, "expected_blocker": "E_WRONG_TYPE"},
+        {"id": "common-identifier-pattern", "operation": "set", "pointer": "/canonical_identifier", "value": "Bad_id", "expected_blocker": "E_PATTERN"},
+        {"id": "common-state-field-pattern", "operation": "set", "pointer": "/state_field_reference", "value": "RunFrame.target_context", "expected_blocker": "E_PATTERN"},
+        {"id": "common-array-empty", "operation": "set", "pointer": "/unique_non_empty_string_array", "value": [], "expected_blocker": "E_MIN_ITEMS"},
+        {"id": "common-canonical-array-pattern", "operation": "set", "pointer": "/unique_canonical_identifier_array", "value": ["not-canonical"], "expected_blocker": "E_PATTERN"},
+        {"id": "common-canonical-array-duplicate", "operation": "set", "pointer": "/unique_canonical_identifier_array", "value": ["a", "a"], "expected_blocker": "E_NOT_UNIQUE"},
+        {"id": "common-sha-pattern", "operation": "set", "pointer": "/sha256", "value": "abc", "expected_blocker": "E_PATTERN"},
+        {"id": "common-ref-missing-size", "operation": "remove", "pointer": "/exact_artifact_reference/size_bytes", "expected_blocker": "E_REQUIRED_PROPERTY"},
+        {"id": "common-positive-zero", "operation": "set", "pointer": "/positive_integer", "value": 0, "expected_blocker": "E_MINIMUM"},
+        {"id": "common-non-negative-negative", "operation": "set", "pointer": "/non_negative_integer", "value": -1, "expected_blocker": "E_MINIMUM"},
+        {"id": "common-bounded-missing-maximum", "operation": "remove", "pointer": "/bounded_count/maximum", "expected_blocker": "E_REQUIRED_PROPERTY"},
+        {"id": "common-bounded-order", "operation": "set", "pointer": "/bounded_count/default", "value": 4, "expected_blocker": "E_BOUNDED_COUNT_ORDER"},
+        {"id": "common-authority-const", "operation": "set", "pointer": "/authority_effect_none", "value": "implementation", "expected_blocker": "E_ENUM_OR_CONST"},
+        {"id": "common-timestamp-pattern", "operation": "set", "pointer": "/utc_timestamp", "value": "2026-08-28T00:00:00+00:00", "expected_blocker": "E_PATTERN"},
+        {"id": "common-timestamp-calendar", "operation": "set", "pointer": "/utc_timestamp", "value": "2025-02-29T00:00:00Z", "expected_blocker": "E_UTC_TIMESTAMP_CALENDAR"},
+        {"id": "common-json-scalar-object", "operation": "set", "pointer": "/json_scalar", "value": {"not": "scalar"}, "expected_blocker": "E_WRONG_TYPE"},
+        {"id": "common-structured-level-one-depth", "operation": "set", "pointer": "/structured_value_level_1", "value": {"field": {"nested": true}}, "expected_blocker": "E_WRONG_TYPE"},
+        {"id": "common-structured-level-two-depth", "operation": "set", "pointer": "/structured_value_level_2", "value": {"field": [{"nested": {"too": "deep"}}]}, "expected_blocker": "E_WRONG_TYPE"},
+        {"id": "common-path-absolute", "operation": "set", "pointer": "/repository_relative_path", "value": "/tmp/x", "expected_blocker": "E_PATH_ABSOLUTE"},
+        {"id": "common-path-traversal", "operation": "set", "pointer": "/repository_relative_path", "value": "../x", "expected_blocker": "E_PATH_TRAVERSAL"},
+        {"id": "common-path-uri", "operation": "set", "pointer": "/repository_relative_path", "value": "https://example.invalid/x", "expected_blocker": "E_PATH_URI"},
+        {"id": "common-path-nul", "operation": "set", "pointer": "/repository_relative_path", "value": "a\u0000b", "expected_blocker": "E_PATH_NUL"},
+        {"id": "common-path-empty-segment", "operation": "set", "pointer": "/repository_relative_path", "value": "a//b", "expected_blocker": "E_PATH_EMPTY_SEGMENT"},
+        {"id": "common-path-dot-segment", "operation": "set", "pointer": "/repository_relative_path", "value": "a/./b", "expected_blocker": "E_PATH_DOT_SEGMENT"},
+        {"id": "common-semantic-coupling", "operation": "add_schema_definition", "pointer": "/$defs/verdict", "value": {"enum": ["pass", "flag", "block"]}, "expected_blocker": "E_COMMON_SEMANTIC_COUPLING"},
+        {"id": "common-schema-identity", "operation": "set_schema", "pointer": "/$id", "value": "https://example.invalid/common", "expected_blocker": "E_SCHEMA_IDENTITY"}
+      ]
+    }
+  ]
+}

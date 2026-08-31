@@ -212,8 +212,10 @@ class ChainFixture:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
 
-    def current_v2_config(self) -> dict[str, object]:
-        frontier = ["U1", "U2"]
+    def current_v2_config(
+        self, frontier: list[str] | None = None
+    ) -> dict[str, object]:
+        frontier = list(frontier or ["U1", "U2"])
         units = []
         execution_bindings = []
         routes = []
@@ -368,7 +370,11 @@ class ChainFixture:
             "closeout_bindings": closeout_bindings,
         }
         self.write_json("audit-config.json", audit_config)
-        unit_digests = {"U1": "a" * 64, "U2": "b" * 64}
+        digest_symbols = "abcdef0123456789"
+        unit_digests = {
+            unit_id: digest_symbols[index] * 64
+            for index, unit_id in enumerate(frontier)
+        }
         manifest = {
             "schema_version": "1.0.0",
             "manifest_id": f"psm-{self.projection_digest[:24]}",
@@ -484,6 +490,67 @@ class ChainFixture:
             "initial_selection_request_ref": self.exact("selection-request.json"),
             "initial_selection_receipt_ref": self.exact("selection-receipt.json"),
         }
+        return config
+
+    def accepted_policy_window_config(
+        self, policy_frontier: list[str] | None = None
+    ) -> dict[str, object]:
+        """Expose only U1 as ready while retaining the complete accepted policy."""
+        config = self.current_v2_config(policy_frontier)
+        manifest = json.loads(
+            (self.root / "manifest-current.json").read_text(encoding="utf-8")
+        )
+        manifest["ready_frontier"] = ["U1"]
+        self.write_json("manifest-current.json", manifest)
+
+        report = json.loads(
+            (self.root / "report-current.json").read_text(encoding="utf-8")
+        )
+        report["manifest"] = manifest
+        self.write_json("report-current.json", report)
+
+        handoff = json.loads(
+            (self.root / "handoff.json").read_text(encoding="utf-8")
+        )
+        handoff["ready_frontier"] = ["U1"]
+        self.write_json("handoff.json", handoff)
+
+        request = json.loads(
+            (self.root / "selection-request.json").read_text(encoding="utf-8")
+        )
+        request["manifestRef"] = self.exact("manifest-current.json")
+        self.write_json("selection-request.json", request)
+
+        selection = json.loads(
+            (self.root / "selection-receipt.json").read_text(encoding="utf-8")
+        )
+        selection["manifestDigest"] = self.exact("manifest-current.json")[
+            "sha256"
+        ]
+        selection["requestDigest"] = CHAIN.digest(request)
+        self.write_json("selection-receipt.json", selection)
+
+        approval = json.loads(
+            (self.root / "approval-current.json").read_text(encoding="utf-8")
+        )
+        approval["manifest_ref"] = self.exact("manifest-current.json")
+        self.write_json("approval-current.json", approval)
+
+        config["manifest_ref"] = self.exact("manifest-current.json")
+        config["audit_report_ref"] = self.exact("report-current.json")
+        config["approved_epoch"][
+            "decision_gate_approval_receipt_ref"
+        ] = self.exact("approval-current.json")
+        config["wpra_v2"]["selection_handoff_ref"] = self.exact(
+            "handoff.json"
+        )
+        config["wpra_v2"]["initial_selection_request_ref"] = self.exact(
+            "selection-request.json"
+        )
+        config["wpra_v2"]["initial_selection_receipt_ref"] = self.exact(
+            "selection-receipt.json"
+        )
+        config["frontier_binding_mode"] = "accepted-policy-frontier"
         return config
 
     def refresh_nested_v2_refs(
@@ -1113,6 +1180,45 @@ class ApprovedEpochChainTests(unittest.TestCase):
         self.assertIn("byte_baselines", binding)
         self.assertIn("gate_contract", binding)
 
+    def test_accepted_policy_frontier_outlives_current_ready_window(self) -> None:
+        policy_frontier = [f"U{index}" for index in range(1, 10)]
+        config = self.fixture.accepted_policy_window_config(policy_frontier)
+        errors = CHAIN.schema_errors(config, CHAIN.CONFIG_SCHEMA, "chain config")
+        self.assertEqual(errors, [])
+        manifest, receipt = CHAIN.preflight(config, self.fixture.root)
+        self.assertIsNotNone(manifest)
+        self.assertEqual(receipt["terminal_code"], "CHAIN_PREFLIGHT_READY")
+        self.assertEqual(receipt["next_task_session_selector"], "U1")
+        self.assertEqual(manifest["ready_frontier"], ["U1"])
+        self.assertEqual(
+            manifest["canonical_plan_graph"]["finite_frontier"],
+            policy_frontier,
+        )
+        self.assertEqual(
+            [item["unit_id"] for item in manifest["execution_bindings"]],
+            policy_frontier,
+        )
+        self.assertEqual(
+            [item["unit_id"] for item in manifest["closeout_bindings"]],
+            policy_frontier,
+        )
+
+    def test_ready_window_does_not_expand_a_manual_chain(self) -> None:
+        config = self.fixture.accepted_policy_window_config()
+        config.pop("frontier_binding_mode")
+        manifest, receipt = CHAIN.preflight(config, self.fixture.root)
+        self.assertIsNone(manifest)
+        self.assertEqual(receipt["terminal_code"], "MANIFEST_SHAPE_INVALID")
+        self.assertIn("outside the policy frontier", receipt["claim"])
+
+    def test_accepted_policy_rejects_a_non_prefix_ready_window(self) -> None:
+        config = self.fixture.accepted_policy_window_config()
+        config["finite_frontier"] = ["U2", "U1"]
+        manifest, receipt = CHAIN.preflight(config, self.fixture.root)
+        self.assertIsNone(manifest)
+        self.assertEqual(receipt["terminal_code"], "MANIFEST_SHAPE_INVALID")
+        self.assertIn("not an ordered prefix", receipt["claim"])
+
     def test_nested_selected_unit_projection_binds_without_inline_closeout(self) -> None:
         config = self.fixture.nested_selected_unit_v2_config()
         errors = CHAIN.schema_errors(config, CHAIN.CONFIG_SCHEMA, "chain config")
@@ -1439,6 +1545,7 @@ class ApprovedEpochChainTests(unittest.TestCase):
             "task_id": "TASK-2",
             "swu_id": "SWU-2",
             "strict_coverage": True,
+            "admission_schema_version": "1.2.0",
             "execution_contract": {
                 "writeProfile": "execution-output-only",
                 "materialWrites": [],

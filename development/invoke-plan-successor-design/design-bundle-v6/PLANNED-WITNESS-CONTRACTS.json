@@ -1,0 +1,138 @@
+{
+  "$schema": "https://arcanum.dev/schemas/invoke/design-planned-witness-contracts/v1",
+  "authority_effect": "none",
+  "contract_set_digest": "614733353eab45d7f4e9b69aa905861853b7c24d44dcca46c013d6a1ddcd0270",
+  "contract_set_id": "design-source:dac387abcbf5607fe1e9:candidate:v2:planned-witnesses:v1",
+  "design_artifact_ref": {
+    "path": "arcanum/development/invoke-plan-successor-design/w2-v6r3/DESIGN.json",
+    "sha256": "3afccabb5539c5e1e707776f6089fb0f3458b94db7b4f515f036fa7fec8ead3e",
+    "size": 384154
+  },
+  "evidence_state": "authored-complete",
+  "execution_state": "not-executed",
+  "plan_evidence_state": "plan-evidence-pending",
+  "promotion_state": "not-promoted",
+  "schema_version": "invoke.design-planned-witness-contracts.v1",
+  "target_id": "invoke:plan-successor:definition-target",
+  "witnesses": [
+    {
+      "claim_id": "claim:machine-consumer-closure",
+      "concern_id": "authored:integration",
+      "evidence_state": "planned-contract",
+      "execution_owner": "plan-work-pack-owner",
+      "execution_phase": "validation",
+      "expected_result": "All applicable rehearsals pass and no consumer is silently skipped.",
+      "input_or_violation": "Run every applicable machine-backed consumer in no-effect mode and verify negative evidence for every inapplicable consumer.",
+      "polarity": "positive",
+      "target_fact_ids": [
+        "component:execution-contract-projector",
+        "contract:conditional-consumer-applicability",
+        "contract:consumer-applicability-matrix",
+        "contract:native-context-version",
+        "decision:context-builder-applicability",
+        "decision:dispatch-applicability",
+        "decision:goal-applicability",
+        "decision:implementation-readiness-applicability",
+        "decision:observer-applicability",
+        "decision:observer-gap",
+        "decision:task-session-applicability",
+        "decision:wpra-applicability",
+        "dependency:task-context-route",
+        "dependency:wpra-readiness",
+        "interface:define-to-design",
+        "interface:design-to-distill-v1",
+        "interface:plan-to-context-builder",
+        "interface:plan-to-dispatch",
+        "interface:plan-to-goal",
+        "interface:plan-to-observer",
+        "interface:plan-to-readiness",
+        "interface:plan-to-task-session",
+        "interface:plan-to-wpra",
+        "risk:false-observer-closure",
+        "workflow:produce-plan-bundle",
+        "workflow:project-consumer-contracts"
+      ],
+      "witness_id": "witness:consumer-rehearsal"
+    },
+    {
+      "claim_id": "claim:deterministic-plan-bundle",
+      "concern_id": "authored:reliability",
+      "evidence_state": "planned-contract",
+      "execution_owner": "plan-work-pack-owner",
+      "execution_phase": "validation",
+      "expected_result": "Both runs produce the same ordered files and bytes.",
+      "input_or_violation": "Compile the same exact Plan source twice.",
+      "polarity": "positive",
+      "target_fact_ids": [
+        "component:plan-bundle-producer",
+        "component:plan-graph-compiler",
+        "component:plan-view-projector"
+      ],
+      "witness_id": "witness:deterministic-replay"
+    },
+    {
+      "claim_id": "claim:distill-v1-evidence",
+      "concern_id": "authored:validation",
+      "evidence_state": "planned-contract",
+      "execution_owner": "plan-work-pack-owner",
+      "execution_phase": "validation",
+      "expected_result": "Distill identifies one coherent unit or returns an explicit gap without substituting v2 evidence.",
+      "input_or_violation": "Run Distill with the four exact v1 contracts against the W2 candidate.",
+      "polarity": "positive",
+      "target_fact_ids": [
+        "component:plan-bundle-admission-validator",
+        "contract:plan-bundle-admission"
+      ],
+      "witness_id": "witness:distill-v1"
+    },
+    {
+      "claim_id": "claim:work-pack-generated-view",
+      "concern_id": "authored:migration",
+      "evidence_state": "planned-contract",
+      "execution_owner": "plan-work-pack-owner",
+      "execution_phase": "validation",
+      "expected_result": "Historical material validates read-only but cannot establish successor admission.",
+      "input_or_violation": "Validate historical v1 Plan material and attempt to use it for a new PASS.",
+      "polarity": "positive",
+      "target_fact_ids": [
+        "compatibility:work-pack-source",
+        "component:plan-migration-validator",
+        "contract:plan-source-v2",
+        "risk:historical-plan-activation"
+      ],
+      "witness_id": "witness:migration-compatibility"
+    },
+    {
+      "claim_id": "claim:native-context-version-derived-from-transients",
+      "concern_id": "authored:validation",
+      "evidence_state": "planned-contract",
+      "execution_owner": "plan-work-pack-owner",
+      "execution_phase": "validation",
+      "expected_result": "The first uses 1.2.0, the second uses 1.3.0, and mismatches are rejected.",
+      "input_or_violation": "Project one contract without transient outputs and one with a nonempty transient set.",
+      "polarity": "positive",
+      "target_fact_ids": [
+        "component:execution-contract-projector",
+        "contract:native-context-version"
+      ],
+      "witness_id": "witness:native-context-version"
+    },
+    {
+      "claim_id": "claim:generated-work-pack-readable-navigation",
+      "concern_id": "authored:ux",
+      "evidence_state": "planned-contract",
+      "execution_owner": "plan-work-pack-owner",
+      "execution_phase": "validation",
+      "expected_result": "A plan coordinator can find every required item and the view contains no independent authored meaning.",
+      "input_or_violation": "Render WORK-PACK.md from the source and inspect objective, slice, wave, task, gate, blocker, gap, and next-action navigation.",
+      "polarity": "positive",
+      "target_fact_ids": [
+        "actor:plan-coordinator",
+        "component:plan-view-projector",
+        "contract:work-pack-navigation",
+        "surface:generated-work-pack"
+      ],
+      "witness_id": "witness:work-pack-navigation"
+    }
+  ]
+}

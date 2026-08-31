@@ -30,6 +30,10 @@ from define_stage_contract import (  # noqa: E402
     validate_admission_receipt as validate_define_admission_contract,
     validate_stage_receipt as validate_define_stage_contract,
 )
+from plan_stage_contract import (  # noqa: E402
+    validate_admission_receipt as validate_plan_admission_contract,
+    validate_stage_receipt as validate_plan_stage_contract,
+)
 
 REPO_ROOT = INVOKE_ROOT.parents[2]
 
@@ -213,6 +217,31 @@ def resolve_capability_status(
             artifact_status = "block"
             artifact_diagnostics.append(
                 "historical or generic Design artifact receipts cannot establish a new PASS"
+            )
+        else:
+            artifact_status = "pass"
+            artifact_evidence = [
+                artifact_receipt["receipt_id"],
+                artifact_receipt["producer_receipt"]["receipt_id"],
+                artifact_receipt["producer_admission_receipt"]["receipt_id"],
+            ]
+    elif mode == "plan" and artifact_receipt["status"] == "pass":
+        producer_receipt = artifact_receipt.get("producer_receipt")
+        artifact_diagnostics.extend(
+            validate_plan_stage_contract(producer_receipt, REPO_ROOT, INVOKE_ROOT / "schemas")
+        )
+        artifact_diagnostics.extend(
+            validate_plan_admission_contract(
+                artifact_receipt.get("producer_admission_receipt"),
+                producer_receipt,
+                REPO_ROOT,
+                INVOKE_ROOT / "schemas",
+            )
+        )
+        if artifact_diagnostics:
+            artifact_status = "block"
+            artifact_diagnostics.append(
+                "historical or generic Plan artifact receipts cannot establish a new PASS"
             )
         else:
             artifact_status = "pass"

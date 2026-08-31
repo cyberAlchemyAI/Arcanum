@@ -36,6 +36,10 @@ regime_set=""
 overall_quality_bar_status="not_checked"
 overall_anti_pattern_hits_json='[]'
 overall_workflow_gaps_json='[]'
+semantic_validator=""
+semantic_oracle=""
+semantic_evidence_glob=""
+semantic_required_pass_count=0
 
 merge_json_arrays() {
 	local left="$1"
@@ -136,6 +140,10 @@ validate_profile() {
 
 	# shellcheck source=/dev/null
 	source "$profile_template"
+	semantic_validator="${PROFILE_SEMANTIC_VALIDATOR:-}"
+	semantic_oracle="${PROFILE_SEMANTIC_ORACLE:-}"
+	semantic_evidence_glob="${PROFILE_SEMANTIC_EVIDENCE_GLOB:-}"
+	semantic_required_pass_count="${PROFILE_SEMANTIC_REQUIRED_PASS_COUNT:-0}"
 
 	if [[ "$artifact_type" != "$PROFILE_ARTIFACT_TYPE" ]]; then
 		block "profile $profile_id expects artifact type $PROFILE_ARTIFACT_TYPE but found $artifact_type" profile
@@ -190,6 +198,41 @@ validate_profile() {
 }
 
 validate_profile
+
+validate_semantic_evidence() {
+	if [[ -z "$semantic_validator" ]]; then
+		return
+	fi
+	if [[ -z "$semantic_oracle" || -z "$semantic_evidence_glob" ]]; then
+		block "profile semantic validator requires oracle and evidence glob" profile
+		return
+	fi
+	local validator_abs oracle_abs
+	validator_abs="$(resolve_profile_path "$semantic_validator")"
+	oracle_abs="$(resolve_profile_path "$semantic_oracle")"
+	if [[ ! -f "$validator_abs" || ! -f "$oracle_abs" ]]; then
+		block "profile semantic validator or oracle is unreadable" profile
+		return
+	fi
+	local evidence_paths=()
+	mapfile -t evidence_paths < <(compgen -G "$repo_root/$semantic_evidence_glob" | sort || true)
+	if [[ "${#evidence_paths[@]}" -lt "$semantic_required_pass_count" ]]; then
+		block "semantic evidence has ${#evidence_paths[@]} artifacts; profile requires $semantic_required_pass_count" profile
+	fi
+	local evidence semantic_result
+	for evidence in "${evidence_paths[@]}"; do
+		if semantic_result="$(PYTHONDONTWRITEBYTECODE=1 python3 "$validator_abs" --matrix "$oracle_abs" --artifact "$evidence" 2>&1)"; then
+			printf 'SEMANTIC_VALIDATION=pass\n'
+			printf 'SEMANTIC_ARTIFACT=%s\n' "${evidence#$repo_root/}"
+			printf '%s\n' "$semantic_result"
+		else
+			printf '%s\n' "$semantic_result"
+			block "semantic validator blocked: ${evidence#$repo_root/}" profile
+		fi
+	done
+}
+
+validate_semantic_evidence
 
 for optional_dir in example-prompts example-outputs example-runs; do
 	if [[ ! -d "$dev_dir/$optional_dir" ]]; then

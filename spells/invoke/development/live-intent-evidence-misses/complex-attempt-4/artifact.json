@@ -1,0 +1,1460 @@
+{
+  "schema_version": "invoke.define-intent-authored-artifact.v1",
+  "target_id": "target:invoke-plan-successor",
+  "evidence_sources": [
+    {
+      "source_id": "source:invoke-plan-contract",
+      "source_class": "current-contract",
+      "semantic_disposition": "retain",
+      "authority_disposition": "current",
+      "rationale": "spells/invoke/plan.md is the current Plan mode contract for the subject, required planning parts, gates, execution handoff, evidence ceiling, and non-mutation boundary."
+    },
+    {
+      "source_id": "source:invoke-root-contract",
+      "source_class": "current-contract",
+      "semantic_disposition": "retain",
+      "authority_disposition": "current",
+      "rationale": "spells/invoke/README.md establishes Invoke ownership, downstream lifecycle consumers, capability-state separation, and Plan handoff limits."
+    },
+    {
+      "source_id": "source:plan-artifact-boundaries",
+      "source_class": "current-contract",
+      "semantic_disposition": "retain",
+      "authority_disposition": "current",
+      "rationale": "spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md declares the distinct ownership and containment relationships among Implementation Layering, Work Pack, waves, tasks, SWUs, and Execution Pack."
+    },
+    {
+      "source_id": "source:retired-implementation-plan-template",
+      "source_class": "historical",
+      "semantic_disposition": "retain-and-reassess",
+      "authority_disposition": "historical-only",
+      "rationale": "The retired implementation-plan template preserves delivery-slice, task-detail, SWU, validation, blocker, layering, and execution-pack concepts, but WORK-PACK.md now owns the executable plan."
+    },
+    {
+      "source_id": "source:implementation-layering-template",
+      "source_class": "current-contract",
+      "semantic_disposition": "retain",
+      "authority_disposition": "current",
+      "rationale": "The implementation-layering template defines the global decision-first L0-L3 governance model, evidence-based promotion, deferral, and non-regression conditions."
+    },
+    {
+      "source_id": "source:work-pack-template",
+      "source_class": "current-contract",
+      "semantic_disposition": "retain",
+      "authority_disposition": "current",
+      "rationale": "The Work Pack template materializes the canonical executable hierarchy, validation and stop invariants, execution policy, frontier, entry, and closeout synchronization boundary."
+    },
+    {
+      "source_id": "source:execution-pack-template",
+      "source_class": "current-contract",
+      "semantic_disposition": "retain",
+      "authority_disposition": "current",
+      "rationale": "The Execution Pack template confirms the choreography-only role of waves, layer alignment, stage coverage, dependencies, and closure obligations."
+    },
+    {
+      "source_id": "source:distill-execution-evidence-plan",
+      "source_class": "historical",
+      "semantic_disposition": "retain-and-reassess",
+      "authority_disposition": "historical-only",
+      "rationale": "The completed historical Plan package demonstrates layers, slices, waves, tasks, SWUs, atomicity, validation, blockers, gaps, ordering, recomposition, and owner handoff; its completion, executable, and authority claims are not current."
+    },
+    {
+      "source_id": "source:successor-context-thin",
+      "source_class": "historical",
+      "semantic_disposition": "retain-and-reassess",
+      "authority_disposition": "historical-only",
+      "rationale": "DEFINE-SEMANTIC-CONTEXT-3.json preserves the earlier authoring-source, candidate-bundle, admission, and evidence-state concepts but does not cover Plan's internal executable model."
+    },
+    {
+      "source_id": "source:successor-closure-thin",
+      "source_class": "historical",
+      "semantic_disposition": "retain-and-reassess",
+      "authority_disposition": "historical-only",
+      "rationale": "DEFINE-SEMANTIC-CLOSURE-RECEIPT-3.json is historical disposition evidence for the thin model, not current semantic or executable authority."
+    },
+    {
+      "source_id": "source:successor-source-thin",
+      "source_class": "historical",
+      "semantic_disposition": "retain-and-reassess",
+      "authority_disposition": "historical-only",
+      "rationale": "DEFINE-SOURCE-4.json preserves the separation of authored source, generated candidate, independent admission, and later readiness states while omitting most internal Plan concepts."
+    },
+    {
+      "source_id": "source:successor-definitions-bundle",
+      "source_class": "historical",
+      "semantic_disposition": "retain-and-reassess",
+      "authority_disposition": "historical-only",
+      "rationale": "bundle/DEFINITIONS.json is historical candidate-definition evidence; its four evidence-layer concepts are reassessed without accepting candidate or authority claims."
+    },
+    {
+      "source_id": "source:successor-bundle-admission",
+      "source_class": "historical",
+      "semantic_disposition": "retain-and-reassess",
+      "authority_disposition": "historical-only",
+      "rationale": "DEFINE-BUNDLE-ADMISSION-RECEIPT.json preserves independent replay and claim-ceiling distinctions, but its PASS and authority claims are historical."
+    },
+    {
+      "source_id": "source:successor-context-expanded",
+      "source_class": "historical",
+      "semantic_disposition": "retain-and-reassess",
+      "authority_disposition": "historical-only",
+      "rationale": "DEFINE-SEMANTIC-CONTEXT-6.json expands into Plan, Work Pack, slice, layer, wave, task, SWU, validation, stop, handoff, and choreography concepts; each is reassessed against the newer contract."
+    },
+    {
+      "source_id": "source:successor-closure-expanded",
+      "source_class": "historical",
+      "semantic_disposition": "retain-and-reassess",
+      "authority_disposition": "historical-only",
+      "rationale": "DEFINE-SEMANTIC-CLOSURE-RECEIPT-6.json records historical dispositions for the expanded model but is not a correctness or authority oracle."
+    },
+    {
+      "source_id": "source:successor-source-expanded",
+      "source_class": "historical",
+      "semantic_disposition": "retain-and-reassess",
+      "authority_disposition": "historical-only",
+      "rationale": "DEFINE-SOURCE-5.json preserves useful internal Plan relations and boundaries while requiring correction for current closeout, frontier, readiness, atomicity, navigation, and upstream-authority requirements."
+    }
+  ],
+  "facets": [
+    {
+      "facet_id": "subject",
+      "status": "represented",
+      "evidence_source_ids": [
+        "source:invoke-plan-contract",
+        "source:invoke-root-contract",
+        "source:successor-context-expanded",
+        "source:successor-source-expanded"
+      ],
+      "rationale": "Invoke Plan is the governed, non-executing translation of approved Design outputs into ordered, validated implementation work; its evidence-bearing source and candidate states remain distinct from the Plan itself."
+    },
+    {
+      "facet_id": "parts",
+      "status": "represented",
+      "evidence_source_ids": [
+        "source:invoke-plan-contract",
+        "source:plan-artifact-boundaries",
+        "source:implementation-layering-template",
+        "source:work-pack-template",
+        "source:execution-pack-template",
+        "source:distill-execution-evidence-plan",
+        "source:successor-source-expanded"
+      ],
+      "rationale": "The retained parts are Delivery Boundary, Implementation Layering and its layers, Work Pack, delivery slices, waves, tasks, SWUs, implementation-detail specs, validation contracts, Execution Pack, execution frontier, execution policy, and closeout contract."
+    },
+    {
+      "facet_id": "relationships",
+      "status": "represented",
+      "evidence_source_ids": [
+        "source:invoke-plan-contract",
+        "source:plan-artifact-boundaries",
+        "source:work-pack-template",
+        "source:execution-pack-template",
+        "source:distill-execution-evidence-plan",
+        "source:successor-source-expanded"
+      ],
+      "rationale": "The model preserves the admitted-Design dependency, Plan-to-Work-Pack and Plan-to-layering structure, Work-Pack-to-slice/wave/task hierarchy, exactly-one-task ownership of each SWU, layer-aligned wave ordering, validation dependencies, and handoff dependency chain."
+    },
+    {
+      "facet_id": "evidence-state",
+      "status": "represented",
+      "evidence_source_ids": [
+        "source:invoke-plan-contract",
+        "source:invoke-root-contract",
+        "source:successor-context-thin",
+        "source:successor-source-thin",
+        "source:successor-definitions-bundle",
+        "source:successor-bundle-admission",
+        "source:successor-context-expanded",
+        "source:successor-source-expanded"
+      ],
+      "rationale": "Plan authoring source, candidate bundle, independent bundle admission, and Plan evidence state represent authoring and admission without collapsing artifact authorship, readiness proof, owner acceptance, registry release, or execution authority."
+    },
+    {
+      "facet_id": "validation-gates",
+      "status": "represented",
+      "evidence_source_ids": [
+        "source:invoke-plan-contract",
+        "source:plan-artifact-boundaries",
+        "source:implementation-layering-template",
+        "source:work-pack-template",
+        "source:distill-execution-evidence-plan",
+        "source:successor-source-expanded"
+      ],
+      "rationale": "Validation strategy, typed validation contracts, Plan gates, blockers, gaps, smallest-coherent-unit selection, SWU atomicity, first-unit narrowness, recomposition, navigation, and layer promotion remain independently testable pass-or-stop obligations."
+    },
+    {
+      "facet_id": "execution-handoff",
+      "status": "represented",
+      "evidence_source_ids": [
+        "source:invoke-plan-contract",
+        "source:invoke-root-contract",
+        "source:plan-artifact-boundaries",
+        "source:work-pack-template",
+        "source:execution-pack-template",
+        "source:distill-execution-evidence-plan"
+      ],
+      "rationale": "The handoff layer separately represents the ordered execution frontier, allowed execution policy, per-SWU closeout synchronization contract, exact Execution Entry, and owner-facing execution handoff; none performs implementation."
+    },
+    {
+      "facet_id": "authority-boundary",
+      "status": "represented",
+      "evidence_source_ids": [
+        "source:invoke-plan-contract",
+        "source:invoke-root-contract",
+        "source:distill-execution-evidence-plan",
+        "source:successor-source-thin",
+        "source:successor-source-expanded"
+      ],
+      "rationale": "Approved Design is an externally owned upstream semantic input. Invoke owns Plan authoring only; downstream validators and lifecycle owners retain readiness, acceptance, execution, mutation, promotion, publication, and deployment decisions."
+    }
+  ],
+  "definitions": [
+    {
+      "definition_id": "definition:invoke-plan",
+      "term": "Invoke Plan",
+      "aliases": [
+        "governed implementation plan"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "semantic:approved-design-output"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:delivery-boundary"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:work-pack"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:implementation-layering"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:plan-evidence-state"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:plan-authority-boundary"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Translation of an approved Design into bounded implementation objective, decomposition, ordering, validation, stop conditions, and handoff."
+        ],
+        "excludes": [
+          "Design revision, implementation work, source mutation, acceptance, promotion, publication, and deployment."
+        ],
+        "conditions": [
+          "Approved Design references and an explicit delivery boundary are bound before planning."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:plan-authoring-source",
+      "term": "Plan execution source",
+      "aliases": [
+        "Plan authoring source",
+        "canonical Plan execution source"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "semantic:approved-design-output"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:invoke-plan"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:delivery-boundary"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "One machine-readable source containing the Plan's meaning-bearing Work Pack, route, validation, effect, and readiness declarations."
+        ],
+        "excludes": [
+          "Generated views, derived digests, validator verdicts, owner acceptance, and execution receipts."
+        ],
+        "conditions": [
+          "All generated Plan projections must derive from the same validated source bytes without semantic invention."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:plan-candidate-bundle",
+      "term": "Plan candidate bundle",
+      "aliases": [
+        "generated Plan bundle"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:plan-authoring-source"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:work-pack"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:implementation-layering"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "The complete deterministic Plan artifact inventory and its producer evidence."
+        ],
+        "excludes": [
+          "Independent admission, implementation readiness, owner acceptance, task execution, and mutation."
+        ],
+        "conditions": [
+          "Every member must derive from one exact Plan execution source and one producer run."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:plan-bundle-admission",
+      "term": "Plan bundle admission",
+      "aliases": [
+        "Plan admission result"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:plan-candidate-bundle"
+        },
+        {
+          "type": "depends-on",
+          "target_id": "definition:plan-authoring-source"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Independent replay, exact inventory comparison, predecessor freshness, structural checks, and declared consumer results."
+        ],
+        "excludes": [
+          "Semantic invention, Design revision, implementation readiness, owner acceptance, execution authorization, and mutation."
+        ],
+        "conditions": [
+          "The admission check must be independent from candidate production and bind the exact candidate bytes."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:plan-evidence-state",
+      "term": "Plan evidence state",
+      "aliases": [
+        "Plan proof state"
+      ],
+      "relations": [
+        {
+          "type": "references",
+          "target_id": "definition:plan-candidate-bundle"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:plan-bundle-admission"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:execution-entry"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Separate current statements for artifact authorship, admission, readiness proof, owner acceptance, and execution authorization."
+        ],
+        "excludes": [
+          "A generic PASS or inference from one evidence axis to another."
+        ],
+        "conditions": [
+          "Every positive state must bind current evidence issued by the owner of that state."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:delivery-boundary",
+      "term": "Delivery boundary",
+      "aliases": [
+        "implementation delivery boundary"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "semantic:approved-design-output"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Explicit included, excluded, constrained, and deferred delivery scope for the Plan."
+        ],
+        "excludes": [
+          "Silent expansion or revision of approved Design decisions."
+        ],
+        "conditions": [
+          "Tasks, SWUs, layers, and handoffs must remain within this boundary or stop for a new decision."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:implementation-layering",
+      "term": "Implementation Layering",
+      "aliases": [
+        "implementation-layering artifact",
+        "global implementation-layering artifact"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:invoke-plan"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:delivery-boundary"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "The global governance lens owning layer decision questions, boundaries, promotion evidence, deferrals, and non-regression policy."
+        ],
+        "excludes": [
+          "Task execution detail, task status tracking, and source-of-truth SWU contracts."
+        ],
+        "conditions": [
+          "Every Plan has exactly one global Implementation Layering artifact."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:implementation-layer",
+      "term": "Implementation layer",
+      "aliases": [
+        "L0-L3 decision boundary",
+        "Plan layer"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:implementation-layering"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:delivery-boundary"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "One decision question, minimum working unit, included and deferred scope, exit evidence, and promotion decision."
+        ],
+        "excludes": [
+          "An unevidenced maturity label or task status."
+        ],
+        "conditions": [
+          "The layer must state what becomes known after it and preserve guarantees established by earlier layers."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:layer-promotion",
+      "term": "Layer promotion",
+      "aliases": [
+        "implementation-layer promotion decision"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:implementation-layer"
+        },
+        {
+          "type": "depends-on",
+          "target_id": "definition:plan-gate"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "The evidence-backed decision to advance, narrow, pivot, remediate, or stop after a layer."
+        ],
+        "excludes": [
+          "Promotion by preference, lifecycle authority promotion, or silent inclusion of deferred scope."
+        ],
+        "conditions": [
+          "Promotion must cite exit evidence from the preceding layer and preserve its proven guarantees."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:work-pack",
+      "term": "Work Pack",
+      "aliases": [
+        "canonical executable plan",
+        "executable planning source of truth"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:invoke-plan"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:delivery-boundary"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:implementation-layering"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:validation-strategy"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:work-pack-execution-policy"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Objective, delivery slices, task and SWU manifests, validation, blockers, gaps, gates, current state, and navigable execution links."
+        ],
+        "excludes": [
+          "Layer philosophy owned by Implementation Layering and duplicated task-local detail owned by split task contracts."
+        ],
+        "conditions": [
+          "Split projections must agree with the Work Pack or its gate blocks."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:delivery-slice",
+      "term": "Delivery slice",
+      "aliases": [
+        "Plan delivery slice"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:work-pack"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:delivery-boundary"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:validation-strategy"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "One coherent delivery outcome with dependencies, layer mapping, and validation."
+        ],
+        "excludes": [
+          "Execution ordering, task instructions, and SWU atomicity."
+        ],
+        "conditions": [
+          "Every delivery slice maps to at least one Plan task and has a validation strategy."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:plan-wave",
+      "term": "Plan wave",
+      "aliases": [
+        "execution-order wave",
+        "layer-mapped wave"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:work-pack"
+        },
+        {
+          "type": "depends-on",
+          "target_id": "definition:implementation-layer"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:plan-task"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:plan-gate"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Wave goal, layer question, ordered tasks and SWUs, dependencies, parallelization boundary, entry gate, and exit evidence."
+        ],
+        "excludes": [
+          "Detailed algorithms and source-of-truth SWU definitions."
+        ],
+        "conditions": [
+          "Wave ordering must not contradict task or SWU dependencies."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:plan-task",
+      "term": "Plan task",
+      "aliases": [
+        "implementation task contract"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:work-pack"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:delivery-slice"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:plan-wave"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:implementation-detail-spec"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "One implementation responsibility with objective, mappings, dependencies, write scope, SWUs, done criteria, validation, handoff, and synchronization."
+        ],
+        "excludes": [
+          "Global Plan rationale, unrelated task state, and vague outcome-only instructions."
+        ],
+        "conditions": [
+          "A split task file must be a useful executable contract rather than a title placeholder."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:smallest-working-unit",
+      "term": "Smallest Working Unit",
+      "aliases": [
+        "SWU"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:plan-task"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:validation-contract"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:task-session-closeout-sync"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "One primary behavior or decision, exactly one parent task, dependencies, bounded write scope, completion criteria, acceptance evidence, validation, and handoff context."
+        ],
+        "excludes": [
+          "Multiple independently verifiable behaviors bundled for convenience."
+        ],
+        "conditions": [
+          "The unit must be independently assignable, executable, reviewable, and verifiable."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:implementation-detail-spec",
+      "term": "Implementation-detail spec",
+      "aliases": [
+        "implementation detail contract",
+        "task implementation specification"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:plan-task"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Concrete purpose, inputs, outputs, state, algorithm or steps, interfaces, data flow, ordered rules, constraints, edge cases, failure modes, and acceptance checks."
+        ],
+        "excludes": [
+          "New architecture decisions owned by Design and outcome-only task descriptions."
+        ],
+        "conditions": [
+          "Medium and high complexity execution tasks require this detail; missing acceptance-critical detail blocks handoff."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:execution-pack",
+      "term": "Execution Pack",
+      "aliases": [
+        "cross-task execution choreography"
+      ],
+      "relations": [
+        {
+          "type": "references",
+          "target_id": "definition:work-pack"
+        },
+        {
+          "type": "depends-on",
+          "target_id": "definition:plan-wave"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:plan-task"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Medium or high complexity wave order, stage coverage, cross-task dependencies, closure obligations, and parallelization boundaries."
+        ],
+        "excludes": [
+          "Source-of-truth task details, SWU definitions, and independent execution state."
+        ],
+        "conditions": [
+          "Every referenced unit and dependency must agree with the Work Pack graph."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:validation-strategy",
+      "term": "Validation strategy",
+      "aliases": [
+        "Plan validation strategy"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:work-pack"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:delivery-slice"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Plan-wide coverage of validation targets, timing, evidence surfaces, failure behavior, and owners."
+        ],
+        "excludes": [
+          "Generic aspirations and evidence that cannot exist at its declared phase."
+        ],
+        "conditions": [
+          "Every delivery slice must have validation coverage."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:validation-contract",
+      "term": "Validation contract",
+      "aliases": [
+        "typed unit validation contract",
+        "Plan verification requirement"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:smallest-working-unit"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:validation-strategy"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "One exact target, phase, command or reviewable check, expected result, evidence output, and failure behavior."
+        ],
+        "excludes": [
+          "Unrunnable prose and post-produce evidence represented as a pre-execution PASS."
+        ],
+        "conditions": [
+          "Its declared phase must match when the required inputs and outputs can exist."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:plan-gate",
+      "term": "Plan gate",
+      "aliases": [
+        "Plan evidence gate"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:validation-strategy"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:validation-contract"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "A named target, required current evidence, accepted outcomes, decision, and causal blocker set."
+        ],
+        "excludes": [
+          "Implicit approval and generic PASS without typed evidence."
+        ],
+        "conditions": [
+          "Advancement or handoff stops whenever an acceptance-critical gate is not satisfied."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:plan-blocker",
+      "term": "Plan blocker",
+      "aliases": [
+        "blocking Plan condition"
+      ],
+      "relations": [
+        {
+          "type": "references",
+          "target_id": "definition:plan-gate"
+        },
+        {
+          "type": "contrasts-with",
+          "target_id": "definition:plan-gap"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "A known cause, affected claim or transition, dependencies, owner, and repair route."
+        ],
+        "excludes": [
+          "Non-blocking future improvement and unowned vague concern."
+        ],
+        "conditions": [
+          "The condition prevents a named current Plan state, selected unit, gate, or handoff from proceeding."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:plan-gap",
+      "term": "Plan gap",
+      "aliases": [
+        "non-blocking Plan gap"
+      ],
+      "relations": [
+        {
+          "type": "contrasts-with",
+          "target_id": "definition:plan-blocker"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "A missing item, non-blocking rationale, owner, repair route, and escalation condition."
+        ],
+        "excludes": [
+          "A condition that already prevents acceptance, readiness, or safe execution."
+        ],
+        "conditions": [
+          "The current bounded Plan claim must remain valid without the missing item."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:smallest-coherent-unit",
+      "term": "Smallest coherent unit",
+      "aliases": [
+        "SCU"
+      ],
+      "relations": [
+        {
+          "type": "references",
+          "target_id": "definition:delivery-boundary"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:smallest-working-unit"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "The smallest bounded planning or execution unit that remains meaningful and can recompose into the approved delivery."
+        ],
+        "excludes": [
+          "Premature decomposition that destroys semantic closure and oversized work that contains independently acceptable children."
+        ],
+        "conditions": [
+          "Plan validation must identify this boundary before mutation-capable routing."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:swu-atomicity",
+      "term": "SWU atomicity",
+      "aliases": [
+        "Smallest Working Unit atomicity"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:smallest-working-unit"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:smallest-coherent-unit"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "One primary behavior, one independently reviewable acceptance boundary, candidate-child analysis, and retained-boundary rationale."
+        ],
+        "excludes": [
+          "Task-shaped units combining independently verifiable behaviors, projections, interactions, or regions."
+        ],
+        "conditions": [
+          "If a candidate child can pass independently, the SWU must be split before handoff."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:first-unit-narrowness",
+      "term": "First-unit narrowness",
+      "aliases": [
+        "narrow-first-unit gate"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:smallest-working-unit"
+        },
+        {
+          "type": "depends-on",
+          "target_id": "definition:swu-atomicity"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Selection of the narrowest reversible trust-building first SWU."
+        ],
+        "excludes": [
+          "A task-shaped first unit that combines baseline proof with later responsive, projection, or interaction work."
+        ],
+        "conditions": [
+          "The first selected mutation-capable SWU must pass this condition independently of ordinary task order."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:recomposition-proof",
+      "term": "Recomposition proof",
+      "aliases": [
+        "Plan recomposition proof"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "semantic:approved-design-output"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:delivery-slice"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:smallest-working-unit"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Evidence that selected units, tasks, slices, and waves compose back into the approved Design and delivery boundary."
+        ],
+        "excludes": [
+          "Similarity by labels, counts, or filenames."
+        ],
+        "conditions": [
+          "A failed acceptance-critical recomposition check blocks mutation-capable handoff."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:execution-navigation",
+      "term": "Navigation to the first executable unit",
+      "aliases": [
+        "execution navigation",
+        "Plan-to-SWU navigation"
+      ],
+      "relations": [
+        {
+          "type": "references",
+          "target_id": "definition:work-pack"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:plan-task"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:smallest-working-unit"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Navigable links from Work Pack state through the selected task to source anchors and the first executable SWU."
+        ],
+        "excludes": [
+          "Repository searching as a substitute for an authored execution path."
+        ],
+        "conditions": [
+          "Missing navigation needed to execute the selected unit blocks handoff."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:work-pack-execution-policy",
+      "term": "Work-Pack execution policy",
+      "aliases": [
+        "execution policy"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:work-pack"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:execution-frontier"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:plan-authority-boundary"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Exact allowed internal routes, write and effect scopes, required inputs, expected receipts, automatic decisions, stop decisions, retry limit, and route digest."
+        ],
+        "excludes": [
+          "Undeclared routes, destructive or external effects, semantic choice, scope expansion, authority change, promotion, publication, and deployment."
+        ],
+        "conditions": [
+          "Automatic decisions are limited to declared internal and reversible behavior; protected or undeclared effects stop."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:execution-frontier",
+      "term": "Ordered finite frontier",
+      "aliases": [
+        "execution frontier",
+        "complete ordered frontier"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:work-pack"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:smallest-working-unit"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:plan-wave"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "The complete finite ordered set of unfinished execution units and their dependency-consistent order."
+        ],
+        "excludes": [
+          "Unknown units, omitted mutation-capable units, and an open-ended execution stream."
+        ],
+        "conditions": [
+          "Every frontier unit must have exactly one declared execution route and typed validation contract."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:task-session-closeout-sync",
+      "term": "Task Session closeout synchronization contract",
+      "aliases": [
+        "Task Session closeout sync contract",
+        "closeout synchronization contract"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:smallest-working-unit"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:validation-contract"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:work-pack-execution-policy"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Terminal source receipt contract, exact synchronization targets, baseline binding, admitted delta classes, lifecycle-owner validation, expected owner receipt, and deterministic successor policy."
+        ],
+        "excludes": [
+          "Implementation admission, another SWU, undeclared targets, authority changes, promotion, publication, deployment, and destructive cleanup."
+        ],
+        "conditions": [
+          "Every mutation-capable SWU must have this complete contract before source mutation."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:execution-entry",
+      "term": "Execution entry",
+      "aliases": [
+        "Work-Pack execution entry",
+        "Plan execution-entry boundary"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:execution-frontier"
+        },
+        {
+          "type": "depends-on",
+          "target_id": "definition:work-pack-execution-policy"
+        },
+        {
+          "type": "depends-on",
+          "target_id": "definition:plan-gate"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:smallest-working-unit"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:task-session-closeout-sync"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Exact selected unit or truthful selection state, dependencies, route, write and effect scope, admission timing, evidence, validation digest, next owner, and stop conditions."
+        ],
+        "excludes": [
+          "Task execution, inferred target scope, implicit successor selection, reusable mutation admission, and broader authority."
+        ],
+        "conditions": [
+          "The selected unit and current Plan evidence must pass the applicable entry checks before Task Session routing."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:execution-handoff",
+      "term": "Execution handoff",
+      "aliases": [
+        "Plan handoff",
+        "mutation-capable handoff"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:execution-entry"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:plan-evidence-state"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:plan-authority-boundary"
+        },
+        {
+          "type": "references",
+          "target_id": "definition:execution-navigation"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Transfer of exact artifact handles, selected-unit context, validation surfaces, expected receipts, and next-owner identity."
+        ],
+        "excludes": [
+          "Execution itself, owner acceptance, reusable mutation authority, and a claim that the downstream lifecycle is complete."
+        ],
+        "conditions": [
+          "All Plan gates, closeout prerequisites, navigation, and evidence boundaries must be satisfied for the declared handoff type."
+        ]
+      }
+    },
+    {
+      "definition_id": "definition:plan-authority-boundary",
+      "term": "Plan authority boundary",
+      "aliases": [
+        "Invoke Plan ownership boundary"
+      ],
+      "relations": [
+        {
+          "type": "depends-on",
+          "target_id": "definition:invoke-plan"
+        },
+        {
+          "type": "references",
+          "target_id": "semantic:approved-design-output"
+        }
+      ],
+      "boundary": {
+        "includes": [
+          "Invoke ownership of intent-to-Plan authoring, planning artifacts, bounded gates, and handoff context."
+        ],
+        "excludes": [
+          "Revising approved Design without a routed decision, executing tasks, mutating source, accepting changes, granting runtime authority, promotion, publication, and deployment."
+        ],
+        "conditions": [
+          "Each downstream lifecycle owner retains its own readiness, acceptance, execution, mutation, and closeout decisions."
+        ]
+      }
+    }
+  ],
+  "authority_bindings": [
+    {
+      "binding_id": "binding:approved-design-output",
+      "semantic_id": "semantic:approved-design-output",
+      "term": "Approved Design output",
+      "aliases": [
+        "approved and stable design output",
+        "admitted Design predecessor",
+        "source design reference"
+      ]
+    }
+  ],
+  "probes": [
+    {
+      "probe_id": "probe:invoke-plan",
+      "term": "Invoke Plan",
+      "definition_id": "definition:invoke-plan",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:plan-authoring-source",
+      "term": "Plan execution source",
+      "definition_id": "definition:plan-authoring-source",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:plan-candidate-bundle",
+      "term": "Plan candidate bundle",
+      "definition_id": "definition:plan-candidate-bundle",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:plan-bundle-admission",
+      "term": "Plan bundle admission",
+      "definition_id": "definition:plan-bundle-admission",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:plan-evidence-state",
+      "term": "Plan evidence state",
+      "definition_id": "definition:plan-evidence-state",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:delivery-boundary",
+      "term": "Delivery boundary",
+      "definition_id": "definition:delivery-boundary",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:implementation-layering",
+      "term": "Implementation Layering",
+      "definition_id": "definition:implementation-layering",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:implementation-layer",
+      "term": "Implementation layer",
+      "definition_id": "definition:implementation-layer",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:layer-promotion",
+      "term": "Layer promotion",
+      "definition_id": "definition:layer-promotion",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:work-pack",
+      "term": "Work Pack",
+      "definition_id": "definition:work-pack",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:delivery-slice",
+      "term": "Delivery slice",
+      "definition_id": "definition:delivery-slice",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:plan-wave",
+      "term": "Plan wave",
+      "definition_id": "definition:plan-wave",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:plan-task",
+      "term": "Plan task",
+      "definition_id": "definition:plan-task",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:smallest-working-unit",
+      "term": "Smallest Working Unit",
+      "definition_id": "definition:smallest-working-unit",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:implementation-detail-spec",
+      "term": "Implementation-detail spec",
+      "definition_id": "definition:implementation-detail-spec",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:execution-pack",
+      "term": "Execution Pack",
+      "definition_id": "definition:execution-pack",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:validation-strategy",
+      "term": "Validation strategy",
+      "definition_id": "definition:validation-strategy",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:validation-contract",
+      "term": "Validation contract",
+      "definition_id": "definition:validation-contract",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:plan-gate",
+      "term": "Plan gate",
+      "definition_id": "definition:plan-gate",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:plan-blocker",
+      "term": "Plan blocker",
+      "definition_id": "definition:plan-blocker",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:plan-gap",
+      "term": "Plan gap",
+      "definition_id": "definition:plan-gap",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:smallest-coherent-unit",
+      "term": "Smallest coherent unit",
+      "definition_id": "definition:smallest-coherent-unit",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:swu-atomicity",
+      "term": "SWU atomicity",
+      "definition_id": "definition:swu-atomicity",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:first-unit-narrowness",
+      "term": "First-unit narrowness",
+      "definition_id": "definition:first-unit-narrowness",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:recomposition-proof",
+      "term": "Recomposition proof",
+      "definition_id": "definition:recomposition-proof",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:execution-navigation",
+      "term": "Navigation to the first executable unit",
+      "definition_id": "definition:execution-navigation",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:work-pack-execution-policy",
+      "term": "Work-Pack execution policy",
+      "definition_id": "definition:work-pack-execution-policy",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:execution-frontier",
+      "term": "Ordered finite frontier",
+      "definition_id": "definition:execution-frontier",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:task-session-closeout-sync",
+      "term": "Task Session closeout synchronization contract",
+      "definition_id": "definition:task-session-closeout-sync",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:execution-entry",
+      "term": "Execution entry",
+      "definition_id": "definition:execution-entry",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:execution-handoff",
+      "term": "Execution handoff",
+      "definition_id": "definition:execution-handoff",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:plan-authority-boundary",
+      "term": "Plan authority boundary",
+      "definition_id": "definition:plan-authority-boundary",
+      "authority_binding_id": null
+    },
+    {
+      "probe_id": "probe:approved-design-output",
+      "term": "Approved Design output",
+      "definition_id": null,
+      "authority_binding_id": "binding:approved-design-output"
+    }
+  ],
+  "declared_uncovered": [],
+  "consumer_topology": {
+    "configured_roots": [
+      "spells/invoke/plan.md",
+      "spells/invoke/README.md",
+      "spells/invoke/PLAN-ARTIFACT-BOUNDARIES.md"
+    ],
+    "enumerated_consumers": [
+      "capability:context-builder",
+      "capability:distill",
+      "capability:work-pack-readiness-audit",
+      "capability:implementation-readiness",
+      "capability:task-session",
+      "capability:goal",
+      "capability:spellcraft",
+      "capability:sigil-development",
+      "consumer:invoke-capability-status-resolver"
+    ],
+    "declared_consumers": [
+      "capability:context-builder",
+      "capability:distill",
+      "capability:work-pack-readiness-audit",
+      "capability:implementation-readiness",
+      "capability:task-session",
+      "capability:goal",
+      "capability:spellcraft",
+      "capability:sigil-development",
+      "consumer:invoke-capability-status-resolver"
+    ],
+    "no_consumers_evidence": "Not applicable: the current Plan and Invoke contracts explicitly identify the enumerated downstream semantic consumers; templates, historical evidence documents, validators as concepts, routes, techniques, and lifecycle statuses were not added as separate consumers."
+  }
+}

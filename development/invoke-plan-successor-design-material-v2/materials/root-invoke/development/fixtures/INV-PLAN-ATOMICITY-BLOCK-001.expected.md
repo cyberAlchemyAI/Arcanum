@@ -1,0 +1,24 @@
+## Invoke Validation Fixture Result
+
+- Fixture: INV-PLAN-ATOMICITY-BLOCK-001
+- User request: Plan a responsive operator workbench from approved design outputs.
+- Mode: plan
+- Spell: invoke
+- Canonical ID: invoke
+- Scope: library
+- Phase status: block
+- Mode contract: arcanum/spells/invoke/plan.md
+- Outputs: draft work-pack retained for repair
+- Dispatch techniques: scu_swu_reduction and recomposition_proof; validation status block
+- Distill validation: block; the first SWU contains four independently acceptable child units
+- Implementation layering: present
+- Work-pack: split, blocked
+- Complexity: medium
+- Per-layer planning: L0, L1, L2, L3
+- Implementation detail: task spec present
+- Smallest working units: blocked
+- SWU atomicity: block, task-shaped count 1
+- First-unit narrowness: block
+- Decisions: split semantic shell, desktop grid, mobile navigation, and state mapper into separate SWUs
+- Unresolved gaps: missing split analysis and narrow first unit
+- Next route: plan repair

@@ -1,0 +1,215 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "const": "https://arcanum.dev/schemas/invoke/design-bundle-closure/v1"
+        },
+        "authority_effect": {
+            "const": "none"
+        },
+        "candidate_receipt_ref": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "size": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "path",
+                "sha256",
+                "size"
+            ]
+        },
+        "closure_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+        },
+        "closure_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+        },
+        "distill_evidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "events_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                },
+                "execution_receipt_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                },
+                "request_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                },
+                "validation_result_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                }
+            },
+            "required": [
+                "events_ref",
+                "execution_receipt_ref",
+                "request_ref",
+                "validation_result_ref"
+            ]
+        },
+        "output_contracts": {
+            "const": {
+                "architecture": "ARCHITECTURE.md",
+                "coherence_receipt": "DESIGN-COHERENCE-RECEIPT.json",
+                "denominator_receipt": "DESIGN-DENOMINATOR-RECEIPT.json",
+                "design_artifact": "DESIGN.json",
+                "dispatch_trace": "DISPATCH-TRACE.json",
+                "distill": "DISTILL-RECEIPT.json",
+                "glossary_consistency": "GLOSSARY-CONSISTENCY-REPORT.json",
+                "layering": "IMPLEMENTATION-LAYERING.md",
+                "planned_witnesses": "PLANNED-WITNESS-CONTRACTS.json",
+                "scope_manifest": "DESIGN-SCOPE-MANIFEST.json",
+                "selected_companions": "SELECTED-COMPANIONS.md",
+                "selection_result": "DESIGN-SELECTION-RESULT.json",
+                "stage_receipt": "INVOKE-DESIGN-STAGE-RECEIPT.json",
+                "template_selection": "TEMPLATE-SELECTION-RECEIPT.json",
+                "transport": "DESIGN-TRANSPORT-REPORT.json"
+            }
+        },
+        "schema_version": {
+            "const": "invoke.design-bundle-closure.v1"
+        },
+        "target_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+        }
+    },
+    "required": [
+        "$schema",
+        "authority_effect",
+        "candidate_receipt_ref",
+        "closure_digest",
+        "closure_id",
+        "distill_evidence",
+        "output_contracts",
+        "schema_version",
+        "target_id"
+    ]
+}

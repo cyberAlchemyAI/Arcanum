@@ -1,0 +1,488 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+        {
+            "if": {
+                "type": "object",
+                "properties": {
+                    "execution_entry": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "entry_state": {
+                                        "const": "owner-prerequisite"
+                                    }
+                                },
+                                "required": [
+                                    "entry_state"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "execution_entry"
+                ]
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "execution_entry": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "blocker_code": {
+                                        "type": "null"
+                                    },
+                                    "next_owner": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "array"
+                                            },
+                                            {
+                                                "type": "object",
+                                                "properties": {
+                                                    "capability": {
+                                                        "const": "invoke"
+                                                    },
+                                                    "mode": {
+                                                        "const": "refresh"
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "route_id": {
+                                        "type": "string"
+                                    },
+                                    "selected_unit": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "properties": {
+                    "verdict": {
+                        "const": "block"
+                    }
+                },
+                "required": [
+                    "verdict"
+                ]
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "blockers": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "prefixItems": [
+                                    true
+                                ],
+                                "minItems": 1
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "manifest": {
+                        "type": "null"
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "properties": {
+                    "verdict": {
+                        "enum": [
+                            "pass",
+                            "flag"
+                        ]
+                    }
+                },
+                "required": [
+                    "verdict"
+                ]
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "blockers": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "maxItems": 0
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "manifest": {
+                        "type": "object"
+                    }
+                }
+            }
+        },
+        {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "admission_timing": {
+                    "enum": [
+                        "full-frontier",
+                        "selected-unit-at-task-session"
+                    ]
+                },
+                "audit_id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "audit_projection_digest": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        }
+                    ]
+                },
+                "authority_effect": {
+                    "const": "none"
+                },
+                "blockers": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "binding_id": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "claim": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "code": {
+                                "type": "string",
+                                "pattern": "^[A-Z][A-Z0-9_]+$"
+                            }
+                        },
+                        "required": [
+                            "binding_id",
+                            "claim",
+                            "code"
+                        ]
+                    }
+                },
+                "canonical_semantic_digest": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        }
+                    ]
+                },
+                "canonical_spell_id": {
+                    "const": "work-pack-readiness-audit"
+                },
+                "configured_commands_executed": {
+                    "const": false
+                },
+                "evidence_ceiling": {
+                    "const": "frozen-input-contractual-readiness"
+                },
+                "execution_entry": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "blocker_code": {
+                            "anyOf": [
+                                {
+                                    "type": "null"
+                                },
+                                {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            ]
+                        },
+                        "entry_state": {
+                            "enum": [
+                                "selection-ready",
+                                "owner-prerequisite",
+                                "blocked"
+                            ]
+                        },
+                        "next_owner": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "capability": {
+                                    "enum": [
+                                        "implementation-readiness",
+                                        "invoke"
+                                    ]
+                                },
+                                "mode": {
+                                    "enum": [
+                                        "execute",
+                                        "refresh"
+                                    ]
+                                },
+                                "target": {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            },
+                            "required": [
+                                "capability",
+                                "mode",
+                                "target"
+                            ]
+                        },
+                        "route_id": {
+                            "anyOf": [
+                                {
+                                    "type": "null"
+                                },
+                                {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            ]
+                        },
+                        "selected_unit": {
+                            "anyOf": [
+                                {
+                                    "type": "null"
+                                },
+                                {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "blocker_code",
+                        "entry_state",
+                        "next_owner",
+                        "route_id",
+                        "selected_unit"
+                    ]
+                },
+                "flags": {
+                    "type": "array",
+                    "items": {
+                        "const": "observability-residue"
+                    },
+                    "uniqueItems": true
+                },
+                "manifest": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "const": {}
+                        }
+                    ]
+                },
+                "mutation_ready": {
+                    "const": false
+                },
+                "next_owner": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "runtime_admission_status": {
+                    "enum": [
+                        "pending-selection",
+                        "pass",
+                        "flag",
+                        "block"
+                    ]
+                },
+                "schema_version": {
+                    "const": "2.0.0"
+                },
+                "selected_unit": {
+                    "type": "null"
+                },
+                "semantic_component_digests": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                    }
+                },
+                "source_snapshot": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "artifact_count": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        },
+                        "digest": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "drift": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "artifact_count",
+                        "digest",
+                        "drift"
+                    ]
+                },
+                "terminal_code": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9_]+$"
+                },
+                "verdict": {
+                    "enum": [
+                        "pass",
+                        "flag",
+                        "block"
+                    ]
+                }
+            },
+            "if": {
+                "type": "object",
+                "properties": {
+                    "admission_timing": {
+                        "const": "selected-unit-at-task-session"
+                    }
+                },
+                "required": [
+                    "admission_timing"
+                ]
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "execution_entry": true
+                },
+                "required": [
+                    "execution_entry"
+                ]
+            },
+            "required": [
+                "audit_id",
+                "audit_projection_digest",
+                "authority_effect",
+                "blockers",
+                "canonical_semantic_digest",
+                "canonical_spell_id",
+                "configured_commands_executed",
+                "evidence_ceiling",
+                "flags",
+                "manifest",
+                "mutation_ready",
+                "next_owner",
+                "schema_version",
+                "selected_unit",
+                "semantic_component_digests",
+                "source_snapshot",
+                "terminal_code",
+                "verdict"
+            ]
+        }
+    ]
+}

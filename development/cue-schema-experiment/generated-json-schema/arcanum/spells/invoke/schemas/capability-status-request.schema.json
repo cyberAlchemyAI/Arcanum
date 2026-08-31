@@ -1,0 +1,284 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "artifact_receipt": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "axis": {
+                            "const": "artifact_authored"
+                        },
+                        "evidence": {
+                            "allOf": [
+                                {
+                                    "prefixItems": [
+                                        true
+                                    ]
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "minItems": 1,
+                                    "uniqueItems": true
+                                }
+                            ]
+                        },
+                        "mode": {
+                            "enum": [
+                                "define",
+                                "design",
+                                "plan",
+                                "handoff",
+                                "refresh",
+                                "full",
+                                "validate"
+                            ]
+                        },
+                        "producer_admission_receipt": {
+                            "type": "object"
+                        },
+                        "producer_receipt": {
+                            "type": "object"
+                        },
+                        "receipt_id": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "status": {
+                            "enum": [
+                                "pass",
+                                "flag",
+                                "block"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "axis",
+                        "evidence",
+                        "mode",
+                        "receipt_id",
+                        "status"
+                    ]
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "material_package_receipt": {
+            "anyOf": [
+                {
+                    "type": "null"
+                },
+                {
+                    "const": {}
+                }
+            ]
+        },
+        "mode": {
+            "enum": [
+                "define",
+                "design",
+                "plan",
+                "handoff",
+                "refresh",
+                "full",
+                "validate"
+            ]
+        },
+        "registry_receipt": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "axis": {
+                            "const": "registry_released"
+                        },
+                        "capability_sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "deterministic_validation": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "evidence": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "status": {
+                                    "const": "pass"
+                                }
+                            },
+                            "required": [
+                                "evidence",
+                                "status"
+                            ]
+                        },
+                        "live_regime": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "evidence": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "status": {
+                                    "const": "pass"
+                                }
+                            },
+                            "required": [
+                                "evidence",
+                                "status"
+                            ]
+                        },
+                        "mode": {
+                            "enum": [
+                                "define",
+                                "design",
+                                "plan",
+                                "handoff",
+                                "refresh",
+                                "full",
+                                "validate"
+                            ]
+                        },
+                        "owner": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "receipt_id": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "status": {
+                            "const": "released"
+                        }
+                    },
+                    "required": [
+                        "axis",
+                        "capability_sha256",
+                        "deterministic_validation",
+                        "live_regime",
+                        "mode",
+                        "owner",
+                        "receipt_id",
+                        "status"
+                    ]
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "runtime_receipt": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "axis": {
+                            "const": "mutation_runtime_ready"
+                        },
+                        "capability_sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "gates": {
+                            "allOf": [
+                                {
+                                    "prefixItems": [
+                                        true
+                                    ]
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "evidence": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "gate": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "status": {
+                                                "enum": [
+                                                    "pass",
+                                                    "block"
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "evidence",
+                                            "gate",
+                                            "status"
+                                        ]
+                                    },
+                                    "minItems": 1
+                                }
+                            ]
+                        },
+                        "material_package_digest": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "material_package_id": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "mode": {
+                            "enum": [
+                                "define",
+                                "design",
+                                "plan",
+                                "handoff",
+                                "refresh",
+                                "full",
+                                "validate"
+                            ]
+                        },
+                        "receipt_id": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "status": {
+                            "const": "ready"
+                        }
+                    },
+                    "required": [
+                        "axis",
+                        "capability_sha256",
+                        "gates",
+                        "material_package_digest",
+                        "material_package_id",
+                        "mode",
+                        "receipt_id",
+                        "status"
+                    ]
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "schema_version": {
+            "const": "invoke.capability-status.request.v1"
+        }
+    },
+    "required": [
+        "mode",
+        "schema_version"
+    ]
+}

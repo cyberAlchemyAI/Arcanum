@@ -1,0 +1,75 @@
+{
+  "schema_version": "distill.technique_spec.v2",
+  "technique_id": "abstraction-level-guard",
+  "display_name": "Abstraction-Level Guard",
+  "type": "classifier",
+  "phases": [
+    "concept_mapping",
+    "closure"
+  ],
+  "hooks": [
+    "before_layer_split",
+    "before_accept_split"
+  ],
+  "activation": "always",
+  "allowed_inputs": [
+    "RunFrame.target_context",
+    "ConceptLayer.label",
+    "ConceptLayer.abstraction_level",
+    "CandidateUnit.name",
+    "CandidateUnit.responsibility",
+    "CandidateUnit.inputs",
+    "CandidateUnit.outputs"
+  ],
+  "emits": [
+    "technique_id",
+    "unit_or_layer_id",
+    "selected_level",
+    "level_rationale",
+    "cross_level_confusion",
+    "decision"
+  ],
+  "emitted_field_constraints": {
+    "technique_id": {
+      "value_kind": "const",
+      "const_value": "abstraction_level_guard"
+    },
+    "unit_or_layer_id": {
+      "value_kind": "canonical_identifier",
+      "definition_ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+    },
+    "selected_level": {
+      "value_kind": "enum",
+      "values": [
+        "purpose",
+        "value_constraint",
+        "capability",
+        "function",
+        "workflow_process",
+        "policy_rule",
+        "interface",
+        "artifact",
+        "operation"
+      ]
+    },
+    "level_rationale": {
+      "value_kind": "non_empty_string",
+      "definition_ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+    },
+    "cross_level_confusion": {
+      "value_kind": "boolean"
+    },
+    "decision": {
+      "value_kind": "enum",
+      "values": [
+        "pass",
+        "flag",
+        "block"
+      ]
+    }
+  },
+  "pass_condition": "Every accepted layer and candidate unit has an explicit level, and parent/child levels have a coherent relationship.",
+  "flag_condition": "A level is plausible but weakly justified.",
+  "block_condition": "The split depends on confusing abstraction levels in a way that breaks closure or recomposition.",
+  "failure_behavior": "block"
+}

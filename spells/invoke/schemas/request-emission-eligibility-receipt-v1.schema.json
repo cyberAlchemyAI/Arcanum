@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/request-emission-eligibility-receipt/1-0-0",
+  "title": "InvokeRequestEmissionEligibilityReceiptV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "eligibility_id", "subject", "subject_digest", "result", "blockers", "owner_acceptance_status", "permitted_effects", "authority_effect", "claim_ceiling", "receipt_digest"],
+  "properties": {
+    "schema_version": {"const": "invoke.request-emission-eligibility-receipt.v1"},
+    "eligibility_id": {"type": "string", "minLength": 1},
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_ref", "wpra_config_ref", "execution_entry_rehearsal_ref", "task_id", "unit_id", "requested_effect_digest"],
+      "properties": {
+        "source_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "wpra_config_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "execution_entry_rehearsal_ref": {"$ref": "#/$defs/exactArtifactRef"},
+        "task_id": {"type": "string", "minLength": 1},
+        "unit_id": {"type": "string", "minLength": 1},
+        "requested_effect_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "subject_digest": {"$ref": "#/$defs/sha256"},
+    "result": {"enum": ["pass", "block"]},
+    "blockers": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "owner_acceptance_status": {"const": "pending"},
+    "permitted_effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner_request_emission", "selection", "admission", "execution"],
+      "properties": {
+        "owner_request_emission": {"type": "boolean"},
+        "selection": {"const": false},
+        "admission": {"const": false},
+        "execution": {"const": false}
+      }
+    },
+    "authority_effect": {"const": "none"},
+    "claim_ceiling": {"const": "Request-emission eligibility only; owner acceptance remains pending and selection, admission, and execution remain forbidden."},
+    "receipt_digest": {"$ref": "#/$defs/sha256"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"result": {"const": "pass"}}, "required": ["result"]},
+      "then": {"properties": {"blockers": {"maxItems": 0}, "permitted_effects": {"properties": {"owner_request_emission": {"const": true}}}}},
+      "else": {"properties": {"blockers": {"minItems": 1}, "permitted_effects": {"properties": {"owner_request_emission": {"const": false}}}}}
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "relativePath": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|[\\/])\\.\\.(?:[\\/]|$))[^\\u0000]+$"},
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://arcanum.dev/schemas/invoke/plan-bundle-admission-receipt/v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["$schema", "schema_version", "receipt_id", "validator", "stage_receipt_ref", "bundle_inventory", "replay_inventory", "consumer_results", "blockers", "result", "authority_effect", "receipt_digest"],
+  "properties": {
+    "$schema": {"const": "https://arcanum.dev/schemas/invoke/plan-bundle-admission-receipt/v1"}, "schema_version": {"const": "invoke.plan-bundle-admission-receipt.v1"},
+    "receipt_id": {"type": "string"}, "validator": {"type": "object"}, "stage_receipt_ref": {"type": "object"},
+    "bundle_inventory": {"type": "array"}, "replay_inventory": {"type": "array"}, "consumer_results": {"type": "array", "minItems": 7, "maxItems": 7},
+    "blockers": {"type": "array", "items": {"type": "string"}}, "result": {"enum": ["pass", "block"]}, "authority_effect": {"const": "none"}, "receipt_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "allOf": [{"if": {"properties": {"result": {"const": "pass"}}}, "then": {"properties": {"blockers": {"maxItems": 0}}}, "else": {"properties": {"blockers": {"minItems": 1}}}}]
+}

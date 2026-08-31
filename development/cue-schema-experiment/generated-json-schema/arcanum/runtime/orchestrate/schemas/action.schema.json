@@ -1,0 +1,371 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "action": {
+            "const": "spawn"
+        },
+        "action_id": {
+            "type": "string",
+            "pattern": "^spawn-[0-9]{4}$"
+        },
+        "agent_count": {
+            "allOf": [
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            ]
+        },
+        "agent_ordinal": {
+            "allOf": [
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            ]
+        },
+        "applies_to_steps": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "minItems": 1
+                }
+            ]
+        },
+        "briefing_binding": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "briefing": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "agent_identity": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "angle": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "authority_ceiling": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "allowed_actions": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "forbidden_actions": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "summary": {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            },
+                            "required": [
+                                "allowed_actions",
+                                "forbidden_actions",
+                                "summary"
+                            ]
+                        },
+                        "instructions": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "read_policy": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "allowed_read_scopes": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "forbidden_read_scopes": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "input_refs": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required_input_refs_readable": {
+                                    "const": true
+                                }
+                            },
+                            "required": [
+                                "allowed_read_scopes",
+                                "forbidden_read_scopes",
+                                "input_refs",
+                                "required_input_refs_readable"
+                            ]
+                        },
+                        "receipt_shape": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "completion_requires_all_fields": {
+                                    "const": true
+                                },
+                                "required_fields": {
+                                    "allOf": [
+                                        {
+                                            "prefixItems": [
+                                                true
+                                            ]
+                                        },
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "minItems": 1,
+                                            "uniqueItems": true
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "completion_requires_all_fields",
+                                "required_fields"
+                            ]
+                        },
+                        "status_semantics": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "domain_gate_is_separate": {
+                                    "const": true
+                                },
+                                "domain_gate_status_field": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "task_blocked_value": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "task_complete_value": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "task_status_field": {
+                                    "type": "string",
+                                    "minLength": 1
+                                }
+                            },
+                            "required": [
+                                "domain_gate_is_separate",
+                                "domain_gate_status_field",
+                                "task_blocked_value",
+                                "task_complete_value",
+                                "task_status_field"
+                            ]
+                        },
+                        "write_policy": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "forbidden_write_scopes": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "mutation_policy": {
+                                    "enum": [
+                                        "read-only",
+                                        "proposal-only",
+                                        "lifecycle-owned",
+                                        "artifact-only"
+                                    ]
+                                },
+                                "write_scope": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "required": [
+                                "forbidden_write_scopes",
+                                "mutation_policy",
+                                "write_scope"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "agent_identity",
+                        "angle",
+                        "authority_ceiling",
+                        "instructions",
+                        "read_policy",
+                        "receipt_shape",
+                        "status_semantics",
+                        "write_policy"
+                    ]
+                },
+                "briefing_sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                },
+                "contract_version": {
+                    "const": "arcanum.confirmed-role-briefing.v0.1"
+                },
+                "source_binding": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "artifact_path": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "artifact_sha256": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "selected_payload_sha256": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{64}$"
+                        },
+                        "selector": {
+                            "type": "string",
+                            "pattern": "^/"
+                        }
+                    },
+                    "required": [
+                        "artifact_path",
+                        "artifact_sha256",
+                        "selected_payload_sha256",
+                        "selector"
+                    ]
+                }
+            },
+            "required": [
+                "briefing",
+                "briefing_sha256",
+                "contract_version",
+                "source_binding"
+            ]
+        },
+        "capability_ref": {
+            "type": "string",
+            "minLength": 1
+        },
+        "dispatch_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "forbidden_write_scopes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "input_refs": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "mode": {
+            "type": "string",
+            "minLength": 1
+        },
+        "mutation_policy": {
+            "enum": [
+                "read-only",
+                "proposal-only",
+                "lifecycle-owned",
+                "artifact-only"
+            ]
+        },
+        "output_refs": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "role": {
+            "type": "string",
+            "minLength": 1
+        },
+        "run_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "schema_version": {
+            "const": "arcanum.native-dispatch-runner.action.v0.1"
+        },
+        "step_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "target": {
+            "type": "string",
+            "minLength": 1
+        },
+        "wave_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "write_scope": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": [
+        "action",
+        "action_id",
+        "agent_count",
+        "agent_ordinal",
+        "applies_to_steps",
+        "briefing_binding",
+        "capability_ref",
+        "dispatch_id",
+        "forbidden_write_scopes",
+        "input_refs",
+        "mode",
+        "mutation_policy",
+        "output_refs",
+        "role",
+        "run_id",
+        "schema_version",
+        "step_id",
+        "target",
+        "wave_id",
+        "write_scope"
+    ]
+}

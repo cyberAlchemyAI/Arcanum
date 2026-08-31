@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/governance-evaluation-request/1-0-0",
+  "title": "TaskSessionGovernanceEvaluationRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "evaluation_kind",
+    "policy_ref",
+    "input",
+    "output_path"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "task-session.governance-evaluation-request.v1"
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evaluation_kind": {
+      "enum": [
+        "series-intent",
+        "automatic-choice",
+        "closeout-preflight",
+        "validation",
+        "closeout-sync"
+      ]
+    },
+    "policy_ref": {
+      "$ref": "#/$defs/exactArtifactRef"
+    },
+    "input": {
+      "type": "object"
+    },
+    "output_path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\u0000]+$"
+    }
+  },
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

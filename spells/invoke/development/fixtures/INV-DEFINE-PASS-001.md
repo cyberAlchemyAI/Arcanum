@@ -2,7 +2,8 @@
 
 ## Scenario
 
-Vague development intent becomes a governed spec and glossary baseline.
+Vague development intent becomes a governed spec and candidate definition
+registry with deterministic human views.
 
 ## User Request
 
@@ -21,9 +22,9 @@ Define a small Mars rover maintenance log module. It should capture daily inspec
 ## Expected Result
 
 - Phase status: `pass`
-- Template selection: Module Formulae discovery profile
-- Outputs: spec artifact, glossary artifact, define transport report
-- Glossary linking: linked, partial, or no-match with rationale
+- Template selection: `invoke.generic-definitions-baseline.v3`
+- Outputs: spec artifact, `DEFINITIONS.json`, `DEFINITIONS.md`, `GLOSSARY.md`, and define transport report
+- Definition evidence: exact local source references and candidate-only status
 - Implementation layering: seed emitted or gap recorded
 - Expected next route: `deferred`
 

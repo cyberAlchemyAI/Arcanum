@@ -1,0 +1,141 @@
+:root {
+  color-scheme: dark;
+  --shell: #20252a;
+  --paper: #fdfaf3;
+  --ink: #151515;
+  --muted: #626262;
+  --line: #e3ded2;
+  --red: #e60023;
+  --red-deep: #991022;
+  --orange: #e85d18;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--shell);
+  color: #f8f7f3;
+}
+
+.page-header,
+main {
+  width: min(92vw, 78rem);
+  margin-inline: auto;
+}
+
+.page-header {
+  display: grid;
+  grid-template-columns: 12rem 1fr;
+  gap: 2rem;
+  padding: 4rem 0 3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, .13);
+}
+
+.page-header a {
+  align-self: start;
+  color: #b9b9b4;
+  font-size: .78rem;
+  text-decoration: none;
+}
+
+.page-header p,
+.page-header h1,
+.page-header span { margin: 0; }
+.page-header p { color: #b9b9b4; font-size: .68rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.page-header h1 { margin-top: .55rem; font-size: clamp(2.3rem, 5vw, 5.2rem); letter-spacing: -.065em; line-height: .95; }
+.page-header span { display: block; margin-top: 1rem; color: #b9b9b4; }
+
+main { padding: 2.5rem 0 7rem; }
+
+.direction + .direction { margin-top: 5.5rem; }
+
+.direction-copy {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 1.2rem;
+}
+
+.direction-copy > span {
+  display: grid;
+  width: 2.6rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid var(--red);
+  border-radius: 50%;
+  color: var(--red);
+  font-weight: 850;
+}
+
+.direction-copy h2,
+.direction-copy p { margin: 0; }
+.direction-copy h2 { font-size: 1.35rem; }
+.direction-copy p { max-width: 47rem; margin-top: .38rem; color: #b9b9b4; font-size: .88rem; line-height: 1.45; }
+
+.cover {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 1.7rem 5rem rgba(0, 0, 0, .28);
+}
+
+.cover .orb,
+.cover .mark { display: block; }
+.cover .orb { position: absolute; pointer-events: none; }
+.cover-copy { position: absolute; z-index: 2; }
+.cover h3,
+.cover p { margin: 0; }
+.cover h3 { font-weight: 850; letter-spacing: -.075em; line-height: .86; }
+.cover p { color: var(--muted); font-weight: 610; letter-spacing: -.02em; line-height: 1.25; }
+.cover i { display: block; height: 3px; background: linear-gradient(90deg, var(--red-deep), var(--red), var(--orange)); }
+
+/* A — Editorial Orbit */
+.cover--orbit {
+  background: radial-gradient(circle at 88% 5%, rgba(230, 0, 35, .035), transparent 27%), var(--paper);
+}
+.cover--orbit .orb { top: -9%; right: -25%; width: 78%; opacity: .54; mix-blend-mode: multiply; }
+.cover--orbit .cover-copy { top: 18%; left: 7.3%; width: 67%; }
+.cover--orbit .mark { width: 8.4%; margin-bottom: 3%; }
+.cover--orbit h3 { font-size: clamp(3.4rem, 7.3vw, 7.1rem); }
+.cover--orbit i { width: 18%; margin-top: 4%; }
+.cover--orbit p { max-width: 59%; margin-top: 3%; font-size: clamp(1rem, 1.75vw, 1.7rem); }
+
+/* B — Orb Horizon */
+.cover--horizon { background: linear-gradient(180deg, var(--paper) 0%, #fff8ef 100%); }
+.cover--horizon::after { content: ""; position: absolute; right: 0; bottom: 0; left: 0; height: 1px; background: linear-gradient(90deg, var(--red), var(--orange)); }
+.cover--horizon .orb { right: 2%; bottom: -48%; width: 69%; opacity: .7; }
+.cover--horizon .cover-copy { top: 10.5%; right: 7.4%; left: 7.4%; }
+.cover--horizon .mark { width: 5.4%; }
+.cover--horizon h3 { margin-top: 3.2%; font-size: clamp(3.3rem, 7vw, 6.8rem); }
+.cover--horizon p { max-width: 48%; margin-top: 3%; font-size: clamp(.95rem, 1.65vw, 1.62rem); }
+
+/* C — Alchemical Seal */
+.cover--seal { background: radial-gradient(circle at 50% 43%, #fffdf8 0%, var(--paper) 55%, #f7f1e5 100%); }
+.cover--seal .orb { top: -23%; left: 50%; width: 48%; opacity: .24; transform: translateX(-50%); mix-blend-mode: multiply; }
+.cover--seal .cover-copy { top: 14%; right: 7%; left: 7%; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.cover--seal .mark { width: 7.2%; }
+.cover--seal h3 { margin-top: 8.5%; font-size: clamp(3.2rem, 6.7vw, 6.55rem); }
+.cover--seal i { width: 13%; margin-top: 3.6%; }
+.cover--seal p { max-width: 54%; margin-top: 2.8%; font-size: clamp(.95rem, 1.55vw, 1.52rem); }
+
+@media (max-width: 680px) {
+  .page-header { grid-template-columns: 1fr; padding-top: 2rem; }
+  .direction-copy { grid-template-columns: 2.7rem 1fr; }
+  .direction + .direction { margin-top: 3.5rem; }
+}
+
+@media print {
+  @page { size: 13.333in 7.5in; margin: 0; }
+  body { background: #fff; }
+  .page-header, .direction-copy { display: none; }
+  main { width: auto; padding: 0; }
+  .direction + .direction { margin-top: 0; }
+  .cover { width: 13.333in; height: 7.5in; break-after: page; box-shadow: none; }
+}

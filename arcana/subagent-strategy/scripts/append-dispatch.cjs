@@ -9,29 +9,26 @@
  * <record.json> is a UTF-8 JSON file (a file arg, not stdin, so shell encoding
  * — e.g. PowerShell's UTF-16 pipes — can't corrupt the payload).
  *
- * SCHEMA — subagents-strategy schema v0.7.0 (`agent_name` and the exact
- * identity-prefixed `initial_prompt` became mandatory; `output_mode` was added
- * for review at v0.6.1 and group `role` was removed at v0.6.0). Two row kinds,
- * both appended by this script
+ * SCHEMA — subagents-strategy schema v0.6.1 (`output_mode` added for review;
+ * group `role` was removed at v0.6.0). Two row kinds, both appended by this script
  * (two appends, one place):
  *
  *   DISPATCH ROW — keyed by `dispatch_id`. Required: dispatch_id,
- *     schema_version ("0.7.0" exactly), dispatch_type
+ *     schema_version ("0.6.1" exactly), dispatch_type
  *     (research|code|review|plan|suggestion|experiment), goal, context, max_loops (1..5),
  *     final_approver, groups[] (each group: group_id, agents[] — NO group
- *     `role` field; each agent: agent_name, role
- *     explorer|synthesizer|skeptic|writer|auditor, model, token_budget,
- *     initial_prompt beginning with `You are {agent_name}.`). Optional: meta (true), parent_dispatch_id,
+ *     `role` field; each agent: role explorer|synthesizer|skeptic|writer|auditor, model,
+ *     token_budget, initial_prompt). Optional: meta (true), parent_dispatch_id,
  *     anti_bias_global, working_folder (REQUIRED for LIVE types research/review/experiment; never vault/),
  *     invoked_by (tooling extension, not part of the core schema),
  *     connections[] ({from,to,type,loop_cap?}).
  *   CLOSE ROW — keyed by `close_of`. Required: exit_reason
  *     (resolved|loop_ceiling_reached|dissent_irreconcilable|user_abort|error)
- *     and agents_spawned ({planned_total, total, not_launched, tree,
- *     loops_used}). `total` is the number actually launched; `tree` sums to
- *     `total`; `total + not_launched` equals `planned_total`. Optional:
+ *     and agents_spawned ({total, tree, loops_used}). Optional:
  *     feedback_prompts[] (verbatim feedback-edge asks),
- *     invoked_by (tooling extension, not part of the core schema).
+ *     invoked_by (tooling extension, not part of the core schema). The
+ *     registrar derives `temporary_close` from the consumed close-envelope
+ *     path so v0.3 execution can bind the terminal row to the exact envelope.
  *
  * NOT ENFORCED here (deliberate — sheet-design rules owned by the strategist
  * and the human confirm gate): dispatch_id YYYY-MM-DD-<slug> format;
@@ -48,7 +45,7 @@
  * `project_dir` is a control key (repo-root fallback), never emitted.
  *
  * VALIDATION SPLIT (grandfathering):
- *   - The INCOMING record is validated STRICTLY against the v0.7.0 schema
+ *   - The INCOMING record is validated STRICTLY against the v0.6.1 schema
  *     before append: required fields, closed enums, conditional fields
  *     (working_folder on research; anti_bias/angle at n >= 2;
  *     anti_bias_global when >= 2 groups have >= 2 agents; n ==
@@ -115,7 +112,7 @@ const isNonEmptyStr = (v) => isStr(v) && v.trim() !== '';
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 // ---------------------------------------------------------------- schema
-const SCHEMA_VERSION = '0.7.0';   // mandatory pool identity and exact prompt prefix
+const SCHEMA_VERSION = '0.6.1';   // row schema: review `output_mode` added at v0.6.1
 const DISPATCH_TYPES = ['research', 'code', 'review', 'plan', 'suggestion', 'experiment'];
 // LIVE (review 2026-06-12; experiment 2026-06-14, owner decisions); others
 // RESERVED (code, plan, suggestion) — recorded but not yet dispatchable.
@@ -151,7 +148,6 @@ const LEGACY_LEDGER_KEYS = new Set([
 const GROUP_KEYS = new Set(['group_id', 'agents', 'n', 'robot_talks', 'layers', 'anti_bias', 'predicted_disagreements']);
 const AGENT_KEYS = new Set(['role', 'model', 'token_budget', 'initial_prompt', 'agent_name', 'angle']);
 const CONN_KEYS = new Set(['from', 'to', 'type', 'loop_cap']);
-const SPAWN_KEYS = new Set(['planned_total', 'total', 'not_launched', 'tree', 'loops_used']);
 
 function validateDispatch(rec) {
   const errs = [];
@@ -241,17 +237,7 @@ function validateDispatch(rec) {
         if (!isNonEmptyStr(a.model)) errs.push(`${aw}.model is required and must be a non-empty string`);
         if (!Number.isInteger(a.token_budget) || a.token_budget <= 0) errs.push(`${aw}.token_budget is required and must be a positive integer — no unlimited default`);
         if (!isNonEmptyStr(a.initial_prompt)) errs.push(`${aw}.initial_prompt is required and must be a non-empty string`);
-        if (!isNonEmptyStr(a.agent_name)) {
-          errs.push(`${aw}.agent_name is required and must be a non-empty string`);
-        } else if (isNonEmptyStr(a.initial_prompt)) {
-          const identityPrefix = `You are ${a.agent_name}.`;
-          const instructionBody = a.initial_prompt.startsWith(identityPrefix + '\n\n')
-            ? a.initial_prompt.slice(identityPrefix.length + 2).trim()
-            : '';
-          if (!instructionBody) {
-            errs.push(`${aw}.initial_prompt must start exactly with ${J(identityPrefix)} followed by a blank line`);
-          }
-        }
+        if (a.agent_name !== undefined && a.agent_name !== null && !isNonEmptyStr(a.agent_name)) errs.push(`${aw}.agent_name must be a string or null`);
         if (fanout && !isNonEmptyStr(a.angle)) errs.push(`${aw}.angle is required when the group has >= 2 agents`);
         if (!fanout && a.angle !== undefined && !isNonEmptyStr(a.angle)) errs.push(`${aw}.angle, when present, must be a non-empty string`);
       });
@@ -295,12 +281,9 @@ function validateClose(rec) {
   if (!EXIT_REASONS.includes(rec.exit_reason)) errs.push(`exit_reason must be one of ${EXIT_REASONS.join(' | ')} (got ${J(rec.exit_reason)})`);
   const s = rec.agents_spawned;
   if (!isObj(s)) {
-    errs.push('agents_spawned is required and must be an object: {planned_total, total, not_launched, tree, loops_used}');
+    errs.push('agents_spawned is required and must be an object: {total, tree, loops_used}');
   } else {
-    for (const k of Object.keys(s)) if (!SPAWN_KEYS.has(k)) errs.push(`agents_spawned: unknown key "${k}"`);
-    if (!Number.isInteger(s.planned_total) || s.planned_total < 0) errs.push('agents_spawned.planned_total must be a non-negative integer');
     if (!Number.isInteger(s.total) || s.total < 0) errs.push('agents_spawned.total must be a non-negative integer');
-    if (!Number.isInteger(s.not_launched) || s.not_launched < 0) errs.push('agents_spawned.not_launched must be a non-negative integer');
     if (!isObj(s.tree)) errs.push('agents_spawned.tree must be an object (keyed by role-category, helpers in their own bucket)');
     else {
       const counts = Object.values(s.tree);
@@ -311,10 +294,6 @@ function validateClose(rec) {
       }
     }
     if (!Number.isInteger(s.loops_used) || s.loops_used < 0) errs.push('agents_spawned.loops_used is required and must be a non-negative integer (loop iterations used are a component of agents_spawned)');
-    if (Number.isInteger(s.planned_total) && Number.isInteger(s.total) && Number.isInteger(s.not_launched) &&
-        s.total + s.not_launched !== s.planned_total) {
-      errs.push('agents_spawned.total + agents_spawned.not_launched must equal agents_spawned.planned_total');
-    }
   }
   if (rec.feedback_prompts !== undefined &&
       (!Array.isArray(rec.feedback_prompts) || rec.feedback_prompts.some((p) => !isStr(p)))) {
@@ -420,219 +399,125 @@ const header =
   '# `agents_spawned`/`feedback_prompts` (close rows) are JSON columns.\n' +
   'dispatches:\n';
 
-class RegistrationError extends Error {
-  constructor(message, code = 2) { super(message); this.code = code; }
-}
+const {
+  RegistrationError,
+  mutateRegistration,
+} = require('./ledger-engine.cjs');
 
-function isWithin(root, target) {
-  const relative = path.relative(root, target);
-  return relative === '' || (!relative.startsWith('..' + path.sep) && relative !== '..' && !path.isAbsolute(relative));
-}
-
-function nearestExisting(candidate) {
-  let current = path.resolve(candidate);
-  while (!fs.existsSync(current)) {
-    const parent = path.dirname(current);
-    if (parent === current) break;
-    current = parent;
+function renderPublicRow(stamp) {
+  if (isClose) {
+    const lines = [
+      '  - close_of: ' + J(rec.close_of),
+      '    closed: ' + J(stamp),
+      '    close_sha256: ' + J(sheetSha256),
+      '    temporary_close: ' + J(path.relative(projectDir, src).split(path.sep).join('/')),
+      '    invoked_by: ' + J(resolveInvokedBy()),
+      '    exit_reason: ' + J(rec.exit_reason),
+      '    agents_spawned: ' + J(rec.agents_spawned),
+    ];
+    if (rec.feedback_prompts !== undefined) {
+      lines.push('    feedback_prompts: ' + J(rec.feedback_prompts));
+    }
+    return lines;
   }
-  return current;
-}
 
-function assertGovernedPaths() {
-  const realProject = fs.realpathSync(projectDir);
-  const ledgerParent = path.dirname(file);
-  const existingParent = fs.realpathSync(nearestExisting(ledgerParent));
-  if (!isWithin(realProject, existingParent)) throw new RegistrationError('ledger path escapes the real project root through a symlink or junction');
-  fs.mkdirSync(ledgerParent, { recursive: true });
-  if (!isWithin(realProject, fs.realpathSync(ledgerParent))) throw new RegistrationError('ledger directory resolves outside the real project root');
-
-  if (consume) {
-    const tempRoot = path.join(projectDir, '.arcanum', 'runtime', 'subagents-strategy');
-    fs.mkdirSync(tempRoot, { recursive: true });
-    if (!isWithin(fs.realpathSync(tempRoot), fs.realpathSync(src))) {
-      throw new RegistrationError('temporary record resolves outside its governed runtime root');
-    }
+  const lines = [
+    '  - dispatch_id: ' + J(rec.dispatch_id),
+    '    schema_version: ' + J(rec.schema_version),
+    '    created: ' + J(stamp),
+    '    sheet_sha256: ' + J(sheetSha256),
+    '    invoked_by: ' + J(resolveInvokedBy()),
+    '    dispatch_type: ' + J(rec.dispatch_type),
+    '    goal: ' + J(rec.goal),
+    '    context: ' + J(rec.context),
+    '    max_loops: ' + J(rec.max_loops),
+    '    final_approver: ' + J(rec.final_approver),
+  ];
+  if (rec.meta === true) lines.push('    meta: ' + J(true));
+  if (rec.parent_dispatch_id != null) {
+    lines.push('    parent_dispatch_id: ' + J(rec.parent_dispatch_id));
   }
-}
-
-const sleepCell = new Int32Array(new SharedArrayBuffer(4));
-const lockPath = file + '.lock';
-let lockOwned = false;
-function processAlive(pid) {
-  if (!Number.isInteger(pid) || pid <= 0) return false;
-  try { process.kill(pid, 0); return true; } catch (error) { return error.code === 'EPERM'; }
-}
-function acquireLock() {
-  const deadline = Date.now() + 15000;
-  while (Date.now() < deadline) {
-    try {
-      const fd = fs.openSync(lockPath, 'wx');
-      fs.writeFileSync(fd, JSON.stringify({ pid: process.pid, created_at: new Date().toISOString() }));
-      fs.closeSync(fd);
-      lockOwned = true;
-      return;
-    } catch (error) {
-      if (error.code !== 'EEXIST') throw error;
-      try {
-        const stat = fs.statSync(lockPath);
-        const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
-        if (Date.now() - stat.mtimeMs > 30000 && !processAlive(lock.pid)) {
-          fs.unlinkSync(lockPath);
-          continue;
-        }
-      } catch (_) { /* another process may be replacing a stale lock */ }
-      Atomics.wait(sleepCell, 0, 0, 25);
-    }
+  if (rec.anti_bias_global != null) {
+    lines.push('    anti_bias_global: ' + J(rec.anti_bias_global));
   }
-  throw new RegistrationError(`timed out acquiring ledger lock ${lockPath}`, 1);
-}
-function releaseLock() {
-  if (!lockOwned) return;
-  lockOwned = false;
-  try { fs.unlinkSync(lockPath); } catch (_) { /* already gone */ }
-}
-process.once('exit', releaseLock);
-
-function appendDurably(text) {
-  const fd = fs.openSync(file, 'a');
-  try { fs.writeSync(fd, text, null, 'utf8'); fs.fsyncSync(fd); }
-  finally { fs.closeSync(fd); }
-}
-
-function checkLedger(text) {
-  const dispatchRows = new Map(), closeRows = new Map(), rows = [];
-  const fail = (n, why) => { throw new RegistrationError(`ledger structural check failed at ${file}:${n}: ${why}`, 1); };
-  const sourceLines = text.split('\n');
-  let sawTop = false, current = null;
-  for (let i = 0; i < sourceLines.length; i++) {
-    const line = sourceLines[i].replace(/\r$/, '');
-    if (line === '' || line.startsWith('#')) continue;
-    if (line === 'dispatches:') {
-      if (sawTop) fail(i + 1, 'duplicate "dispatches:" key');
-      sawTop = true; continue;
-    }
-    const match = /^(  - |    )([A-Za-z_][A-Za-z0-9_]*):(?: (.*))?$/.exec(line);
-    if (!match) fail(i + 1, 'unrecognized line shape');
-    if (!sawTop) fail(i + 1, 'row content before the "dispatches:" key');
-    let value;
-    if (match[3] === undefined || match[3] === '') {
-      const block = [];
-      let j = i + 1;
-      while (j < sourceLines.length) {
-        const continuation = sourceLines[j].replace(/\r$/, '');
-        if (continuation === '') { j++; continue; }
-        if (/^\s*/.exec(continuation)[0].length <= 4) break;
-        block.push(continuation.trim()); j++;
-      }
-      if (block.length === 0) fail(i + 1, `value of "${match[2]}" is empty`);
-      try { value = JSON.parse(block.join('\n').replace(/,\s*([}\]])/g, '$1')); }
-      catch (_) { fail(i + 1, `multiline value of "${match[2]}" is not valid historical JSON/YAML flow syntax`); }
-      i = j - 1;
-    } else {
-      try { value = JSON.parse(match[3]); }
-      catch (_) { fail(i + 1, `value of "${match[2]}" is not valid JSON`); }
-    }
-    if (match[1] === '  - ') {
-      current = { [match[2]]: value, __line: i + 1 };
-      rows.push(current);
-      if (match[2] === 'dispatch_id') {
-        if (dispatchRows.has(value)) fail(i + 1, `duplicate dispatch_id ${J(value)}`);
-        dispatchRows.set(value, current);
-      } else if (match[2] === 'close_of') {
-        if (closeRows.has(value)) fail(i + 1, `duplicate close_of ${J(value)}`);
-        closeRows.set(value, current);
-      } else fail(i + 1, `row must start with dispatch_id or close_of, got "${match[2]}"`);
-    } else {
-      if (!current) fail(i + 1, 'continuation field appears before a row');
-      if (Object.prototype.hasOwnProperty.call(current, match[2])) fail(i + 1, `duplicate row field "${match[2]}"`);
-      current[match[2]] = value;
-    }
+  if (rec.output_mode != null) lines.push('    output_mode: ' + J(rec.output_mode));
+  if (rec.working_folder != null) {
+    lines.push('    working_folder: ' + J(rec.working_folder));
   }
-  return { dispatchRows, closeRows, rows };
+  if (rec.execution_projection_sha256 != null) {
+    lines.push('    execution_projection_sha256: ' + J(rec.execution_projection_sha256));
+  }
+  lines.push('    groups: ' + J(rec.groups));
+  if (rec.connections !== undefined) lines.push('    connections: ' + J(rec.connections));
+  return lines;
 }
 
-function validateCloseAgainstDispatch(dispatchRow) {
-  if (!dispatchRow) throw new RegistrationError(`close_of ${J(rec.close_of)} has no matching dispatch row`);
+function validatePublicClose(state) {
+  if (!isClose) return;
+  const dispatchRow = state.dispatchRows.get(rec.close_of);
+  if (!dispatchRow) {
+    throw new RegistrationError(`close_of ${J(rec.close_of)} has no matching dispatch row`);
+  }
   const groups = Array.isArray(dispatchRow.groups) ? dispatchRow.groups : [];
-  const expectedAgents = groups.reduce((sum, group) => sum + (Array.isArray(group.agents) ? group.agents.length : 0), 0);
-  if (rec.agents_spawned.planned_total !== expectedAgents) {
-    throw new RegistrationError(`agents_spawned.planned_total (${rec.agents_spawned.planned_total}) must equal the registered strategy agent count (${expectedAgents})`);
+  const expectedAgents = groups.reduce(
+    (sum, group) => sum + (Array.isArray(group.agents) ? group.agents.length : 0),
+    0,
+  );
+  if (rec.agents_spawned.total !== expectedAgents) {
+    throw new RegistrationError(
+      `agents_spawned.total (${rec.agents_spawned.total}) must equal the registered strategy agent count (${expectedAgents})`,
+    );
   }
-  if (rec.exit_reason === 'resolved' &&
-      (rec.agents_spawned.total !== expectedAgents || rec.agents_spawned.not_launched !== 0)) {
-    throw new RegistrationError('resolved close requires every registered agent to be launched and not_launched to be zero');
-  }
-  if (Number.isInteger(dispatchRow.max_loops) && rec.agents_spawned.loops_used > dispatchRow.max_loops) {
-    throw new RegistrationError(`agents_spawned.loops_used exceeds registered max_loops ${dispatchRow.max_loops}`);
+  if (
+    Number.isInteger(dispatchRow.max_loops) &&
+    rec.agents_spawned.loops_used > dispatchRow.max_loops
+  ) {
+    throw new RegistrationError(
+      `agents_spawned.loops_used exceeds registered max_loops ${dispatchRow.max_loops}`,
+    );
   }
 }
 
 try {
-  assertGovernedPaths();
-  acquireLock();
-  try { fs.writeFileSync(file, header, { flag: 'wx' }); } catch (error) { if (error.code !== 'EEXIST') throw error; }
-  const existing = fs.readFileSync(file, 'utf8');
-  const nl = existing.length > 0 && !existing.endsWith('\n') ? '\n' : '';
-  const { dispatchRows, closeRows } = checkLedger(existing);
-
-  if (isClose) {
-    const prior = closeRows.get(rec.close_of);
-    if (prior) {
-      if (prior.close_sha256 !== sheetSha256) throw new RegistrationError(`close_of ${J(rec.close_of)} already exists with different content; temporary record preserved`);
-      console.log('already closed with identical content:', rec.close_of, '— no row appended.');
-      consumeSource();
-    } else {
-      validateCloseAgainstDispatch(dispatchRows.get(rec.close_of));
-      const output = [
-        '  - close_of: ' + J(rec.close_of),
-        '    closed: ' + J(new Date().toISOString()),
-        '    close_sha256: ' + J(sheetSha256),
-        '    invoked_by: ' + J(resolveInvokedBy()),
-        '    exit_reason: ' + J(rec.exit_reason),
-        '    agents_spawned: ' + J(rec.agents_spawned),
-      ];
-      if (rec.feedback_prompts !== undefined) output.push('    feedback_prompts: ' + J(rec.feedback_prompts));
-      appendDurably(nl + output.join('\n') + '\n');
-      console.log('closed dispatch', rec.close_of, '->', file);
-      consumeSource();
-    }
+  const receipt = mutateRegistration({
+    projectDir,
+    ledgerRelative: '.arcanum/observability/subagents-strategy/subagents-dispatch.yaml',
+    tempRootRelative: '.arcanum/runtime/subagents-strategy',
+    sourcePath: src,
+    consume,
+    header,
+    rowKind: isClose ? 'close' : 'dispatch',
+    identity: isClose ? rec.close_of : rec.dispatch_id,
+    contentDigest: sheetSha256,
+    digestField: isClose ? 'close_sha256' : 'sheet_sha256',
+    conflictDescription: isClose ? 'content' : 'sheet bytes',
+    renderRow: renderPublicRow,
+    beforeAppend: validatePublicClose,
+    receipt: {
+      profile_id: 'arcanum.subagent-strategy.public.v1',
+      row_schema_version: isClose ? null : SCHEMA_VERSION,
+      source_lifecycle: 'consumed',
+    },
+  });
+  if (receipt.append_status === 'already_present_identical') {
+    console.log(isClose ? 'already closed:' : 'already registered:', receipt.identity, '— no row appended.');
   } else {
-    const prior = dispatchRows.get(rec.dispatch_id);
-    if (prior) {
-      if (prior.sheet_sha256 !== sheetSha256) throw new RegistrationError(`dispatch_id ${J(rec.dispatch_id)} already exists with different sheet bytes; temporary record preserved`);
-      console.log('already registered with identical sheet:', rec.dispatch_id, '— no row appended.');
-      consumeSource();
-    } else {
-      const output = [
-        '  - dispatch_id: ' + J(rec.dispatch_id),
-        '    schema_version: ' + J(rec.schema_version),
-        '    created: ' + J(new Date().toISOString()),
-        '    sheet_sha256: ' + J(sheetSha256),
-        '    invoked_by: ' + J(resolveInvokedBy()),
-        '    dispatch_type: ' + J(rec.dispatch_type),
-        '    goal: ' + J(rec.goal),
-        '    context: ' + J(rec.context),
-        '    max_loops: ' + J(rec.max_loops),
-        '    final_approver: ' + J(rec.final_approver),
-      ];
-      if (rec.meta === true) output.push('    meta: ' + J(true));
-      if (rec.parent_dispatch_id != null) output.push('    parent_dispatch_id: ' + J(rec.parent_dispatch_id));
-      if (rec.anti_bias_global != null) output.push('    anti_bias_global: ' + J(rec.anti_bias_global));
-      if (rec.output_mode != null) output.push('    output_mode: ' + J(rec.output_mode));
-      if (rec.working_folder != null) output.push('    working_folder: ' + J(rec.working_folder));
-      if (rec.execution_projection_sha256 != null) output.push('    execution_projection_sha256: ' + J(rec.execution_projection_sha256));
-      output.push('    groups: ' + J(rec.groups));
-      if (rec.connections !== undefined) output.push('    connections: ' + J(rec.connections));
-      appendDurably(nl + output.join('\n') + '\n');
-      const agentCount = rec.groups.reduce((total, group) => total + group.agents.length, 0);
-      console.log('registered dispatch', rec.dispatch_id, '->', file, `(${agentCount} agents across ${rec.groups.length} groups)`);
-      consumeSource();
-    }
+    const agentCount = isClose
+      ? rec.agents_spawned.total
+      : rec.groups.reduce((total, group) => total + group.agents.length, 0);
+    console.log(
+      isClose ? 'closed dispatch' : 'registered dispatch',
+      receipt.identity,
+      '->',
+      file,
+      `(${agentCount} agents)`,
+    );
   }
+  if (receipt.temporary_envelope_consumed) {
+    console.log('consumed temporary record', src);
+  }
+  console.log('RUNTIME_RECEIPT=' + JSON.stringify(receipt));
 } catch (error) {
   console.error(error.message || String(error));
   process.exitCode = Number.isInteger(error.code) ? error.code : 1;
-} finally {
-  releaseLock();
 }

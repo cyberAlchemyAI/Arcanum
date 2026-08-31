@@ -11,10 +11,10 @@ const root = fs.mkdtempSync(path.join(os.tmpdir(), 'arcanum-ledger-lock-'));
 const tempRoot = path.join(root, '.arcanum', 'runtime', 'subagents-strategy');
 fs.mkdirSync(tempRoot, { recursive: true });
 const record = {
-  dispatch_id: 'concurrent-identical-dispatch', schema_version: '0.7.0', dispatch_type: 'review',
+  dispatch_id: 'concurrent-identical-dispatch', schema_version: '0.6.1', dispatch_type: 'review',
   goal: 'Prove cross-process ledger serialization.', context: 'Eight concurrent registrars submit identical confirmed bytes.',
   max_loops: 1, final_approver: 'parent', output_mode: 'inline',
-  groups: [{ group_id: 'worker', agents: [{ agent_name: 'Shannon, Claude', role: 'writer', model: 'gpt-5.6-sol', token_budget: 100, initial_prompt: 'You are Shannon, Claude.\n\nWrite one receipt.' }] }],
+  groups: [{ group_id: 'worker', agents: [{ agent_name: null, role: 'writer', model: 'gpt-5.6-sol', token_budget: 100, initial_prompt: 'Write one receipt.' }] }],
   connections: [], invoked_by: 'concurrency@example.invalid'
 };
 const bytes = JSON.stringify(record);

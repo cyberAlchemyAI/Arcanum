@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/task-session/pre-execution-prerequisite-receipt/1-0-0",
+  "title": "PreExecutionPrerequisiteReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "prerequisite_id",
+    "task_id",
+    "swu_id",
+    "attempt_id",
+    "classification",
+    "prerequisite_fingerprint",
+    "inputs_read",
+    "authorization",
+    "permitted_next_action",
+    "phase_trace",
+    "reasons"
+  ],
+  "properties": {
+    "schema_version": {"const": "task-session.pre-execution-prerequisite-receipt.v1"},
+    "receipt_id": {"$ref": "#/$defs/nonEmptyString"},
+    "prerequisite_id": {"$ref": "#/$defs/nonEmptyString"},
+    "task_id": {"$ref": "#/$defs/nonEmptyString"},
+    "swu_id": {"$ref": "#/$defs/nonEmptyString"},
+    "attempt_id": {"$ref": "#/$defs/nonEmptyString"},
+    "classification": {"enum": ["satisfied", "unmet", "ambiguous", "stale", "invalid"]},
+    "prerequisite_fingerprint": {"$ref": "#/$defs/sha256"},
+    "inputs_read": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {"enum": ["work-pack", "selected-unit", "prerequisite", "satisfaction-receipt"]}
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence_ref"],
+      "properties": {
+        "status": {"enum": ["not-required", "missing", "matched", "mismatch"]},
+        "evidence_ref": {
+          "oneOf": [
+            {"$ref": "#/$defs/exactArtifactRef"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "permitted_next_action": {
+      "enum": ["continue-context-build", "block-missing-authorization", "route-one-owner-hop", "block"]
+    },
+    "phase_trace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resolved",
+        "prerequisite_classified",
+        "context_builder_entered",
+        "mutation_admission_entered",
+        "implementation_inspected",
+        "target_mutation_entered",
+        "owner_hops_dispatched"
+      ],
+      "properties": {
+        "resolved": {"const": true},
+        "prerequisite_classified": {"const": true},
+        "context_builder_entered": {"type": "boolean"},
+        "mutation_admission_entered": {"const": false},
+        "implementation_inspected": {"const": false},
+        "target_mutation_entered": {"const": false},
+        "owner_hops_dispatched": {"type": "integer", "minimum": 0, "maximum": 1}
+      }
+    },
+    "reasons": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/nonEmptyString"}
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"classification": {"const": "satisfied"}}, "required": ["classification"]},
+      "then": {
+        "properties": {
+          "authorization": {"properties": {"status": {"const": "not-required"}, "evidence_ref": {"type": "null"}}},
+          "permitted_next_action": {"const": "continue-context-build"},
+          "phase_trace": {"properties": {"context_builder_entered": {"const": false}, "owner_hops_dispatched": {"const": 0}}}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "classification": {"const": "unmet"},
+          "authorization": {"properties": {"status": {"const": "missing"}}, "required": ["status"]}
+        },
+        "required": ["classification", "authorization"]
+      },
+      "then": {
+        "properties": {
+          "authorization": {"properties": {"evidence_ref": {"type": "null"}}},
+          "permitted_next_action": {"const": "block-missing-authorization"},
+          "phase_trace": {"properties": {"context_builder_entered": {"const": false}, "owner_hops_dispatched": {"const": 0}}}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "classification": {"const": "unmet"},
+          "authorization": {"properties": {"status": {"const": "matched"}}, "required": ["status"]}
+        },
+        "required": ["classification", "authorization"]
+      },
+      "then": {
+        "properties": {
+          "authorization": {"properties": {"evidence_ref": {"$ref": "#/$defs/exactArtifactRef"}}},
+          "permitted_next_action": {"const": "route-one-owner-hop"},
+          "phase_trace": {"properties": {"context_builder_entered": {"const": false}, "owner_hops_dispatched": {"const": 0}}}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"classification": {"enum": ["ambiguous", "stale", "invalid"]}}, "required": ["classification"]},
+      "then": {
+        "properties": {
+          "permitted_next_action": {"const": "block"},
+          "phase_trace": {"properties": {"context_builder_entered": {"const": false}, "owner_hops_dispatched": {"const": 0}}}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nonEmptyString": {"type": "string", "minLength": 1, "pattern": "^[^\\u0000]+$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"$ref": "#/$defs/nonEmptyString"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

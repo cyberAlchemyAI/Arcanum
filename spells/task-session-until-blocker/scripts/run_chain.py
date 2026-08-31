@@ -295,6 +295,7 @@ def chain_config_approval_projection(config: dict[str, Any]) -> dict[str, Any]:
         "manifest_ref",
         "audit_report_ref",
         "wpra_v2",
+        "frontier_binding_mode",
         "finite_frontier",
         "run_budget",
         "risk_ceiling",
@@ -414,7 +415,8 @@ def bind_wpra_documents(
     task_routes: dict[str, dict[str, Any]],
     closeout_routes: dict[str, dict[str, Any]],
     repository_root: Path,
-    admitted_frontier: list[str] | None = None,
+    policy_frontier: list[str] | None = None,
+    admission_frontier: list[str] | None = None,
 ) -> dict[str, Any]:
     audit_config = documents["audit_config"]
     contracts_document = documents["execution_contracts"]
@@ -425,8 +427,9 @@ def bind_wpra_documents(
     contracts = nested_contracts if nested_profile else contracts_document
     contract_selector_prefix = "/execution_contracts" if nested_profile else ""
     handoff = documents["selection_handoff"]
-    frontier = manifest["ready_frontier"]
-    admitted = frontier if admitted_frontier is None else admitted_frontier
+    ready_frontier = manifest["ready_frontier"]
+    policy = ready_frontier if policy_frontier is None else policy_frontier
+    admitted = policy if admission_frontier is None else admission_frontier
     if audit_config.get("schema_version") != "2.0.0":
         raise ValueError("WPRA audit config is not v2")
     if (
@@ -452,7 +455,7 @@ def bind_wpra_documents(
         raise ValueError("WPRA closeout target differs from the work pack")
     if (
         handoff.get("plan_epoch_id") != manifest.get("plan_epoch_id")
-        or handoff.get("ready_frontier") != frontier
+        or handoff.get("ready_frontier") != ready_frontier
         or handoff.get("allowed_routes_digest") != manifest.get("allowed_routes_digest")
         or handoff.get("authority_effect") != "none"
         or handoff.get("mutation_ready") is not False
@@ -467,12 +470,15 @@ def bind_wpra_documents(
         execution_bindings, contract_units, closeout_bindings
     )):
         raise ValueError("WPRA unit bindings are not arrays")
+    binding_units = [item.get("unit_id") for item in execution_bindings]
+    contract_unit_ids = [item.get("unit_id") for item in contract_units]
+    closeout_units = [item.get("unit_id") for item in closeout_bindings]
     if not (
-        len(execution_bindings) == len(contract_units) == len(closeout_bindings) == len(frontier)
+        binding_units == contract_unit_ids == closeout_units == policy
     ):
-        raise ValueError("WPRA unit binding counts differ from the frontier")
-    if set(manifest.get("unit_contract_digests", {})) != set(frontier):
-        raise ValueError("WPRA unit contract digest coverage differs from the frontier")
+        raise ValueError("WPRA unit binding order differs from the policy frontier")
+    if set(manifest.get("unit_contract_digests", {})) != set(policy):
+        raise ValueError("WPRA unit contract digest coverage differs from the policy frontier")
     if any(
         not isinstance(value, str) or len(value) != 64
         for value in manifest["unit_contract_digests"].values()
@@ -483,18 +489,18 @@ def bind_wpra_documents(
     binding_by_unit = {item.get("unit_id"): item for item in execution_bindings}
     closeout_by_unit = {item.get("unit_id"): item for item in closeout_bindings}
     if (
-        set(contract_by_unit) != set(frontier)
-        or set(binding_by_unit) != set(frontier)
-        or set(closeout_by_unit) != set(frontier)
+        set(contract_by_unit) != set(policy)
+        or set(binding_by_unit) != set(policy)
+        or set(closeout_by_unit) != set(policy)
     ):
-        raise ValueError("WPRA unit IDs do not cover the frontier exactly")
+        raise ValueError("WPRA unit IDs do not cover the policy frontier exactly")
     swu_to_unit = {
         item.get("swu_id"): item.get("unit_id") for item in contract_units
     }
     normalized_bindings: list[dict[str, Any]] = []
     all_normalized_bindings: list[dict[str, Any]] = []
     contracts_ref = config["wpra_v2"]["execution_contracts_ref"]
-    for index, unit_id in enumerate(frontier):
+    for index, unit_id in enumerate(policy):
         binding = binding_by_unit[unit_id]
         contract = contract_by_unit[unit_id]
         closeout = closeout_by_unit[unit_id]
@@ -728,11 +734,11 @@ def bind_wpra_documents(
     ]
     normalized["wpra_v2_bound"] = True
     normalized["wpra_initial_selection"] = admitted[0]
-    if admitted != frontier:
+    if admitted != policy:
         normalized["fresh_epoch_boundary"] = True
-        normalized["fresh_epoch_ready_frontier"] = json_clone(frontier)
+        normalized["fresh_epoch_ready_frontier"] = json_clone(ready_frontier)
         normalized["fresh_epoch_successor"] = (
-            frontier[1] if len(frontier) > 1 else None
+            ready_frontier[1] if len(ready_frontier) > 1 else None
         )
     return normalized
 
@@ -812,6 +818,7 @@ def normalize_plan_semantic_manifest(
         raise ValueError("WPRA v2 allowed routes digest mismatch")
 
     admission_window = config.get("admission_window")
+    policy_frontier = frontier
     admitted_frontier = frontier
     if admission_window is not None:
         selected = admission_window.get("selected_unit")
@@ -825,6 +832,26 @@ def normalize_plan_semantic_manifest(
         if admission_window.get("observed_ready_frontier_digest") != digest(frontier):
             raise ValueError("fresh epoch window ready-frontier digest differs")
         admitted_frontier = [selected]
+
+    accepted_policy_frontier = (
+        config.get("frontier_binding_mode") == "accepted-policy-frontier"
+    )
+    if accepted_policy_frontier:
+        configured_frontier = config.get("finite_frontier")
+        if admission_window is not None:
+            raise ValueError(
+                "accepted policy frontier cannot be combined with a fresh epoch window"
+            )
+        if (
+            not isinstance(configured_frontier, list)
+            or not configured_frontier
+            or configured_frontier[: len(frontier)] != frontier
+        ):
+            raise ValueError(
+                "WPRA ready frontier is not an ordered prefix of the accepted policy frontier"
+            )
+        policy_frontier = configured_frontier
+        admitted_frontier = configured_frontier
 
     def valid_task_target(target: Any, unit_id: str) -> bool:
         """Accept a legacy unit selector or one strict ``base#unit`` selector."""
@@ -868,8 +895,8 @@ def normalize_plan_semantic_manifest(
         if not isinstance(route, dict):
             raise ValueError("WPRA v2 allowed route is not an object")
         unit_id = route.get("frontier_swu")
-        if unit_id not in frontier:
-            raise ValueError("WPRA v2 allowed route is outside the ready frontier")
+        if unit_id not in policy_frontier:
+            raise ValueError("WPRA v2 allowed route is outside the policy frontier")
         if route.get("effect_class") != "repository-local-reversible":
             raise ValueError("WPRA v2 allowed route has an unsafe effect class")
         if route.get("capability") == "task-session":
@@ -911,16 +938,16 @@ def normalize_plan_semantic_manifest(
             closeout_routes[unit_id] = route
         else:
             raise ValueError("WPRA v2 allowed route has an unsupported capability")
-    if set(task_routes) != set(admitted_frontier):
+    if list(task_routes) != admitted_frontier:
         raise ValueError("WPRA v2 Task Session routes do not cover the admitted frontier exactly")
     # WPRA v2 binds Task Session routes in the frozen manifest. Its closeout
     # contract is owned by the audited configuration, not necessarily emitted
     # as a second inline route. If a future projection does include inline
     # closeout routes, they must still cover the same frontier exactly.
-    if closeout_routes and set(closeout_routes) != set(admitted_frontier):
+    if closeout_routes and list(closeout_routes) != admitted_frontier:
         raise ValueError("WPRA v2 closeout routes do not cover the admitted frontier exactly")
     if current_v2:
-        if closeout_routes and set(closeout_routes) != set(admitted_frontier):
+        if closeout_routes and list(closeout_routes) != admitted_frontier:
             raise ValueError("current WPRA v2 closeout routes do not cover the admitted frontier")
         assert wpra_documents is not None
         return bind_wpra_documents(
@@ -930,6 +957,7 @@ def normalize_plan_semantic_manifest(
             task_routes,
             closeout_routes,
             repository_root,
+            policy_frontier,
             admitted_frontier,
         )
 

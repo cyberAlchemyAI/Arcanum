@@ -452,6 +452,101 @@ remains blocking.
 - `DEF-ARC-STAGED-DELTA`
 - `DEF-ARC-APPROVAL-TOKEN`
 
+## DEF-ARC-CAPABILITY: Agent Capability
+
+Status: active
+Term: agent capability
+Aliases: reusable agent capability, governed agent capability
+
+### Scientific/Formal Voice
+
+An Agent Capability is a stable, owner-qualified promise that an agent system
+can perform one reusable kind of work under explicit applicability, input,
+output, failure, evidence, and authority boundaries. The capability is the
+meaningful behavior contract, not any single prompt, model call, run, process,
+installation, or interface that realizes it.
+
+```text
+AgentCapability =
+  (id, purpose, applicability, exclusions, input_contract_refs,
+   behavior_contract_ref, output_contract_refs, quality_conditions,
+   failure_contract, owner_route, observability_refs,
+   lifecycle_owner_route, revision_history, challenge_route)
+
+valid(c) only if
+  stable(c.id)
+  and bounded(c.purpose, c.applicability, c.exclusions)
+  and owned(c.owner_route)
+  and explicit(c.failure_contract)
+  and owned(c.lifecycle_owner_route)
+  and contracts_resolve(c.input_contract_refs,
+                        c.behavior_contract_ref,
+                        c.output_contract_refs)
+
+run(c) =/=> c
+prompt_for(c) =/=> c
+installed(c) =/=> validated(c)
+observed(c) =/=> authority(c)
+```
+
+`id` preserves identity across individual runs. `purpose`, `applicability`, and
+`exclusions` say what reusable work the capability does and when it does not
+apply. The contract references define admitted inputs, outputs, and behavior;
+`quality_conditions` say what useful execution must preserve. `owner_route`
+controls contract change. `failure_contract` states when the capability flags,
+blocks, defers, or hands off. `lifecycle_owner_route` names the authority that
+owns the capability's lifecycle vocabulary and transitions; this definition
+does not impose one lifecycle enum on every Arcanum capability.
+`observability_refs` and `revision_history` support improvement without
+pretending that observations rewrite the contract. `challenge_route` keeps
+disagreement explicit.
+
+### Operational Interpretation
+
+Use an Agent Capability when a recurring unit of agent work needs a stable name
+and contract that can survive changes to prompts, models, host adapters, and
+individual executions. Compose capabilities by referencing their contracts;
+route a contract change back to the capability owner.
+
+### Plain-Language Voice
+
+An Agent Capability is a named job an agent can do again, with clear inputs,
+outputs, limits, failure behavior, and an owner.
+
+### Domain Context
+
+In this workspace, sigils package reusable Agent Capabilities and spells
+compose them into larger routes. Invoke Define is one capability-bearing mode:
+its files, schemas, validators, and host adapters may change while its owned
+behavioral promise remains separately identifiable. Observation and reflection
+may justify a later revision, but they do not silently change that promise.
+
+### Boundary
+
+An Agent Capability is not a Product Capability, prompt, model, agent persona,
+skill installation, command, interface, runtime process, session, individual
+run, evidence receipt, permission, authority grant, sigil file, or spell graph.
+A sigil may package one Agent Capability and a spell may compose capabilities;
+neither relationship makes packaging, composition, installation, or execution
+equivalent to the capability's meaning. Passing one run does not make the
+capability validated, active, adopted by a product, or authorized for every
+context.
+
+### Primary Consumers
+
+- `README.md`
+- `framework/CYBERALCHEMY-METHOD.md`
+- `framework/SIGIL-DEVELOPMENT-WORKFLOW.md`
+- `arcana/`
+- `formulae/`
+- `spells/`
+- `runtime/orchestrate/`
+
+### Related Definitions
+
+- `DEF-ARC-CONTRACT`
+- `DEF-ARC-SCHEMA`
+
 ## DomainSpec Definitions (wedge)
 
 > Canonical, machine-checkable definitions of the **DomainSpec** domain-modeling

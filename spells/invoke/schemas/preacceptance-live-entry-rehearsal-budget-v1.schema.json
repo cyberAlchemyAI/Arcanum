@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/invoke/preacceptance-live-entry-rehearsal-budget/1-0-0",
+  "title": "InvokePreacceptanceLiveEntryRehearsalBudgetV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "derivation_version",
+    "invocation_count",
+    "declared_invocation_timeout_seconds",
+    "failure_stop_after",
+    "failure_stop_invocation_timeout_seconds",
+    "exact_input_ref_occurrence_count",
+    "unique_input_ref_count",
+    "unique_input_size_bytes",
+    "exact_output_path_count",
+    "workload_overhead_seconds",
+    "success_coordinator_timeout_seconds",
+    "failure_stop_coordinator_timeout_seconds",
+    "terminalization_invocation_count",
+    "terminalization_invocation_timeout_seconds",
+    "stage_timeout_seconds",
+    "hard_maximum_seconds",
+    "budget_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "invoke.preacceptance-live-entry-rehearsal-budget.v1"
+    },
+    "derivation_version": {
+      "const": "task-session.sequential-live-entry-workload.v1"
+    },
+    "invocation_count": {
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 7
+    },
+    "declared_invocation_timeout_seconds": {
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 4200
+    },
+    "failure_stop_after": {
+      "enum": ["readiness", "selection", "fast-entry", "context", "admission"]
+    },
+    "failure_stop_invocation_timeout_seconds": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 3600
+    },
+    "exact_input_ref_occurrence_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 16384
+    },
+    "unique_input_ref_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 16384
+    },
+    "unique_input_size_bytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483648
+    },
+    "exact_output_path_count": {
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 1024
+    },
+    "workload_overhead_seconds": {
+      "type": "integer",
+      "minimum": 45,
+      "maximum": 590
+    },
+    "success_coordinator_timeout_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3600
+    },
+    "failure_stop_coordinator_timeout_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3600
+    },
+    "terminalization_invocation_count": {
+      "const": 3
+    },
+    "terminalization_invocation_timeout_seconds": {
+      "const": 60
+    },
+    "stage_timeout_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3600
+    },
+    "hard_maximum_seconds": {
+      "const": 3600
+    },
+    "budget_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

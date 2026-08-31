@@ -1,0 +1,3345 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+        {
+            "if": {
+                "type": "object",
+                "properties": {
+                    "outcome": {
+                        "const": "definitions-governance-required"
+                    }
+                },
+                "required": [
+                    "outcome"
+                ]
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "authority_resolution": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "const": "resolved"
+                                    }
+                                },
+                                "required": [
+                                    "status"
+                                ]
+                            }
+                        ]
+                    },
+                    "blockers": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "maxItems": 0
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "checks": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "anyOf": [
+                                        {
+                                            "type": "null"
+                                        },
+                                        {
+                                            "type": "boolean"
+                                        },
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "array"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "const": "pass"
+                                                }
+                                            },
+                                            "required": [
+                                                "status"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "inspected_sources": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "anyOf": [
+                                        {
+                                            "type": "null"
+                                        },
+                                        {
+                                            "type": "boolean"
+                                        },
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "array"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "maxItems": 0
+                                                        },
+                                                        {
+                                                            "type": "object"
+                                                        }
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "anyOf": [
+                                                        {
+                                                            "const": "current"
+                                                        },
+                                                        {
+                                                            "const": "excluded"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "causal_blocker_ids",
+                                                "status"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "next_route": {
+                        "const": "definitions-governance"
+                    },
+                    "probe_results": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "contains": {
+                                    "anyOf": [
+                                        {
+                                            "type": "null"
+                                        },
+                                        {
+                                            "type": "boolean"
+                                        },
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "array"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "disposition": {
+                                                    "const": "canonical-change-proposal"
+                                                }
+                                            },
+                                            "required": [
+                                                "disposition"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "minContains": 1,
+                                "items": {
+                                    "anyOf": [
+                                        {
+                                            "type": "null"
+                                        },
+                                        {
+                                            "type": "boolean"
+                                        },
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "array"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "maxItems": 0
+                                                        },
+                                                        {
+                                                            "type": "object"
+                                                        }
+                                                    ]
+                                                },
+                                                "disposition": {
+                                                    "anyOf": [
+                                                        {
+                                                            "const": "reuse-existing"
+                                                        },
+                                                        {
+                                                            "const": "new-scoped-term"
+                                                        },
+                                                        {
+                                                            "const": "specialize-existing"
+                                                        },
+                                                        {
+                                                            "const": "canonical-change-proposal"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "causal_blocker_ids",
+                                                "disposition"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "properties": {
+                    "outcome": {
+                        "const": "blocked"
+                    }
+                },
+                "required": [
+                    "outcome"
+                ]
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "blockers": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "prefixItems": [
+                                    true
+                                ],
+                                "minItems": 1
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "next_route": {
+                        "const": "stop"
+                    }
+                }
+            }
+        },
+        {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "$schema": {
+                    "const": "https://arcanum.dev/schemas/invoke/define-semantic-closure-receipt/v1"
+                },
+                "assessment": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "assessed_by": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                        },
+                        "authored_by": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                        }
+                    },
+                    "required": [
+                        "assessed_by",
+                        "authored_by"
+                    ]
+                },
+                "authority_effect": {
+                    "const": "none"
+                },
+                "authority_resolution": {
+                    "allOf": [
+                        {
+                            "if": {
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "const": "absent"
+                                    }
+                                },
+                                "required": [
+                                    "status"
+                                ]
+                            },
+                            "then": {
+                                "type": "object",
+                                "properties": {
+                                    "canonical_source_refs": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "array",
+                                                "maxItems": 0
+                                            },
+                                            {
+                                                "type": "object"
+                                            }
+                                        ]
+                                    },
+                                    "index_refs": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "array",
+                                                "maxItems": 0
+                                            },
+                                            {
+                                                "type": "object"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "canonical_source_refs": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "path": {
+                                                "type": "string"
+                                            },
+                                            "sha256": {
+                                                "type": "string",
+                                                "pattern": "^[a-f0-9]{64}$"
+                                            },
+                                            "size": {
+                                                "allOf": [
+                                                    {
+                                                        "type": "number"
+                                                    },
+                                                    {
+                                                        "type": "integer",
+                                                        "minimum": 0
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "path",
+                                            "sha256",
+                                            "size"
+                                        ]
+                                    },
+                                    "uniqueItems": true
+                                },
+                                "evidence_refs": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "path": {
+                                                "type": "string"
+                                            },
+                                            "sha256": {
+                                                "type": "string",
+                                                "pattern": "^[a-f0-9]{64}$"
+                                            },
+                                            "size": {
+                                                "allOf": [
+                                                    {
+                                                        "type": "number"
+                                                    },
+                                                    {
+                                                        "type": "integer",
+                                                        "minimum": 0
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "path",
+                                            "sha256",
+                                            "size"
+                                        ]
+                                    },
+                                    "uniqueItems": true
+                                },
+                                "index_refs": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "path": {
+                                                "type": "string"
+                                            },
+                                            "sha256": {
+                                                "type": "string",
+                                                "pattern": "^[a-f0-9]{64}$"
+                                            },
+                                            "size": {
+                                                "allOf": [
+                                                    {
+                                                        "type": "number"
+                                                    },
+                                                    {
+                                                        "type": "integer",
+                                                        "minimum": 0
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "path",
+                                            "sha256",
+                                            "size"
+                                        ]
+                                    },
+                                    "uniqueItems": true
+                                },
+                                "owner": {
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                },
+                                "status": {
+                                    "enum": [
+                                        "resolved",
+                                        "absent",
+                                        "ambiguous"
+                                    ]
+                                }
+                            },
+                            "if": {
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "const": "resolved"
+                                    }
+                                },
+                                "required": [
+                                    "status"
+                                ]
+                            },
+                            "then": {
+                                "type": "object",
+                                "properties": {
+                                    "canonical_source_refs": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "array",
+                                                "prefixItems": [
+                                                    true
+                                                ],
+                                                "minItems": 1
+                                            },
+                                            {
+                                                "type": "object"
+                                            }
+                                        ]
+                                    },
+                                    "evidence_refs": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "array",
+                                                "prefixItems": [
+                                                    true
+                                                ],
+                                                "minItems": 1
+                                            },
+                                            {
+                                                "type": "object"
+                                            }
+                                        ]
+                                    },
+                                    "index_refs": {
+                                        "anyOf": [
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "array",
+                                                "prefixItems": [
+                                                    true
+                                                ],
+                                                "minItems": 1
+                                            },
+                                            {
+                                                "type": "object"
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            "required": [
+                                "canonical_source_refs",
+                                "evidence_refs",
+                                "index_refs",
+                                "owner",
+                                "status"
+                            ]
+                        }
+                    ]
+                },
+                "blockers": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "blocker_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "code": {
+                                "type": "string",
+                                "pattern": "^[A-Z][A-Z0-9_]{2,127}$"
+                            },
+                            "message": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "owner": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "repair_route": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            }
+                        },
+                        "required": [
+                            "blocker_id",
+                            "code",
+                            "message",
+                            "owner",
+                            "repair_route"
+                        ]
+                    },
+                    "uniqueItems": true
+                },
+                "checks": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true,
+                                true,
+                                true,
+                                true,
+                                true,
+                                true,
+                                true,
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "prefixItems": [
+                                {
+                                    "allOf": [
+                                        {
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "enum": [
+                                                            "block",
+                                                            "not_evaluable"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "prefixItems": [
+                                                                    true
+                                                                ],
+                                                                "minItems": 1
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "check_id": {
+                                                    "const": "check:authority-resolution"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "check_id": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "evidence_refs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "additionalProperties": false,
+                                                        "properties": {
+                                                            "path": {
+                                                                "type": "string"
+                                                            },
+                                                            "sha256": {
+                                                                "type": "string",
+                                                                "pattern": "^[a-f0-9]{64}$"
+                                                            },
+                                                            "size": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "type": "number"
+                                                                    },
+                                                                    {
+                                                                        "type": "integer",
+                                                                        "minimum": 0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "path",
+                                                            "sha256",
+                                                            "size"
+                                                        ]
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "status": {
+                                                    "enum": [
+                                                        "pass",
+                                                        "block",
+                                                        "not_evaluable"
+                                                    ]
+                                                }
+                                            },
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "const": "pass"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "maxItems": 0
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "causal_blocker_ids",
+                                                "check_id",
+                                                "evidence_refs",
+                                                "status"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "allOf": [
+                                        {
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "enum": [
+                                                            "block",
+                                                            "not_evaluable"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "prefixItems": [
+                                                                    true
+                                                                ],
+                                                                "minItems": 1
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "check_id": {
+                                                    "const": "check:source-freshness"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "check_id": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "evidence_refs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "additionalProperties": false,
+                                                        "properties": {
+                                                            "path": {
+                                                                "type": "string"
+                                                            },
+                                                            "sha256": {
+                                                                "type": "string",
+                                                                "pattern": "^[a-f0-9]{64}$"
+                                                            },
+                                                            "size": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "type": "number"
+                                                                    },
+                                                                    {
+                                                                        "type": "integer",
+                                                                        "minimum": 0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "path",
+                                                            "sha256",
+                                                            "size"
+                                                        ]
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "status": {
+                                                    "enum": [
+                                                        "pass",
+                                                        "block",
+                                                        "not_evaluable"
+                                                    ]
+                                                }
+                                            },
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "const": "pass"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "maxItems": 0
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "causal_blocker_ids",
+                                                "check_id",
+                                                "evidence_refs",
+                                                "status"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "allOf": [
+                                        {
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "enum": [
+                                                            "block",
+                                                            "not_evaluable"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "prefixItems": [
+                                                                    true
+                                                                ],
+                                                                "minItems": 1
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "check_id": {
+                                                    "const": "check:probe-coverage"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "check_id": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "evidence_refs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "additionalProperties": false,
+                                                        "properties": {
+                                                            "path": {
+                                                                "type": "string"
+                                                            },
+                                                            "sha256": {
+                                                                "type": "string",
+                                                                "pattern": "^[a-f0-9]{64}$"
+                                                            },
+                                                            "size": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "type": "number"
+                                                                    },
+                                                                    {
+                                                                        "type": "integer",
+                                                                        "minimum": 0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "path",
+                                                            "sha256",
+                                                            "size"
+                                                        ]
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "status": {
+                                                    "enum": [
+                                                        "pass",
+                                                        "block",
+                                                        "not_evaluable"
+                                                    ]
+                                                }
+                                            },
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "const": "pass"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "maxItems": 0
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "causal_blocker_ids",
+                                                "check_id",
+                                                "evidence_refs",
+                                                "status"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "allOf": [
+                                        {
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "enum": [
+                                                            "block",
+                                                            "not_evaluable"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "prefixItems": [
+                                                                    true
+                                                                ],
+                                                                "minItems": 1
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "check_id": {
+                                                    "const": "check:canonical-index-parity"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "check_id": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "evidence_refs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "additionalProperties": false,
+                                                        "properties": {
+                                                            "path": {
+                                                                "type": "string"
+                                                            },
+                                                            "sha256": {
+                                                                "type": "string",
+                                                                "pattern": "^[a-f0-9]{64}$"
+                                                            },
+                                                            "size": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "type": "number"
+                                                                    },
+                                                                    {
+                                                                        "type": "integer",
+                                                                        "minimum": 0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "path",
+                                                            "sha256",
+                                                            "size"
+                                                        ]
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "status": {
+                                                    "enum": [
+                                                        "pass",
+                                                        "block",
+                                                        "not_evaluable"
+                                                    ]
+                                                }
+                                            },
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "const": "pass"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "maxItems": 0
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "causal_blocker_ids",
+                                                "check_id",
+                                                "evidence_refs",
+                                                "status"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "allOf": [
+                                        {
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "enum": [
+                                                            "block",
+                                                            "not_evaluable"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "prefixItems": [
+                                                                    true
+                                                                ],
+                                                                "minItems": 1
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "check_id": {
+                                                    "const": "check:normalized-collision"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "check_id": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "evidence_refs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "additionalProperties": false,
+                                                        "properties": {
+                                                            "path": {
+                                                                "type": "string"
+                                                            },
+                                                            "sha256": {
+                                                                "type": "string",
+                                                                "pattern": "^[a-f0-9]{64}$"
+                                                            },
+                                                            "size": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "type": "number"
+                                                                    },
+                                                                    {
+                                                                        "type": "integer",
+                                                                        "minimum": 0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "path",
+                                                            "sha256",
+                                                            "size"
+                                                        ]
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "status": {
+                                                    "enum": [
+                                                        "pass",
+                                                        "block",
+                                                        "not_evaluable"
+                                                    ]
+                                                }
+                                            },
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "const": "pass"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "maxItems": 0
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "causal_blocker_ids",
+                                                "check_id",
+                                                "evidence_refs",
+                                                "status"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "allOf": [
+                                        {
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "enum": [
+                                                            "block",
+                                                            "not_evaluable"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "prefixItems": [
+                                                                    true
+                                                                ],
+                                                                "minItems": 1
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "check_id": {
+                                                    "const": "check:semantic-overlap"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "check_id": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "evidence_refs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "additionalProperties": false,
+                                                        "properties": {
+                                                            "path": {
+                                                                "type": "string"
+                                                            },
+                                                            "sha256": {
+                                                                "type": "string",
+                                                                "pattern": "^[a-f0-9]{64}$"
+                                                            },
+                                                            "size": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "type": "number"
+                                                                    },
+                                                                    {
+                                                                        "type": "integer",
+                                                                        "minimum": 0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "path",
+                                                            "sha256",
+                                                            "size"
+                                                        ]
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "status": {
+                                                    "enum": [
+                                                        "pass",
+                                                        "block",
+                                                        "not_evaluable"
+                                                    ]
+                                                }
+                                            },
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "const": "pass"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "maxItems": 0
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "causal_blocker_ids",
+                                                "check_id",
+                                                "evidence_refs",
+                                                "status"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "allOf": [
+                                        {
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "enum": [
+                                                            "block",
+                                                            "not_evaluable"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "prefixItems": [
+                                                                    true
+                                                                ],
+                                                                "minItems": 1
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "check_id": {
+                                                    "const": "check:consumer-coverage"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "check_id": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "evidence_refs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "additionalProperties": false,
+                                                        "properties": {
+                                                            "path": {
+                                                                "type": "string"
+                                                            },
+                                                            "sha256": {
+                                                                "type": "string",
+                                                                "pattern": "^[a-f0-9]{64}$"
+                                                            },
+                                                            "size": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "type": "number"
+                                                                    },
+                                                                    {
+                                                                        "type": "integer",
+                                                                        "minimum": 0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "path",
+                                                            "sha256",
+                                                            "size"
+                                                        ]
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "status": {
+                                                    "enum": [
+                                                        "pass",
+                                                        "block",
+                                                        "not_evaluable"
+                                                    ]
+                                                }
+                                            },
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "const": "pass"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "maxItems": 0
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "causal_blocker_ids",
+                                                "check_id",
+                                                "evidence_refs",
+                                                "status"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "allOf": [
+                                        {
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "enum": [
+                                                            "block",
+                                                            "not_evaluable"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "prefixItems": [
+                                                                    true
+                                                                ],
+                                                                "minItems": 1
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "check_id": {
+                                                    "const": "check:independent-owner"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "check_id": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "evidence_refs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "additionalProperties": false,
+                                                        "properties": {
+                                                            "path": {
+                                                                "type": "string"
+                                                            },
+                                                            "sha256": {
+                                                                "type": "string",
+                                                                "pattern": "^[a-f0-9]{64}$"
+                                                            },
+                                                            "size": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "type": "number"
+                                                                    },
+                                                                    {
+                                                                        "type": "integer",
+                                                                        "minimum": 0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "path",
+                                                            "sha256",
+                                                            "size"
+                                                        ]
+                                                    },
+                                                    "uniqueItems": true
+                                                },
+                                                "status": {
+                                                    "enum": [
+                                                        "pass",
+                                                        "block",
+                                                        "not_evaluable"
+                                                    ]
+                                                }
+                                            },
+                                            "if": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "status": {
+                                                        "const": "pass"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "status"
+                                                ]
+                                            },
+                                            "then": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "causal_blocker_ids": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "boolean"
+                                                            },
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "array",
+                                                                "maxItems": 0
+                                                            },
+                                                            {
+                                                                "type": "object"
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "causal_blocker_ids",
+                                                "check_id",
+                                                "evidence_refs",
+                                                "status"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ],
+                            "maxItems": 8,
+                            "minItems": 8,
+                            "uniqueItems": true
+                        }
+                    ]
+                },
+                "claim_scope": {
+                    "const": "configured-roots-complete"
+                },
+                "context_ref": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "path",
+                        "sha256",
+                        "size"
+                    ]
+                },
+                "discovery_snapshots": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "consumer_paths": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "uniqueItems": true
+                                    },
+                                    "content_refs": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "path": {
+                                                    "type": "string"
+                                                },
+                                                "sha256": {
+                                                    "type": "string",
+                                                    "pattern": "^[a-f0-9]{64}$"
+                                                },
+                                                "size": {
+                                                    "allOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "integer",
+                                                            "minimum": 0
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "path",
+                                                "sha256",
+                                                "size"
+                                            ]
+                                        },
+                                        "uniqueItems": true
+                                    },
+                                    "excluded_paths": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "uniqueItems": true
+                                    },
+                                    "membership_digest": {
+                                        "type": "string",
+                                        "pattern": "^[a-f0-9]{64}$"
+                                    },
+                                    "path": {
+                                        "type": "string"
+                                    },
+                                    "registry_paths": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "uniqueItems": true
+                                    },
+                                    "root_id": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    }
+                                },
+                                "required": [
+                                    "consumer_paths",
+                                    "content_refs",
+                                    "excluded_paths",
+                                    "membership_digest",
+                                    "path",
+                                    "registry_paths",
+                                    "root_id"
+                                ]
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                },
+                "inspected_sources": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "allOf": [
+                                    {
+                                        "if": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "enum": [
+                                                        "missing",
+                                                        "stale",
+                                                        "conflicting"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "status"
+                                            ]
+                                        },
+                                        "then": {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "prefixItems": [
+                                                                true
+                                                            ],
+                                                            "minItems": 1
+                                                        },
+                                                        {
+                                                            "type": "object"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "causal_blocker_ids": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "uniqueItems": true
+                                            },
+                                            "declared_path": {
+                                                "type": "string"
+                                            },
+                                            "format": {
+                                                "enum": [
+                                                    "markdown",
+                                                    "json",
+                                                    "yaml",
+                                                    "text"
+                                                ]
+                                            },
+                                            "inspection_id": {
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                            },
+                                            "observed_ref": {
+                                                "oneOf": [
+                                                    {
+                                                        "type": "object",
+                                                        "additionalProperties": false,
+                                                        "properties": {
+                                                            "path": {
+                                                                "type": "string"
+                                                            },
+                                                            "sha256": {
+                                                                "type": "string",
+                                                                "pattern": "^[a-f0-9]{64}$"
+                                                            },
+                                                            "size": {
+                                                                "allOf": [
+                                                                    {
+                                                                        "type": "number"
+                                                                    },
+                                                                    {
+                                                                        "type": "integer",
+                                                                        "minimum": 0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "path",
+                                                            "sha256",
+                                                            "size"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "null"
+                                                    }
+                                                ]
+                                            },
+                                            "role": {
+                                                "enum": [
+                                                    "canonical-source",
+                                                    "canonical-index",
+                                                    "candidate-registry",
+                                                    "local-glossary",
+                                                    "consumer",
+                                                    "resolution-evidence",
+                                                    "discovery-source",
+                                                    "probe-evidence",
+                                                    "exclusion-evidence",
+                                                    "historical"
+                                                ]
+                                            },
+                                            "selector": {
+                                                "type": "string",
+                                                "pattern": ".*\\S.*"
+                                            },
+                                            "selector_type": {
+                                                "enum": [
+                                                    "whole-file",
+                                                    "heading",
+                                                    "anchor",
+                                                    "json-pointer",
+                                                    "yaml-path",
+                                                    "symbol"
+                                                ]
+                                            },
+                                            "status": {
+                                                "enum": [
+                                                    "current",
+                                                    "missing",
+                                                    "stale",
+                                                    "excluded",
+                                                    "conflicting"
+                                                ]
+                                            },
+                                            "visibility": {
+                                                "enum": [
+                                                    "public",
+                                                    "private"
+                                                ]
+                                            }
+                                        },
+                                        "if": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "enum": [
+                                                        "current",
+                                                        "excluded"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "status"
+                                            ]
+                                        },
+                                        "then": {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "maxItems": 0
+                                                        },
+                                                        {
+                                                            "type": "object"
+                                                        }
+                                                    ]
+                                                },
+                                                "observed_ref": {
+                                                    "type": "object",
+                                                    "additionalProperties": false,
+                                                    "properties": {
+                                                        "path": {
+                                                            "type": "string"
+                                                        },
+                                                        "sha256": {
+                                                            "type": "string",
+                                                            "pattern": "^[a-f0-9]{64}$"
+                                                        },
+                                                        "size": {
+                                                            "allOf": [
+                                                                {
+                                                                    "type": "number"
+                                                                },
+                                                                {
+                                                                    "type": "integer",
+                                                                    "minimum": 0
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "path",
+                                                        "sha256",
+                                                        "size"
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        "required": [
+                                            "causal_blocker_ids",
+                                            "declared_path",
+                                            "format",
+                                            "inspection_id",
+                                            "observed_ref",
+                                            "role",
+                                            "selector",
+                                            "selector_type",
+                                            "status",
+                                            "visibility"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                },
+                "next_route": {
+                    "enum": [
+                        "define-v3",
+                        "definitions-governance",
+                        "stop"
+                    ]
+                },
+                "outcome": {
+                    "enum": [
+                        "ready-for-define",
+                        "definitions-governance-required",
+                        "blocked"
+                    ]
+                },
+                "probe_results": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "allOf": [
+                                    {
+                                        "if": {
+                                            "type": "object",
+                                            "properties": {
+                                                "disposition": {
+                                                    "enum": [
+                                                        "reuse-existing",
+                                                        "specialize-existing",
+                                                        "canonical-change-proposal"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "disposition"
+                                            ]
+                                        },
+                                        "then": {
+                                            "type": "object",
+                                            "properties": {
+                                                "basis_ids": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "prefixItems": [
+                                                                true
+                                                            ],
+                                                            "minItems": 1
+                                                        },
+                                                        {
+                                                            "type": "object"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "type": "object",
+                                            "properties": {
+                                                "disposition": {
+                                                    "const": "blocked-conflict"
+                                                }
+                                            },
+                                            "required": [
+                                                "disposition"
+                                            ]
+                                        },
+                                        "then": {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "prefixItems": [
+                                                                true
+                                                            ],
+                                                            "minItems": 1
+                                                        },
+                                                        {
+                                                            "type": "object"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "basis_ids": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "uniqueItems": true
+                                            },
+                                            "causal_blocker_ids": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "uniqueItems": true
+                                            },
+                                            "disposition": {
+                                                "enum": [
+                                                    "reuse-existing",
+                                                    "new-scoped-term",
+                                                    "specialize-existing",
+                                                    "canonical-change-proposal",
+                                                    "blocked-conflict"
+                                                ]
+                                            },
+                                            "matches": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "additionalProperties": false,
+                                                    "properties": {
+                                                        "authority_class": {
+                                                            "enum": [
+                                                                "canonical",
+                                                                "candidate",
+                                                                "local",
+                                                                "narrative",
+                                                                "historical"
+                                                            ]
+                                                        },
+                                                        "authority_scope": {
+                                                            "type": "object",
+                                                            "additionalProperties": false,
+                                                            "properties": {
+                                                                "kind": {
+                                                                    "enum": [
+                                                                        "repository",
+                                                                        "project",
+                                                                        "feature",
+                                                                        "artifact"
+                                                                    ]
+                                                                },
+                                                                "ref": {
+                                                                    "type": "string",
+                                                                    "pattern": ".*\\S.*"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "kind",
+                                                                "ref"
+                                                            ]
+                                                        },
+                                                        "definition_id": {
+                                                            "oneOf": [
+                                                                {
+                                                                    "type": "string",
+                                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                                },
+                                                                {
+                                                                    "type": "null"
+                                                                }
+                                                            ]
+                                                        },
+                                                        "kind": {
+                                                            "enum": [
+                                                                "id",
+                                                                "term",
+                                                                "alias",
+                                                                "normalized-collision",
+                                                                "semantic-overlap",
+                                                                "consumer-use"
+                                                            ]
+                                                        },
+                                                        "match_id": {
+                                                            "type": "string",
+                                                            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                        },
+                                                        "source_ref": {
+                                                            "allOf": [
+                                                                {
+                                                                    "if": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "selector_type": {
+                                                                                "enum": [
+                                                                                    "heading",
+                                                                                    "anchor"
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "selector_type"
+                                                                        ]
+                                                                    },
+                                                                    "then": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "format": {
+                                                                                "const": "markdown"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "if": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "selector_type": {
+                                                                                "const": "json-pointer"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "selector_type"
+                                                                        ]
+                                                                    },
+                                                                    "then": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "format": {
+                                                                                "const": "json"
+                                                                            },
+                                                                            "selector": {
+                                                                                "type": "string",
+                                                                                "pattern": "^/"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "if": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "selector_type": {
+                                                                                "const": "yaml-path"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "selector_type"
+                                                                        ]
+                                                                    },
+                                                                    "then": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "format": {
+                                                                                "const": "yaml"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "if": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "selector_type": {
+                                                                                "const": "symbol"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "selector_type"
+                                                                        ]
+                                                                    },
+                                                                    "then": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "format": {
+                                                                                "enum": [
+                                                                                    "markdown",
+                                                                                    "yaml",
+                                                                                    "text"
+                                                                                ]
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "format": {
+                                                                            "enum": [
+                                                                                "markdown",
+                                                                                "json",
+                                                                                "yaml",
+                                                                                "text"
+                                                                            ]
+                                                                        },
+                                                                        "path": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "selector": {
+                                                                            "type": "string",
+                                                                            "pattern": ".*\\S.*"
+                                                                        },
+                                                                        "selector_type": {
+                                                                            "enum": [
+                                                                                "whole-file",
+                                                                                "heading",
+                                                                                "anchor",
+                                                                                "json-pointer",
+                                                                                "yaml-path",
+                                                                                "symbol"
+                                                                            ]
+                                                                        },
+                                                                        "sha256": {
+                                                                            "type": "string",
+                                                                            "pattern": "^[a-f0-9]{64}$"
+                                                                        },
+                                                                        "size": {
+                                                                            "allOf": [
+                                                                                {
+                                                                                    "type": "number"
+                                                                                },
+                                                                                {
+                                                                                    "type": "integer",
+                                                                                    "minimum": 0
+                                                                                }
+                                                                            ]
+                                                                        },
+                                                                        "visibility": {
+                                                                            "enum": [
+                                                                                "public",
+                                                                                "private"
+                                                                            ]
+                                                                        }
+                                                                    },
+                                                                    "if": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "selector_type": {
+                                                                                "const": "whole-file"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "selector_type"
+                                                                        ]
+                                                                    },
+                                                                    "then": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "selector": {
+                                                                                "const": "$"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "format",
+                                                                        "path",
+                                                                        "selector",
+                                                                        "selector_type",
+                                                                        "sha256",
+                                                                        "size",
+                                                                        "visibility"
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        },
+                                                        "term": {
+                                                            "type": "string",
+                                                            "pattern": ".*\\S.*"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "authority_class",
+                                                        "authority_scope",
+                                                        "definition_id",
+                                                        "kind",
+                                                        "match_id",
+                                                        "source_ref",
+                                                        "term"
+                                                    ]
+                                                },
+                                                "uniqueItems": true
+                                            },
+                                            "probe_id": {
+                                                "type": "string",
+                                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                            },
+                                            "rationale": {
+                                                "type": "string",
+                                                "pattern": ".*\\S.*"
+                                            }
+                                        },
+                                        "if": {
+                                            "type": "object",
+                                            "properties": {
+                                                "disposition": {
+                                                    "const": "new-scoped-term"
+                                                }
+                                            },
+                                            "required": [
+                                                "disposition"
+                                            ]
+                                        },
+                                        "then": {
+                                            "type": "object",
+                                            "properties": {
+                                                "basis_ids": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "maxItems": 0
+                                                        },
+                                                        {
+                                                            "type": "object"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        "required": [
+                                            "basis_ids",
+                                            "causal_blocker_ids",
+                                            "disposition",
+                                            "matches",
+                                            "probe_id",
+                                            "rationale"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                },
+                "receipt_digest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "receipt_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                },
+                "schema_bindings": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "context_schema_ref": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "path",
+                                "sha256",
+                                "size"
+                            ]
+                        },
+                        "receipt_schema_ref": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "path",
+                                "sha256",
+                                "size"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "context_schema_ref",
+                        "receipt_schema_ref"
+                    ]
+                },
+                "schema_version": {
+                    "const": "invoke.define-semantic-closure-receipt.v1"
+                },
+                "validator": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "identity": {
+                            "const": "invoke.validate-define-semantic-closure.v1"
+                        },
+                        "owner": {
+                            "const": "invoke-define-semantic-closure-validator"
+                        },
+                        "path": {
+                            "const": "arcanum/spells/invoke/scripts/validate_define_semantic_closure.py"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        }
+                    },
+                    "required": [
+                        "identity",
+                        "owner",
+                        "path",
+                        "sha256"
+                    ]
+                },
+                "visibility_boundary": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "discovery_roots": {
+                            "allOf": [
+                                {
+                                    "prefixItems": [
+                                        true
+                                    ]
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "minItems": 1,
+                                    "uniqueItems": true
+                                }
+                            ]
+                        },
+                        "public_roots": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "uniqueItems": true
+                        },
+                        "repository_root": {
+                            "const": "."
+                        },
+                        "source": {
+                            "const": "validator-invocation"
+                        }
+                    },
+                    "required": [
+                        "discovery_roots",
+                        "public_roots",
+                        "repository_root",
+                        "source"
+                    ]
+                }
+            },
+            "if": {
+                "type": "object",
+                "properties": {
+                    "outcome": {
+                        "const": "ready-for-define"
+                    }
+                },
+                "required": [
+                    "outcome"
+                ]
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "authority_resolution": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array"
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "const": "resolved"
+                                    }
+                                },
+                                "required": [
+                                    "status"
+                                ]
+                            }
+                        ]
+                    },
+                    "blockers": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "maxItems": 0
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "checks": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "anyOf": [
+                                        {
+                                            "type": "null"
+                                        },
+                                        {
+                                            "type": "boolean"
+                                        },
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "array"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "const": "pass"
+                                                }
+                                            },
+                                            "required": [
+                                                "status"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "inspected_sources": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "anyOf": [
+                                        {
+                                            "type": "null"
+                                        },
+                                        {
+                                            "type": "boolean"
+                                        },
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "array"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "maxItems": 0
+                                                        },
+                                                        {
+                                                            "type": "object"
+                                                        }
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "anyOf": [
+                                                        {
+                                                            "const": "current"
+                                                        },
+                                                        {
+                                                            "const": "excluded"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "causal_blocker_ids",
+                                                "status"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "next_route": {
+                        "const": "define-v3"
+                    },
+                    "probe_results": {
+                        "anyOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "anyOf": [
+                                        {
+                                            "type": "null"
+                                        },
+                                        {
+                                            "type": "boolean"
+                                        },
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "array"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "causal_blocker_ids": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "maxItems": 0
+                                                        },
+                                                        {
+                                                            "type": "object"
+                                                        }
+                                                    ]
+                                                },
+                                                "disposition": {
+                                                    "anyOf": [
+                                                        {
+                                                            "const": "reuse-existing"
+                                                        },
+                                                        {
+                                                            "const": "new-scoped-term"
+                                                        },
+                                                        {
+                                                            "const": "specialize-existing"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "causal_blocker_ids",
+                                                "disposition"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "$schema",
+                "assessment",
+                "authority_effect",
+                "authority_resolution",
+                "blockers",
+                "checks",
+                "claim_scope",
+                "context_ref",
+                "discovery_snapshots",
+                "inspected_sources",
+                "next_route",
+                "outcome",
+                "probe_results",
+                "receipt_digest",
+                "receipt_id",
+                "schema_bindings",
+                "schema_version",
+                "validator",
+                "visibility_boundary"
+            ]
+        }
+    ]
+}

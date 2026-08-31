@@ -20,7 +20,8 @@ execute_contract:
   ready_state: wave_ready
   preflight_spawn_attempt_count: 0
   strategy_registration_required: true
-  strategy_registration_schema: arcanum.subagent-strategy-registration.v0.3
+  strategy_registration_schema: arcanum.subagent-strategy-registration.v0.2|arcanum.subagent-strategy-registration.v0.3
+  strategy_execution_entry_schema: arcanum.subagent-strategy-execution-entry.v0.1
   strategy_ledger: .arcanum/observability/subagents-strategy/subagents-dispatch.yaml
   missing_host_behavior: block
   nested_model_cli_fallback: forbidden
@@ -32,6 +33,8 @@ native_spawn_contract:
   pre_event: action_attempted
   success_event: host_spawn_returned
   failure_event: host_spawn_failed
+  record_request_binding_required: true
+  returned_agent_id_task_name_match: basename_exact
   calls_per_action: 1
   unknown_action_policy: block
   replay_policy: block
@@ -64,6 +67,8 @@ native_evidence_contract:
   causal_schema: schemas/run-event.schema.json
   residue_schema: schemas/run-residue.schema.yml
   append_owner: scripts/native_dispatch_driver.py
+  correction_event: agent_binding_corrected
+  correction_command: scripts/native_dispatch_driver.py correct-agent-binding
   source_time_append_required: true
   prefix_validation_required: true
   complete_validation_before_resolved_close: true
@@ -75,6 +80,23 @@ native_evidence_contract:
 <objective>
 Route work through installed Arcanum capabilities and provide the parent-owned native execution surface for already-valid capability-bound dispatches.
 </objective>
+
+<skill-resolution>
+Resolve skill instructions in this order:
+
+1. an explicit repository route declared by the active repository instructions;
+2. an explicitly user-named skill, normalized through a declared repository alias;
+3. a matching repository-local capability package;
+4. a user-global or catalog candidate only when the repository package is absent and repository policy permits fallback.
+
+For Codex, the repository package is `.agents/skills/<capability>/SKILL.md`.
+For Claude, it is `.claude/skills/<capability>/SKILL.md`. The legacy alias
+`arcanum-orchestrate` normalizes to repository capability `orchestrate`; it must
+never cause a probe for `.agents/skills/arcanum-orchestrate/` or
+`.claude/skills/arcanum-orchestrate/`, and it cannot override an installed local
+`orchestrate` package. Catalog metadata may be present in host context, but it is
+not consulted when an earlier repository-owned route resolves.
+</skill-resolution>
 
 <authority>
 - Dispatch Spec validates dispatch structure, route rules, and techniques.
@@ -97,6 +119,14 @@ artifact available. `record-spawn` and `append-event` record host-owned results.
 and the reducer-owned gate decision, validates the causal stream, and only then
 persists dependent actions. `prepare-next-wave-plan` binds those exact actions
 to an exclusively created current-wave plan without changing the causal stream.
+
+## `orchestrate rehearse <dispatch.json>`
+
+For an authorization-required v0.2 dispatch, run the deterministic coordinator
+`rehearse` command before requesting execution authority. Rehearsal validates
+the dispatch and compiles every wave and typed gate in memory. It emits no
+action documents, makes no host calls, records `spawn_attempt_count: 0`, and
+grants no execution authority.
 </commands>
 
 <execute-preflight>
@@ -104,10 +134,10 @@ Run these checks in order:
 
 1. Parse the exact execute grammar.
 2. Run the canonical Dispatch Spec validator. Continue only when the result is `pass`; `flag` and `block` emit a blocked receipt.
-3. Read `subagent_strategy.authorization`. Continue only for `approved` or `not_needed`. Use `authorization_pending` for `requires_user_permission`; use `blocked` for `blocked` or missing authorization.
+3. Read `subagent_strategy.authorization`. Legacy v0.2 continues only for `approved` or `not_needed`. A v0.3 run instead requires the canonical dispatch to remain `requires_user_permission` and one separate execution entry carrying `authorization: approved`; the coordinator applies that approval only to an in-memory execution projection. Use `authorization_pending` when neither contract supplies valid authority; use `blocked` for blocked or missing authority.
 4. Load the selected host profile and compare every `required_execute_operation` with the active host tool catalog. The active host catalog is runtime evidence; a shell executable or prose claim is not a substitute.
 5. If any required operation is missing, emit `state=blocked`, name the missing operations, set `spawn_attempt_count=0`, and stop.
-6. Ask the deterministic coordinator to verify `subagent_strategy.registration` against the canonical append-only strategy ledger. It must find exactly one dispatch row with the same `dispatch_id`, `sheet_schema_version`, `sheet_sha256`, and executable projection digest; recompute that projection from the current Dispatch Spec; compare registered agent names, exact initial prompts, group cardinality, and blocking dependencies to executable waves; and prove that the declared temporary sheet no longer exists. Missing, stale, mismatched, duplicate, or unconsumed registration blocks before actions are emitted.
+6. Ask the deterministic coordinator to verify registration against the canonical append-only strategy ledger. Legacy v0.2 verifies embedded exact-sheet registration unchanged. V0.3 verifies the run-local execution entry, exact immutable canonical dispatch, runtime profile, confirmation binding, optional equivalence and required admission receipts, raw adapter-normalized ledger row, executable projection, registered topology, source lifecycle, consumed registration envelope, and temporary close path. Missing, stale, mismatched, duplicate, or unconsumed registration blocks before actions are emitted.
 7. Ask the deterministic coordinator to compile the first eligible wave. A passing preflight persists `strategy-registration.json` beside the state and run plan and ends at `state=wave_ready` with action documents and `spawn_attempt_count=0`.
 
 Preflight never invokes `spawn`, `wait`, `join`, `close`, message delivery, or a model-backed CLI.
@@ -140,12 +170,11 @@ the partial stream and close with error; never reconstruct the missing event.
 Consume exactly one persisted action document whose `action` is `spawn` and whose complete shape validates against `schemas/action.schema.json`.
 
 1. Admit the action only when its `action_id` exists in the current run plan, its persisted document matches that plan entry, and no attempt event already exists for the identifier.
-2. Revalidate the action's canonical `briefing_binding` digest, exact
-   read/write-policy equality, `agent_name`, and exact confirmed
-   `initial_prompt`. Require the briefing identity and instructions to equal
-   the prompt identity and body, then pass `initial_prompt` unchanged as the
-   complete host message. Preserve task-completion status separately from
-   domain-gate status. Never infer forbidden reads from forbidden-write scopes.
+2. Revalidate the action's canonical `briefing_binding` digest and exact
+   read/write-policy equality, then build bounded host context from the action's
+   role, capability, target, mode, mutation policy, references, and complete
+   typed briefing. Preserve task-completion status separately from domain-gate
+   status. Never infer forbidden reads from forbidden-write scopes.
    The host task name must be an opaque deterministic function of dispatch ID,
    run ID, and action ID. It must differ across fresh runs and must not include
    raw role, target, reference, dispatch, or run prose.
@@ -154,11 +183,32 @@ Consume exactly one persisted action document whose `action` is `spawn` and whos
    before exposing the exact host request. If preparation blocks, do not invoke
    the host.
 4. Invoke that operation exactly once. Do not retry implicitly.
-5. On return, run driver `record-spawn --agent-id <id>` to append `host_spawn_returned` and bind the returned `agent_id` to the `action_id`. A missing agent identifier is a blocking host failure.
+5. On return, run driver `record-spawn --request <prepared-request> --agent-id <id>` to append `host_spawn_returned` and bind the returned `agent_id` to the `action_id`. The returned identifier's basename must equal the exact deterministic `task_name` in the persisted prepared request. A missing or mismatched identifier blocks before append.
 6. On host error, run driver `record-spawn --failed` to append `host_spawn_failed`, persist the failure in the non-causal residue stream when useful, and stop dependent execution.
 
 An unknown, non-persisted, mismatched, duplicate, or replayed action blocks before a host call. Waiting, joining, result normalization, and gate reduction are separate execution steps.
 </native-spawn-action>
+
+<native-binding-correction>
+`agent_binding_corrected` is an exceptional, append-only correction for a
+documented host-agent identifier transcription defect. It is not a retry,
+second host result, or authorization to reconstruct missing execution.
+
+Use `correct-agent-binding` only against an owner-accepted correction batch.
+The command binds the admitted action and exact persisted spawn request; names
+the prior host-result and wait-registration sequences; preserves both original
+events; and appends one v0.2 correction whose corrected identifier basename
+equals the prepared `task_name`. The validator makes that corrected binding
+effective for later terminal, cleanup, join, and gate checks.
+
+A correction fails closed when the action, wave, prior identifier, prepared
+task name, superseded sequences, reason code, or uniqueness check differs. It
+also fails after any same-wave terminal, timeout, interrupt, close, receipt
+join, or gate evidence. A prior mailbox-wide wait attempt may remain because
+the causal wait event carries no target identifier, but its derived request
+artifact becomes audit residue and must be replaced by a corrected audit-only
+binding projection. Never replay the host wait solely to repair that artifact.
+</native-binding-correction>
 
 <native-join-wave>
 Consume one persisted wave plan and the complete action-to-native-agent bindings returned by prior spawn actions. The Codex wait operation is mailbox-wide, so do not model it as a targeted per-agent API.
@@ -172,18 +222,30 @@ Consume one persisted wave plan and the complete action-to-native-agent bindings
 7. Persist exactly one raw task-result JSON object per current-wave action, then
    run driver `advance-wave` with that exact directory. It validates every
    briefing-required field and task-completion status before receipt admission,
-   requires a blocked task result to normalize as `status=block`, validates
-   closed receipt shape and identity, and only then appends `receipt_joined`,
+   requires a blocked task result to normalize as `status=block`, and under
+   execution contract v0.2 verifies every normalized domain field/value against
+   the raw task result rather than trusting normalized output alone. For v0.2 it
+   also requires each normalized receipt's `artifacts` to equal that action's
+   declared `output_refs`, and the admitted wave artifact union to equal the
+   bound gate's `requires_role_receipts`. It validates closed receipt shape and
+   identity, and only then appends `receipt_joined`,
    invokes the reducer, appends `gate_decided`, and exposes dependents. A failed
    task-result validation writes blocking evidence and emits no join or gate.
 8. When a passing gate exposes dependents, run driver `prepare-next-wave-plan` with the exact dispatch, prior run plan, gate decision, next action set, next state, causal prefix, and action directory emitted by `advance-wave`. Continue only with its exclusively created current-wave plan.
+
+Under `arcanum.capability-bound-execution.v0.2`, every wave has a non-null gate
+ID and exactly one typed evaluation. `gate_pass` may unlock the declared next
+wave. `gate_block` unlocks nothing. `gate_resolved` is a valid final domain
+resolution, unlocks nothing, and preserves the exact field/value/classification
+in terminal state and final `gate_decided` event even when orchestration state
+is `complete`. Legacy schema versions remain validate-only and unchanged.
 
 An unknown result, duplicate terminal result, missing binding, identity mismatch, non-pass result, or missing result is blocking evidence. It cannot open a dependent gate. Multi-wave progression and closeout are separate execution steps.
 </native-join-wave>
 
 <strategy-registration-closeout>
 After every spawned agent has a terminal close state, create the declared
-`temporary_close` JSON under `.arcanum/runtime/subagents-strategy/`. Its total
+`temporary_close` JSON under the active runtime profile's governed temporary root. Its total
 and role tree must agree, its total must equal the registered strategy topology,
 and its loop count cannot exceed `max_loops`. Append it
 through the Subagent Strategy registrar with consumption enabled; never edit

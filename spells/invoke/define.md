@@ -20,9 +20,6 @@ routing, deterministic human views, and transport-ready handoff artifacts.
 - New Define production uses `invoke.generic-definitions-baseline.v3` through
   `scripts/compile_define_source_v3.py`, after an independent semantic closure
   and before independent bundle admission.
-- Define v3 publishes its complete candidate bundle without replacement through
-  native atomic rename semantics on Linux, macOS, and Windows. Unsupported
-  filesystem variants use an exclusive sibling-lock fallback.
 - The v1/v2 sources, profiles, receipts, compilers, and tests remain readable
   and testable compatibility artifacts. Neither receipt version can establish
   a new Define PASS.

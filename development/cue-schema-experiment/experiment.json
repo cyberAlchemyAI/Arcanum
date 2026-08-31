@@ -1,0 +1,224 @@
+{
+  "schema_version": "arcanum.cue_schema_experiment.config.v1",
+  "experiment_id": "arcanum-cue-schema-adoption-2026-08-28",
+  "claim_ceiling": "Non-authoritative CUE adoption decision evidence only; no schema ownership, Distill W1R/W2, Invoke lifecycle, generated mirror, publication, deployment, or production claim.",
+  "cue": {
+    "version": "v0.17.1",
+    "archive_sha256": "a39b0c97695069d95d276d99be0f5dbabb081d801bfdc9ba49b76efaf94e2369",
+    "binary_sha256": "b1e73b13d87ed1812de7626108324600f478b9b862bc926f9a360ffd01d19297"
+  },
+  "runtime_tools": {
+    "consumer_path": "/home/vrondelli/.nvm/versions/node/v22.12.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+    "node": {
+      "path": "/home/vrondelli/.nvm/versions/node/v22.12.0/bin/node",
+      "sha256": "177208bfc4a9403121a40c72d038c670f4fd937fa16ca7df0a720e90be0fe2d9",
+      "size_bytes": 119801632,
+      "version": "v22.12.0"
+    },
+    "python": {
+      "path": "/usr/bin/python3",
+      "sha256": "1643dacd9feaedc58f3cc581e4d22577dfe25c09b10282936186ccf0f2e61118",
+      "size_bytes": 8020928,
+      "version": "Python 3.12.3"
+    }
+  },
+  "invoke_catalog_path": "arcanum/spells/invoke/invoke-cli-stage-catalog.json",
+  "infra_yaml_path": "arcanum/formulae/infra-spec/infra-spec.schema.yml",
+  "w1_report_path": "arcanum/arcana/distill/development/distill-v2-direct/evidence/DISTILL-V2-W1-GRAMMAR-RUN-REPORT.json",
+  "cohorts": {
+    "invoke": {
+      "expected_count": 37,
+      "membership_digest": "83e095d377c372ce1ebf63f5b651ee5a38c2ce64e206d6ac864c0f43674b12d4"
+    },
+    "orchestrate": {
+      "expected_count": 11,
+      "membership_digest": "ceff1d9156c866012f4923160ef3caa5ba89a23b47f2dbf9d9b443aa8d116936"
+    },
+    "work_pack_readiness": {
+      "expected_count": 10,
+      "membership_digest": "68ba05829b673b25878f473727b8b7bd870109224a2de755918206425456a3c0"
+    },
+    "infra_spec": {
+      "expected_count": 1,
+      "membership_digest": "4f23513cc5d87a6ec6b65de4aee9084aa552fb5b7ac4c2d7503db63280f5f4ac"
+    },
+    "distill": {
+      "expected_count": 8,
+      "membership_digest": "1cba319f8adb590c6f9c070650544e66d8fff5790f1fba33cfdb8767a3c8cef0"
+    }
+  },
+  "census": {
+    "expected_count": 225,
+    "membership_digest": "d598631615153dbd1ea5ba3d76cf0ccbcd6c863635b2fe2d81cd539f467a449d",
+    "excluded_path_segments": [
+      ".agents",
+      ".arcanum",
+      ".claude",
+      "artifacts",
+      "candidates",
+      "development",
+      "fixtures",
+      "generated",
+      "node_modules",
+      "outputs",
+      "runtime-integration",
+      "test",
+      "tests",
+      "vendor"
+    ]
+  },
+  "consumer_commands": [
+    {
+      "command_id": "invoke-unittest-discovery",
+      "cohort": "invoke",
+      "argv": ["/usr/bin/python3", "-B", "-m", "unittest", "discover", "-s", "arcanum/spells/invoke/development", "-p", "test_*.py"],
+      "cwd": ".",
+      "expected_exit": 1,
+      "expected_output_contains": ["Ran 224 tests", "FAILED (failures=1)"],
+      "baseline_health": "known_block_define_authoring_closure_digest_drift",
+      "timeout_seconds": 300
+    },
+    {
+      "command_id": "orchestrate-unittest-discovery",
+      "cohort": "orchestrate",
+      "argv": ["/usr/bin/python3", "-B", "-m", "unittest", "discover", "-s", "arcanum/runtime/orchestrate/tests", "-p", "test_*.py"],
+      "cwd": ".",
+      "expected_exit": 1,
+      "expected_output_contains": ["Ran 49 tests", "FAILED (errors=4)"],
+      "baseline_health": "known_block_missing_hidden_strategy_ledger_fixture",
+      "timeout_seconds": 300
+    },
+    {
+      "command_id": "wpra-unittest-discovery",
+      "cohort": "work_pack_readiness",
+      "argv": ["/usr/bin/python3", "-B", "-m", "unittest", "discover", "-s", "arcanum/spells/work-pack-readiness-audit/development", "-p", "test_*.py"],
+      "cwd": ".",
+      "expected_exit": 0,
+      "expected_output_contains": ["Ran 43 tests", "\nOK\n"],
+      "timeout_seconds": 300
+    },
+    {
+      "command_id": "distill-fixture-validator",
+      "cohort": "distill",
+      "argv": ["/usr/bin/python3", "-B", "arcanum/arcana/distill/scripts/validate-v2-schema-fixtures.py", "--root", "arcanum", "--manifest", "arcana/distill/development/fixtures/v2/schema/schema-family/cases.json", "--output-format", "json"],
+      "cwd": ".",
+      "expected_exit": 0,
+      "expected_output_contains": ["\"status\":\"pass\",\"total\":868"],
+      "timeout_seconds": 120
+    },
+    {
+      "command_id": "distill-unit-tests",
+      "cohort": "distill",
+      "argv": ["/usr/bin/python3", "-B", "-m", "unittest", "arcanum/arcana/distill/development/test_validate_v2_schema_fixtures.py"],
+      "cwd": ".",
+      "expected_exit": 0,
+      "expected_output_contains": ["Ran 28 tests", "\nOK\n"],
+      "timeout_seconds": 120
+    },
+    {
+      "command_id": "infra-spine-pass",
+      "cohort": "infra_spec",
+      "argv": ["/usr/bin/python3", "-B", "arcanum/formulae/infra-spec/scripts/validate-infra-spec.py", "arcanum/formulae/infra-spec/fixtures/spine-pass.json"],
+      "cwd": ".",
+      "expected_exit": 0,
+      "timeout_seconds": 30
+    },
+    {
+      "command_id": "infra-bad-runtime-profile",
+      "cohort": "infra_spec",
+      "argv": ["/usr/bin/python3", "-B", "arcanum/formulae/infra-spec/scripts/validate-infra-spec.py", "arcanum/formulae/infra-spec/fixtures/v-bad-runtime-profile.json"],
+      "cwd": ".",
+      "expected_exit": 1,
+      "timeout_seconds": 30
+    },
+    {
+      "command_id": "infra-boundary-enum-leak",
+      "cohort": "infra_spec",
+      "argv": ["/usr/bin/python3", "-B", "arcanum/formulae/infra-spec/scripts/validate-infra-spec.py", "arcanum/formulae/infra-spec/fixtures/v-boundary-enum-leak.json"],
+      "cwd": ".",
+      "expected_exit": 1,
+      "timeout_seconds": 30
+    },
+    {
+      "command_id": "infra-collapsed-status",
+      "cohort": "infra_spec",
+      "argv": ["/usr/bin/python3", "-B", "arcanum/formulae/infra-spec/scripts/validate-infra-spec.py", "arcanum/formulae/infra-spec/fixtures/v-collapsed-status.json"],
+      "cwd": ".",
+      "expected_exit": 1,
+      "timeout_seconds": 30
+    },
+    {
+      "command_id": "infra-empty-environments",
+      "cohort": "infra_spec",
+      "argv": ["/usr/bin/python3", "-B", "arcanum/formulae/infra-spec/scripts/validate-infra-spec.py", "arcanum/formulae/infra-spec/fixtures/v-empty-environments.json"],
+      "cwd": ".",
+      "expected_exit": 1,
+      "timeout_seconds": 30
+    },
+    {
+      "command_id": "infra-empty-residue",
+      "cohort": "infra_spec",
+      "argv": ["/usr/bin/python3", "-B", "arcanum/formulae/infra-spec/scripts/validate-infra-spec.py", "arcanum/formulae/infra-spec/fixtures/v-empty-residue.json"],
+      "cwd": ".",
+      "expected_exit": 1,
+      "timeout_seconds": 30
+    },
+    {
+      "command_id": "infra-missing-owner",
+      "cohort": "infra_spec",
+      "argv": ["/usr/bin/python3", "-B", "arcanum/formulae/infra-spec/scripts/validate-infra-spec.py", "arcanum/formulae/infra-spec/fixtures/v-missing-owner.json"],
+      "cwd": ".",
+      "expected_exit": 1,
+      "timeout_seconds": 30
+    },
+    {
+      "command_id": "infra-no-rollback",
+      "cohort": "infra_spec",
+      "argv": ["/usr/bin/python3", "-B", "arcanum/formulae/infra-spec/scripts/validate-infra-spec.py", "arcanum/formulae/infra-spec/fixtures/v-no-rollback-on-promoted.json"],
+      "cwd": ".",
+      "expected_exit": 1,
+      "timeout_seconds": 30
+    },
+    {
+      "command_id": "infra-self-promoting-gate",
+      "cohort": "infra_spec",
+      "argv": ["/usr/bin/python3", "-B", "arcanum/formulae/infra-spec/scripts/validate-infra-spec.py", "arcanum/formulae/infra-spec/fixtures/v-self-promoting-gate.json"],
+      "cwd": ".",
+      "expected_exit": 1,
+      "timeout_seconds": 30
+    },
+    {
+      "command_id": "infra-status-floor",
+      "cohort": "infra_spec",
+      "argv": ["/usr/bin/python3", "-B", "arcanum/formulae/infra-spec/scripts/validate-infra-spec.py", "arcanum/formulae/infra-spec/fixtures/v-status-floor.json"],
+      "cwd": ".",
+      "expected_exit": 1,
+      "timeout_seconds": 30
+    }
+  ],
+  "cases": [
+    {"case_id": "invoke-semantic-context", "cohort": "invoke", "schema_path": "arcanum/spells/invoke/schemas/define-semantic-context-v1.schema.json", "data_path": "arcanum/spells/invoke/development/define-v3-semantic-closure/fixtures/schema-family/positive-family.json", "json_pointer": "/semantic_context", "expected_valid": true},
+    {"case_id": "invoke-semantic-closure", "cohort": "invoke", "schema_path": "arcanum/spells/invoke/schemas/define-semantic-closure-receipt-v1.schema.json", "data_path": "arcanum/spells/invoke/development/define-v3-semantic-closure/fixtures/schema-family/positive-family.json", "json_pointer": "/semantic_closure_receipt", "expected_valid": true},
+    {"case_id": "invoke-definitions-v2", "cohort": "invoke", "schema_path": "arcanum/spells/invoke/schemas/definitions-v2.schema.json", "data_path": "arcanum/spells/invoke/development/define-v3-semantic-closure/fixtures/schema-family/positive-family.json", "json_pointer": "/definitions_artifact", "expected_valid": true},
+    {"case_id": "invoke-define-source-v3", "cohort": "invoke", "schema_path": "arcanum/spells/invoke/schemas/define-source-v3.schema.json", "data_path": "arcanum/spells/invoke/development/define-v3-semantic-closure/fixtures/schema-family/positive-family.json", "json_pointer": "/define_source", "expected_valid": true},
+    {"case_id": "invoke-define-result-v3", "cohort": "invoke", "schema_path": "arcanum/spells/invoke/schemas/define-result-v3.schema.json", "data_path": "arcanum/spells/invoke/development/define-v3-semantic-closure/fixtures/schema-family/positive-family.json", "json_pointer": "/result", "expected_valid": true},
+    {"case_id": "orchestrate-action", "cohort": "orchestrate", "schema_path": "arcanum/runtime/orchestrate/schemas/action.schema.json", "data_path": "arcanum/runtime/orchestrate/tests/native-spawn/fixtures/action.json", "expected_valid": true},
+    {"case_id": "orchestrate-run-plan", "cohort": "orchestrate", "schema_path": "arcanum/runtime/orchestrate/schemas/run-plan.schema.json", "data_path": "arcanum/runtime/orchestrate/tests/fixtures/compile/expected-run-plan.json", "expected_valid": true},
+    {"case_id": "orchestrate-state", "cohort": "orchestrate", "schema_path": "arcanum/runtime/orchestrate/schemas/state.schema.json", "data_path": "arcanum/runtime/orchestrate/tests/fixtures/compile/expected-state.json", "expected_valid": true},
+    {"case_id": "infra-valid", "cohort": "infra_spec", "schema_path": "arcanum/formulae/infra-spec/infra-spec.schema.json", "data_path": "arcanum/formulae/infra-spec/fixtures/spine-pass.json", "expected_valid": true},
+    {"case_id": "infra-invalid-runtime-profile", "cohort": "infra_spec", "schema_path": "arcanum/formulae/infra-spec/infra-spec.schema.json", "data_path": "arcanum/formulae/infra-spec/fixtures/v-bad-runtime-profile.json", "expected_valid": false},
+    {"case_id": "infra-invalid-boundary-enum", "cohort": "infra_spec", "schema_path": "arcanum/formulae/infra-spec/infra-spec.schema.json", "data_path": "arcanum/formulae/infra-spec/fixtures/v-boundary-enum-leak.json", "expected_valid": false},
+    {"case_id": "infra-invalid-collapsed-status", "cohort": "infra_spec", "schema_path": "arcanum/formulae/infra-spec/infra-spec.schema.json", "data_path": "arcanum/formulae/infra-spec/fixtures/v-collapsed-status.json", "expected_valid": false},
+    {"case_id": "infra-invalid-empty-environments", "cohort": "infra_spec", "schema_path": "arcanum/formulae/infra-spec/infra-spec.schema.json", "data_path": "arcanum/formulae/infra-spec/fixtures/v-empty-environments.json", "expected_valid": false},
+    {"case_id": "infra-invalid-empty-residue", "cohort": "infra_spec", "schema_path": "arcanum/formulae/infra-spec/infra-spec.schema.json", "data_path": "arcanum/formulae/infra-spec/fixtures/v-empty-residue.json", "expected_valid": false},
+    {"case_id": "infra-invalid-missing-owner", "cohort": "infra_spec", "schema_path": "arcanum/formulae/infra-spec/infra-spec.schema.json", "data_path": "arcanum/formulae/infra-spec/fixtures/v-missing-owner.json", "expected_valid": false},
+    {"case_id": "distill-common", "cohort": "distill", "schema_path": "arcanum/arcana/distill/schemas/distill-common-v2.schema.json", "data_path": "arcanum/arcana/distill/development/fixtures/v2/schema/common/valid-common-primitives.json", "expected_valid": true},
+    {"case_id": "distill-mode", "cohort": "distill", "schema_path": "arcanum/arcana/distill/schemas/distill-mode-spec-v2.schema.json", "data_path": "arcanum/arcana/distill/development/fixtures/v2/schema/mode-spec/valid-mode-spec.json", "expected_valid": true},
+    {"case_id": "distill-profile", "cohort": "distill", "schema_path": "arcanum/arcana/distill/schemas/distill-profile-v2.schema.json", "data_path": "arcanum/arcana/distill/development/fixtures/v2/schema/profile/valid-profile.json", "expected_valid": true},
+    {"case_id": "distill-result", "cohort": "distill", "schema_path": "arcanum/arcana/distill/schemas/distill-result-v2.schema.json", "data_path": "arcanum/arcana/distill/development/fixtures/v2/schema/result/valid-result.json", "expected_valid": true},
+    {"case_id": "distill-source", "cohort": "distill", "schema_path": "arcanum/arcana/distill/schemas/distill-source-v2.schema.json", "data_path": "arcanum/arcana/distill/development/fixtures/v2/schema/source/valid-source.json", "expected_valid": true},
+    {"case_id": "distill-stage-receipt", "cohort": "distill", "schema_path": "arcanum/arcana/distill/schemas/distill-stage-receipt-v2.schema.json", "data_path": "arcanum/arcana/distill/development/fixtures/v2/schema/stage-receipt/valid-stage-receipt.json", "expected_valid": true},
+    {"case_id": "distill-technique", "cohort": "distill", "schema_path": "arcanum/arcana/distill/schemas/distill-technique-spec-v2.schema.json", "data_path": "arcanum/arcana/distill/development/fixtures/v2/schema/technique-spec/valid-abstraction-level-guard.json", "expected_valid": true},
+    {"case_id": "distill-trace-event", "cohort": "distill", "schema_path": "arcanum/arcana/distill/schemas/distill-trace-event-v2.schema.json", "data_path": "arcanum/arcana/distill/development/fixtures/v2/schema/trace-event/valid-trace-event.json", "expected_valid": true}
+  ]
+}

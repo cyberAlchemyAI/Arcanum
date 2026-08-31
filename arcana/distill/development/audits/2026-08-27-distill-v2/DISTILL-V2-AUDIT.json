@@ -1,0 +1,214 @@
+{
+  "schema_version": "arcanum.distill-v2-audit.v1",
+  "audit_id": "DISTILL-V2-AUDIT-2026-08-27",
+  "audited_capability": "distill",
+  "target_release": "v2",
+  "mode": "validate",
+  "scope": [
+    "arcanum/arcana/distill",
+    "arcanum/spells/invoke/schemas/distill-run-request.schema.json",
+    "arcanum/spells/invoke/schemas/distill-runtime-event.schema.json",
+    "arcanum/spells/invoke/schemas/distill-execution-receipt.schema.json",
+    "arcanum/spells/invoke/schemas/distill-validation-result.schema.json",
+    "arcanum/spells/invoke/development/distill_semantic_validator.py",
+    "arcanum/spells/invoke/development/distill_provenance_validator.py",
+    "arcanum/spells/invoke/development/whole-invoke-repair-plan"
+  ],
+  "overall_verdict": "block",
+  "authority_effect": "none",
+  "claim_ceiling": "audit-and-schema-proposal-only",
+  "summary": {
+    "finding_count": 10,
+    "critical": 1,
+    "high": 6,
+    "medium": 3,
+    "schema_authoring_status": "blocked-pending-owner-decisions",
+    "smallest_coherent_unit": "distill-owned-profile-source-semantic-trace-result-and-stage-receipt-contract"
+  },
+  "findings": [
+    {
+      "id": "DISTILL-V2-AUDIT-001",
+      "severity": "critical",
+      "class": "missing-semantic-machine-contract",
+      "finding": "Distill has no canonical machine schema for RunFrame, ModeProfile, TechniqueSpec, the append-only semantic trace, or ResultEnvelope. The current executable output contract is Markdown and formal state schemas were explicitly deferred.",
+      "evidence": [
+        "arcanum/arcana/distill/development/IMPLEMENTATION-LAYERING-SEED.md",
+        "arcanum/arcana/distill/development/MODE-TECHNIQUE-SURFACE-DESIGN.md",
+        "arcanum/arcana/distill/SKILL.md"
+      ],
+      "effect": "No exact semantic input can be bound to an exact machine result, and no producer or consumer can prove the complete Distill v2 contract."
+    },
+    {
+      "id": "DISTILL-V2-AUDIT-002",
+      "severity": "high",
+      "class": "adapter-not-domain-source",
+      "finding": "The existing distill-run-request schema is an Invoke-owned execution adapter. It omits the Distill seed point, target context, objective-output pair, optimization goal, constraints, discovery baseline, invocation source, and semantic evidence policy; its mode and technique identifiers are unrestricted strings.",
+      "evidence": [
+        "arcanum/spells/invoke/schemas/distill-run-request.schema.json",
+        "arcanum/arcana/distill/SKILL.md"
+      ],
+      "effect": "A request can be schema-valid while remaining non-executable under the canonical Distill contract."
+    },
+    {
+      "id": "DISTILL-V2-AUDIT-003",
+      "severity": "high",
+      "class": "stale-exact-reference",
+      "finding": "The live DISTILL-RUN-REQUEST.json is structurally valid but only three of four reviewed-input references match current bytes. WORK-PACK.md records sha256 7ae02e2230b3bac19e636ca0ac39a9e640bb16fae3b2ca8f2b721779671e6009 and size 8768; current bytes are sha256 b377638369913184e68ca4ce8e6d51c1665ddf7775ca4393c4a01eaece61892d and size 8784.",
+      "evidence": [
+        "arcanum/arcana/distill/development/runtime-event-emission/DISTILL-RUN-REQUEST.json",
+        "arcanum/arcana/distill/development/runtime-event-emission/WORK-PACK.md"
+      ],
+      "effect": "Schema validity alone does not establish exact-byte admission."
+    },
+    {
+      "id": "DISTILL-V2-AUDIT-004",
+      "severity": "high",
+      "class": "technique-identity-drift",
+      "finding": "The canonical technique registry uses underscore identifiers while the live Invoke request uses hyphenated identifiers. The adapter schema accepts both because it validates only non-empty strings.",
+      "evidence": [
+        "arcanum/arcana/distill/development/techniques/README.md",
+        "arcanum/arcana/distill/development/runtime-event-emission/DISTILL-RUN-REQUEST.json",
+        "arcanum/spells/invoke/schemas/distill-run-request.schema.json"
+      ],
+      "effect": "A producer may request a nonexistent canonical technique while remaining schema-valid."
+    },
+    {
+      "id": "DISTILL-V2-AUDIT-005",
+      "severity": "high",
+      "class": "adapter-receipt-not-result-envelope",
+      "finding": "The Invoke execution receipt is an evidence projection, not the canonical Distill result. It omits the target context, objective-output pair, selected unit, optimization point, concept map, evolution and deferred-complexity fields, premortem, frame expiry, navigation, evidence-emission status, and telemetry status.",
+      "evidence": [
+        "arcanum/spells/invoke/schemas/distill-execution-receipt.schema.json",
+        "arcanum/arcana/distill/SKILL.md"
+      ],
+      "effect": "The existing receipt cannot prove semantic closure, navigability, or the complete v2 output contract."
+    },
+    {
+      "id": "DISTILL-V2-AUDIT-006",
+      "severity": "high",
+      "class": "semantic-validator-contract-drift",
+      "finding": "The Invoke semantic validator enforces generic evidence categories and requested technique strings rather than Distill's canonical Balancer objection categories and technique registry. Its positive fixture uses design-standard and anti-bias-vector-composition, neither of which is a canonical Distill v1 technique identifier.",
+      "evidence": [
+        "arcanum/spells/invoke/development/distill_semantic_validator.py",
+        "arcanum/spells/invoke/development/fixtures/distill-evidence/semantic-valid.json",
+        "arcanum/arcana/distill/development/techniques/README.md",
+        "arcanum/arcana/distill/development/SIGIL-HANDOFF.md"
+      ],
+      "effect": "Current semantic PASS proves the Invoke evidence projection, not semantic conformance to Distill's own contract."
+    },
+    {
+      "id": "DISTILL-V2-AUDIT-007",
+      "severity": "high",
+      "class": "missing-semantic-finalizer",
+      "finding": "Distill has a schema-validating append-only runtime-event emitter, but no Distill-owned producer or deterministic finalizer for semantic source, trace, result, human projection, and exact stage receipt.",
+      "evidence": [
+        "arcanum/arcana/distill/scripts/emit-runtime-event.py",
+        "arcanum/arcana/distill/scripts/observe-direct-invocation.sh",
+        "arcanum/spells/invoke/scripts/observe-distill-invocation.sh"
+      ],
+      "effect": "The machine surfaces remain structural or telemetry projections rather than an atomic semantic production chain."
+    },
+    {
+      "id": "DISTILL-V2-AUDIT-008",
+      "severity": "medium",
+      "class": "output-contract-drift",
+      "finding": "The canonical SKILL output includes role trace, premortem, frame-expiry, evidence-emission, and telemetry fields that the README expected-result example does not fully carry. Existing validation relies primarily on authored Markdown examples.",
+      "evidence": [
+        "arcanum/arcana/distill/SKILL.md",
+        "arcanum/arcana/distill/README.md",
+        "arcanum/arcana/distill/development/VALIDATION.md"
+      ],
+      "effect": "Human projections can drift without a machine source and deterministic renderer."
+    },
+    {
+      "id": "DISTILL-V2-AUDIT-009",
+      "severity": "medium",
+      "class": "vocabulary-and-wire-format-drift",
+      "finding": "Runtime evidence uses true_subagent and role_simulation, telemetry prose uses true-subagents, role-simulation, and mixed, exact references use both size and size_bytes, and existing adapter schema versions use 1.0.0 independently from the requested Distill v2 family.",
+      "evidence": [
+        "arcanum/spells/invoke/schemas/distill-runtime-event.schema.json",
+        "arcanum/arcana/distill/templates/usage-telemetry.md",
+        "arcanum/spells/invoke/schemas/define-result-v2.schema.json"
+      ],
+      "effect": "A canonical v2 schema would infer compatibility behavior unless the wire vocabulary is frozen first."
+    },
+    {
+      "id": "DISTILL-V2-AUDIT-010",
+      "severity": "medium",
+      "class": "time-staggered-readiness-prose",
+      "finding": "The Distill Work Pack still presents B-CLO-002 as a final gate while the Readiness Review says approval was granted and registry promotion was applied.",
+      "evidence": [
+        "arcanum/arcana/distill/development/WORK-PACK.md",
+        "arcanum/arcana/distill/development/READINESS-REVIEW.md"
+      ],
+      "effect": "Current prose cannot be treated as a single machine readiness source for v2."
+    }
+  ],
+  "passing_evidence": [
+    "10 of 10 inspected Draft 2020-12 schemas pass structural schema validation.",
+    "The current DISTILL-RUN-REQUEST.json passes the existing Invoke request schema.",
+    "The Distill runtime-event emitter validates event shape, run identity, ordering, execution path, timestamp monotonicity, and optimistic ledger digest before append.",
+    "The existing design explicitly separates Distill producer behavior from Invoke evidence-validation and handoff authority.",
+    "The Distill canonical and generated skill packages were not changed by this audit."
+  ],
+  "proposed_distill_owned_schema_set": [
+    {
+      "path": "arcanum/arcana/distill/schemas/distill-profile-v2.schema.json",
+      "owns": "finite ModeProfile, TechniqueSpec, phase hooks, overrides, objection categories, and output-contract version"
+    },
+    {
+      "path": "arcanum/arcana/distill/schemas/distill-source-v2.schema.json",
+      "owns": "RunFrame, discovery baseline, exact inputs, invocation lineage, profile binding, and optional evidence context"
+    },
+    {
+      "path": "arcanum/arcana/distill/schemas/distill-trace-event-v2.schema.json",
+      "owns": "append-only semantic setup, role, objection, reconciliation, technique, round, termination, and verdict-candidate events"
+    },
+    {
+      "path": "arcanum/arcana/distill/schemas/distill-result-v2.schema.json",
+      "owns": "the complete substantive ResultEnvelope with authority_effect none"
+    },
+    {
+      "path": "arcanum/arcana/distill/schemas/distill-stage-receipt-v2.schema.json",
+      "owns": "finalizer identity, schema digests, exact source/profile/trace/result/output refs, atomic inventory, and receipt digest"
+    }
+  ],
+  "ownership_boundary": {
+    "distill": [
+      "semantic source",
+      "contract profile",
+      "semantic trace",
+      "substantive result",
+      "deterministic human projection",
+      "stage receipt"
+    ],
+    "invoke": [
+      "invocation adapter",
+      "runtime evidence admission",
+      "provenance validation",
+      "mutation-handoff decision"
+    ],
+    "telemetry": "non-authoritative maintenance residue"
+  },
+  "required_owner_decisions_ref": "DISTILL-V2-SCHEMA-DECISIONS.json",
+  "option_admissibility_ref": "DISTILL-V2-SCHEMA-OPTIONS-RECEIPT.json",
+  "admissible_routing": "gate",
+  "recommended_repair_order": [
+    "Freeze the open schema decisions without changing existing adapters.",
+    "Author the five Distill-owned Draft 2020-12 schemas and a canonical v2 profile instance.",
+    "Add positive and mutation-negative fixtures plus semantic cross-invariant validation.",
+    "Implement a deterministic finalizer that validates model-produced candidates, derives Markdown, and publishes atomically.",
+    "Wire direct Distill production, then add separately versioned Invoke v2 projections.",
+    "Prove direct and invoked consumers, compatibility reads, exact references, no partial publication, and canonical/generated parity.",
+    "Only then update v2 capability and readiness claims."
+  ],
+  "effects": {
+    "schema_authored": false,
+    "producer_implemented": false,
+    "generated_mirrors_changed": false,
+    "acceptance_requested": false,
+    "execution_authorized": false,
+    "publication_authorized": false,
+    "deployment_authorized": false
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/work-pack-readiness-audit/report/2-0-0",
+  "title": "WorkPackReadinessAuditReportV2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "canonical_spell_id",
+    "verdict",
+    "terminal_code",
+    "evidence_ceiling",
+    "manifest",
+    "blockers",
+    "flags",
+    "source_snapshot",
+    "semantic_component_digests",
+    "canonical_semantic_digest",
+    "audit_projection_digest",
+    "configured_commands_executed",
+    "selected_unit",
+    "authority_effect",
+    "mutation_ready",
+    "next_owner"
+  ],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "admission_timing": {
+      "enum": ["full-frontier", "selected-unit-at-task-session"]
+    },
+    "audit_id": {"type": "string", "minLength": 1},
+    "canonical_spell_id": {"const": "work-pack-readiness-audit"},
+    "verdict": {"enum": ["pass", "flag", "block"]},
+    "terminal_code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]+$"},
+    "evidence_ceiling": {"const": "frozen-input-contractual-readiness"},
+    "manifest": {
+      "oneOf": [
+        {"type": "object"},
+        {"type": "null"}
+      ]
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "binding_id", "claim"],
+        "properties": {
+          "code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]+$"},
+          "binding_id": {"type": "string", "minLength": 1},
+          "claim": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"const": "observability-residue"}
+    },
+    "source_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["digest", "artifact_count", "drift"],
+      "properties": {
+        "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "artifact_count": {"type": "integer", "minimum": 0},
+        "drift": {"type": "boolean"}
+      }
+    },
+    "semantic_component_digests": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    },
+    "canonical_semantic_digest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "audit_projection_digest": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "configured_commands_executed": {"const": false},
+    "selected_unit": {"type": "null"},
+    "authority_effect": {"const": "none"},
+    "mutation_ready": {"const": false},
+    "runtime_admission_status": {
+      "enum": ["pending-selection", "pass", "flag", "block"]
+    },
+    "execution_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entry_state", "selected_unit", "route_id", "next_owner", "blocker_code"],
+      "properties": {
+        "entry_state": {"enum": ["selection-ready", "owner-prerequisite", "blocked"]},
+        "selected_unit": {"type": ["string", "null"], "minLength": 1},
+        "route_id": {"type": ["string", "null"], "minLength": 1},
+        "next_owner": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["capability", "mode", "target"],
+          "properties": {
+            "capability": {"enum": ["implementation-readiness", "invoke"]},
+            "mode": {"enum": ["execute", "refresh"]},
+            "target": {"type": "string", "minLength": 1}
+          }
+        },
+        "blocker_code": {"type": ["string", "null"], "minLength": 1}
+      }
+    },
+    "next_owner": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "admission_timing": {"const": "selected-unit-at-task-session"}
+        },
+        "required": ["admission_timing"]
+      },
+      "then": {
+        "required": ["execution_entry"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "execution_entry": {
+            "properties": {"entry_state": {"const": "owner-prerequisite"}},
+            "required": ["entry_state"]
+          }
+        },
+        "required": ["execution_entry"]
+      },
+      "then": {
+        "properties": {
+          "execution_entry": {
+            "properties": {
+              "selected_unit": {"type": "string"},
+              "route_id": {"type": "string"},
+              "next_owner": {
+                "properties": {
+                  "capability": {"const": "invoke"},
+                  "mode": {"const": "refresh"}
+                }
+              },
+              "blocker_code": {"type": "null"}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"verdict": {"const": "block"}},
+        "required": ["verdict"]
+      },
+      "then": {
+        "properties": {
+          "manifest": {"type": "null"},
+          "blockers": {"minItems": 1}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"verdict": {"enum": ["pass", "flag"]}},
+        "required": ["verdict"]
+      },
+      "then": {
+        "properties": {
+          "manifest": {"type": "object"},
+          "blockers": {"maxItems": 0}
+        }
+      }
+    }
+  ]
+}

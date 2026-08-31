@@ -1,0 +1,121 @@
+{
+  "schema_version": "arcanum.independent-contract-review.v1",
+  "review_id": "SWU-DV2-001-DIRECT-CONTRACT-REVIEW-003",
+  "candidate": {
+    "path": "arcana/distill/development/distill-v2-machine-contract-plan/direct-implementation/SWU-DV2-001-DIRECT-CONTRACT.json",
+    "sha256": "c54b018a0d730acf21ff757adf2034068bed577cbe6ae03d847aa89418b68d4a",
+    "size_bytes": 19205,
+    "digest_and_size_verified_before_and_after_review": true
+  },
+  "verdict": "BLOCK",
+  "checks": {
+    "prior_review_preserved": {
+      "status": "PASS",
+      "review_id": "SWU-DV2-001-DIRECT-CONTRACT-REVIEW-002",
+      "reviewed_sha256": "508ebc4bf7ecb123f4b8683b8cd686349b6807dc4dfd9bb380d306318ab46a4b"
+    },
+    "review_002_blockers": {
+      "status": "PASS",
+      "directory_scope_contradiction_closed": true,
+      "rollback_postimage_identity_guard_closed": true,
+      "persisted_blocker_codes_closed": true
+    },
+    "source_anchors": {
+      "status": "PASS",
+      "decision_binding_digest_and_size_match": true,
+      "five_source_anchor_digests_and_sizes_match": true
+    },
+    "file_and_directory_baselines": {
+      "status": "PASS",
+      "future_file_targets": 13,
+      "unique_file_targets": 13,
+      "all_file_targets_absent": true,
+      "directory_baselines": 8,
+      "unique_directory_baselines": 8,
+      "all_directory_baselines_absent": true,
+      "all_required_parent_paths_covered": true
+    },
+    "write_and_forbidden_scope": {
+      "status": "PASS",
+      "only_future_write_scope_files_permitted": true,
+      "only_directory_baselines_non_file_effects_permitted": true,
+      "existing_distill_invoke_generated_git_private_dependency_network_and_publication_scopes_forbidden": true
+    },
+    "rollback": {
+      "status": "PASS",
+      "all_eleven_postimages_guarded_by_sha256_and_size_bytes": true,
+      "guard_is_all_or_nothing_before_any_deletion": true,
+      "any_absence_or_mismatch_preserves_every_file_and_directory": true,
+      "exact_apply_patch_deletion_batch_required": true,
+      "deepest_first_empty_only_directory_removal_required": true
+    },
+    "persisted_negative_acceptance": {
+      "status": "PASS",
+      "negative_cases": 4,
+      "cases_with_exact_expected_blocker": 4,
+      "expected_blocker_codes_unique": true
+    },
+    "generated_mutation_denominator": {
+      "status": "PASS",
+      "persisted_cases": 5,
+      "generated_mutations": 9,
+      "total_denominator": 14,
+      "all_case_ids_unique": true,
+      "all_generated_mutations_bind_target_layer_and_blocker": true
+    },
+    "abstraction_instance_semantics": {
+      "status": "PASS",
+      "display_name_frozen": true,
+      "emitted_field_constraints_frozen": true,
+      "pass_flag_block_conditions_frozen": true,
+      "canonical_machine_values_frozen": true
+    },
+    "evidence_hash_domain": {
+      "status": "PASS",
+      "inventory_domain_non_self_referential": true,
+      "receipt_domain_non_self_referential": true,
+      "canonical_json_digest_methods_defined": true,
+      "inventory_reference_recomputation_defined": true
+    },
+    "scope_validation_command": {
+      "status": "BLOCK",
+      "reason": "The command requiring no path outside future_write_scope to change contradicts the permitted creation of directory_baselines paths, which are intentionally outside future_write_scope."
+    },
+    "evidence_validation_choreography": {
+      "status": "BLOCK",
+      "reason": "Execution choreography writes the evidence documents and immediately stops. The four evidence_hash_domain validation checks are not sequenced after the documents exist, and their failure behavior is undefined."
+    },
+    "runtime": {
+      "status": "PASS",
+      "python_version": "3.12.3",
+      "python_realpath": "/usr/bin/python3.12",
+      "python_identity_matches": true,
+      "jsonschema_version": "4.10.3",
+      "jsonschema_identity_matches": true,
+      "draft_2020_12_meta_validation_available": true,
+      "in_memory_refresolver_probe": "PASS",
+      "dependency_install_required": false
+    },
+    "claim_ceiling": {
+      "status": "PASS",
+      "value": "SWU-DV2-001 representational grammar and canonical abstraction_level_guard fixture evidence only",
+      "normal_task_session_excluded": true,
+      "successor_execution_prohibited": true,
+      "publication_deployment_promotion_and_external_effects_prohibited": true,
+      "implementation_authorized": false
+    }
+  },
+  "blockers": [
+    {
+      "id": "E_SCOPE_VALIDATION_DIRECTORY_DOMAIN",
+      "repair": "Replace the no-path-outside-future_write_scope check with separate domains: no file outside future_write_scope and no directory outside directory_baselines may change."
+    },
+    {
+      "id": "E_EVIDENCE_VALIDATION_NOT_SEQUENCED",
+      "repair": "After emitting the finalized inventory and receipt, execute all four declared evidence validations and define stop-and-preserve behavior for any failure. Keep final receipt self-validation outside the receipt's own recorded-status domain, or define another explicitly non-circular result binding."
+    }
+  ],
+  "safe_for_later_explicit_execution_request": false,
+  "safe_next_state": "repair-contract-and-rereview-only",
+  "authority_effect": "none"
+}

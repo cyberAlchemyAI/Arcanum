@@ -1,0 +1,341 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.local/spells/goal/decision-profile.schema.json",
+  "title": "Goal Spell Decision Profile",
+  "description": "Public schema for the optional runtime decision profile consumed by the goal spell. Filled profiles are private consuming-repository runtime data; this file carries only shape and neutral defaults.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile",
+    "risk",
+    "approval",
+    "slice",
+    "ownership",
+    "gap_filling",
+    "technique_weights",
+    "anti_patterns"
+  ],
+  "properties": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "mode"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "default": "neutral-default"
+        },
+        "version": {
+          "type": "string",
+          "default": "1.0.0"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "neutral-default",
+            "custom-runtime"
+          ],
+          "default": "neutral-default"
+        },
+        "description": {
+          "type": "string",
+          "default": "Public neutral defaults for fail-closed goal routing."
+        }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unknown_action",
+        "default_tier",
+        "protected_operations",
+        "read_only_allowlist"
+      ],
+      "properties": {
+        "unknown_action": {
+          "type": "string",
+          "enum": [
+            "stop",
+            "block"
+          ],
+          "default": "stop"
+        },
+        "default_tier": {
+          "$ref": "#/$defs/risk_tier",
+          "default": "T3"
+        },
+        "protected_operations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true,
+          "default": [
+            "active-ledger-mutation",
+            "commit",
+            "push",
+            "pull-request",
+            "publication",
+            "ci",
+            "network",
+            "destructive-shell"
+          ]
+        },
+        "read_only_allowlist": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true,
+          "default": [
+            "craft-read",
+            "context-selection",
+            "planning",
+            "design-review",
+            "staged-proposal"
+          ]
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mutation_mode",
+        "promotion_mode",
+        "decision_record_required"
+      ],
+      "properties": {
+        "mutation_mode": {
+          "type": "string",
+          "enum": [
+            "propose-then-promote",
+            "read-only"
+          ],
+          "default": "propose-then-promote"
+        },
+        "promotion_mode": {
+          "type": "string",
+          "enum": [
+            "explicit-token",
+            "disabled"
+          ],
+          "default": "explicit-token"
+        },
+        "decision_record_required": {
+          "type": "boolean",
+          "default": true
+        },
+        "batch_limit": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        }
+      }
+    },
+    "slice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "size",
+        "validate_before_broaden",
+        "reconcile_before_act"
+      ],
+      "properties": {
+        "size": {
+          "type": "string",
+          "enum": [
+            "smallest-reliable",
+            "standard"
+          ],
+          "default": "smallest-reliable"
+        },
+        "validate_before_broaden": {
+          "type": "boolean",
+          "default": true
+        },
+        "reconcile_before_act": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model",
+        "immutable_substrate"
+      ],
+      "properties": {
+        "model": {
+          "type": "string",
+          "enum": [
+            "owner-scoped",
+            "single-owner"
+          ],
+          "default": "owner-scoped"
+        },
+        "immutable_substrate": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true,
+          "default": [
+            "public-private-boundary",
+            "generated-runtime-surfaces",
+            "unapproved-parent-gitlink"
+          ]
+        }
+      }
+    },
+    "gap_filling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fallback_exploration",
+        "interrogation_style",
+        "record_residue"
+      ],
+      "properties": {
+        "fallback_exploration": {
+          "type": "string",
+          "enum": [
+            "named-gaps-only",
+            "none"
+          ],
+          "default": "named-gaps-only"
+        },
+        "interrogation_style": {
+          "type": "string",
+          "enum": [
+            "one-question-at-a-time",
+            "batch"
+          ],
+          "default": "one-question-at-a-time"
+        },
+        "record_residue": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "technique_weights": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/weight"
+      },
+      "default": {
+        "review_then_audit": "medium",
+        "validation_loop": "medium",
+        "frame_handoff": "medium",
+        "research_external": "low"
+      }
+    },
+    "anti_patterns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "default": [
+        "ambient-authority",
+        "direct-active-ledger-mutation",
+        "silent-shared-substrate-mutation",
+        "unbounded-shell-without-allowlist",
+        "promotion-without-experiment-evidence"
+      ]
+    }
+  },
+  "$defs": {
+    "risk_tier": {
+      "type": "string",
+      "enum": [
+        "T0",
+        "T1",
+        "T2",
+        "T3"
+      ]
+    },
+    "weight": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "x-neutralDefault": {
+    "profile": {
+      "id": "neutral-default",
+      "version": "1.0.0",
+      "mode": "neutral-default",
+      "description": "Public neutral defaults for fail-closed goal routing."
+    },
+    "risk": {
+      "unknown_action": "stop",
+      "default_tier": "T3",
+      "protected_operations": [
+        "active-ledger-mutation",
+        "commit",
+        "push",
+        "pull-request",
+        "publication",
+        "ci",
+        "network",
+        "destructive-shell"
+      ],
+      "read_only_allowlist": [
+        "craft-read",
+        "context-selection",
+        "planning",
+        "design-review",
+        "staged-proposal"
+      ]
+    },
+    "approval": {
+      "mutation_mode": "propose-then-promote",
+      "promotion_mode": "explicit-token",
+      "decision_record_required": true,
+      "batch_limit": 1
+    },
+    "slice": {
+      "size": "smallest-reliable",
+      "validate_before_broaden": true,
+      "reconcile_before_act": true
+    },
+    "ownership": {
+      "model": "owner-scoped",
+      "immutable_substrate": [
+        "public-private-boundary",
+        "generated-runtime-surfaces",
+        "unapproved-parent-gitlink"
+      ]
+    },
+    "gap_filling": {
+      "fallback_exploration": "named-gaps-only",
+      "interrogation_style": "one-question-at-a-time",
+      "record_residue": true
+    },
+    "technique_weights": {
+      "review_then_audit": "medium",
+      "validation_loop": "medium",
+      "frame_handoff": "medium",
+      "research_external": "low"
+    },
+    "anti_patterns": [
+      "ambient-authority",
+      "direct-active-ledger-mutation",
+      "silent-shared-substrate-mutation",
+      "unbounded-shell-without-allowlist",
+      "promotion-without-experiment-evidence"
+    ]
+  }
+}

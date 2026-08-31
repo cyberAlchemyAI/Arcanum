@@ -1,0 +1,2714 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+        "AbsURL": {
+            "type": "string"
+        }
+    },
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "const": "https://arcanum.dev/schemas/invoke/design-input-closure/v2"
+        },
+        "activation": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "approval_ref": {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "expected_schema_id": {
+                                            "const": "https://arcanum.dev/schemas/invoke/design-input-boundary-approval/v1"
+                                        },
+                                        "expected_schema_version": {
+                                            "const": "invoke.design-input-boundary-approval.v1"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "expected_schema_id": {
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "#/$defs/AbsURL"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        },
+                                        "expected_schema_version": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "string",
+                                                    "pattern": ".*\\S.*"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        },
+                                        "visibility": {
+                                            "enum": [
+                                                "public",
+                                                "private"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "expected_schema_id",
+                                        "expected_schema_version",
+                                        "path",
+                                        "sha256",
+                                        "size",
+                                        "visibility"
+                                    ]
+                                }
+                            ]
+                        },
+                        "define_admission_receipt_ref": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "expected_schema_id": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/$defs/AbsURL"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "expected_schema_version": {
+                                    "oneOf": [
+                                        {
+                                            "type": "string",
+                                            "pattern": ".*\\S.*"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                },
+                                "visibility": {
+                                    "enum": [
+                                        "public",
+                                        "private"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "expected_schema_id",
+                                "expected_schema_version",
+                                "path",
+                                "sha256",
+                                "size",
+                                "visibility"
+                            ]
+                        },
+                        "define_stage_receipt_ref": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "expected_schema_id": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/$defs/AbsURL"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "expected_schema_version": {
+                                    "oneOf": [
+                                        {
+                                            "type": "string",
+                                            "pattern": ".*\\S.*"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                },
+                                "visibility": {
+                                    "enum": [
+                                        "public",
+                                        "private"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "expected_schema_id",
+                                "expected_schema_version",
+                                "path",
+                                "sha256",
+                                "size",
+                                "visibility"
+                            ]
+                        },
+                        "kind": {
+                            "const": "normal"
+                        }
+                    },
+                    "required": [
+                        "approval_ref",
+                        "define_admission_receipt_ref",
+                        "define_stage_receipt_ref",
+                        "kind"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "approval_ref": {
+                            "allOf": [
+                                {
+                                    "properties": {
+                                        "expected_schema_id": {
+                                            "const": "https://arcanum.dev/schemas/invoke/design-input-boundary-approval/v1"
+                                        },
+                                        "expected_schema_version": {
+                                            "const": "invoke.design-input-boundary-approval.v1"
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "expected_schema_id": {
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "#/$defs/AbsURL"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        },
+                                        "expected_schema_version": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "string",
+                                                    "pattern": ".*\\S.*"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        },
+                                        "visibility": {
+                                            "enum": [
+                                                "public",
+                                                "private"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "expected_schema_id",
+                                        "expected_schema_version",
+                                        "path",
+                                        "sha256",
+                                        "size",
+                                        "visibility"
+                                    ]
+                                }
+                            ]
+                        },
+                        "kind": {
+                            "const": "discovery"
+                        },
+                        "rationale": {
+                            "type": "string",
+                            "pattern": ".*\\S.*"
+                        }
+                    },
+                    "required": [
+                        "approval_ref",
+                        "kind",
+                        "rationale"
+                    ]
+                }
+            ]
+        },
+        "authored_by": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+        },
+        "authority_effect": {
+            "const": "none"
+        },
+        "closure_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+        },
+        "closure_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+        },
+        "conditional_input_resolutions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "evidence_ref": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "expected_schema_id": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/$defs/AbsURL"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "expected_schema_version": {
+                                "oneOf": [
+                                    {
+                                        "type": "string",
+                                        "pattern": ".*\\S.*"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "path": {
+                                "type": "string"
+                            },
+                            "sha256": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$"
+                            },
+                            "size": {
+                                "allOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            },
+                            "visibility": {
+                                "enum": [
+                                    "public",
+                                    "private"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "expected_schema_id",
+                            "expected_schema_version",
+                            "path",
+                            "sha256",
+                            "size",
+                            "visibility"
+                        ]
+                    },
+                    "input_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                    },
+                    "outcome": {
+                        "enum": [
+                            "included",
+                            "excluded"
+                        ]
+                    },
+                    "owner": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                    }
+                },
+                "required": [
+                    "evidence_ref",
+                    "input_id",
+                    "outcome",
+                    "owner"
+                ]
+            }
+        },
+        "constraints": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "class": {
+                        "enum": [
+                            "constraint",
+                            "invariant"
+                        ]
+                    },
+                    "obligation_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                    },
+                    "owner": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                    },
+                    "source_input_ids": {
+                        "allOf": [
+                            {
+                                "prefixItems": [
+                                    true
+                                ]
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                },
+                                "minItems": 1,
+                                "uniqueItems": true
+                            }
+                        ]
+                    },
+                    "statement": {
+                        "type": "string",
+                        "pattern": ".*\\S.*"
+                    }
+                },
+                "required": [
+                    "class",
+                    "obligation_id",
+                    "owner",
+                    "source_input_ids",
+                    "statement"
+                ]
+            }
+        },
+        "design_kind": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "kind": {
+                            "const": "greenfield"
+                        },
+                        "no_prior_design_determination_ref": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "expected_schema_id": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/$defs/AbsURL"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "expected_schema_version": {
+                                    "oneOf": [
+                                        {
+                                            "type": "string",
+                                            "pattern": ".*\\S.*"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                },
+                                "visibility": {
+                                    "enum": [
+                                        "public",
+                                        "private"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "expected_schema_id",
+                                "expected_schema_version",
+                                "path",
+                                "sha256",
+                                "size",
+                                "visibility"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "kind",
+                        "no_prior_design_determination_ref"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "current_state_input_ids": {
+                            "allOf": [
+                                {
+                                    "prefixItems": [
+                                        true
+                                    ]
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    },
+                                    "minItems": 1,
+                                    "uniqueItems": true
+                                }
+                            ]
+                        },
+                        "declared_delta_ids": {
+                            "allOf": [
+                                {
+                                    "prefixItems": [
+                                        true
+                                    ]
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    },
+                                    "minItems": 1,
+                                    "uniqueItems": true
+                                }
+                            ]
+                        },
+                        "kind": {
+                            "const": "evolution"
+                        },
+                        "prior_design_admission_receipt_ref": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "expected_schema_id": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/$defs/AbsURL"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "expected_schema_version": {
+                                    "oneOf": [
+                                        {
+                                            "type": "string",
+                                            "pattern": ".*\\S.*"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                },
+                                "visibility": {
+                                    "enum": [
+                                        "public",
+                                        "private"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "expected_schema_id",
+                                "expected_schema_version",
+                                "path",
+                                "sha256",
+                                "size",
+                                "visibility"
+                            ]
+                        },
+                        "prior_design_artifact_ref": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "expected_schema_id": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/$defs/AbsURL"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "expected_schema_version": {
+                                    "oneOf": [
+                                        {
+                                            "type": "string",
+                                            "pattern": ".*\\S.*"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                },
+                                "visibility": {
+                                    "enum": [
+                                        "public",
+                                        "private"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "expected_schema_id",
+                                "expected_schema_version",
+                                "path",
+                                "sha256",
+                                "size",
+                                "visibility"
+                            ]
+                        },
+                        "prior_design_stage_receipt_ref": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "expected_schema_id": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/$defs/AbsURL"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "expected_schema_version": {
+                                    "oneOf": [
+                                        {
+                                            "type": "string",
+                                            "pattern": ".*\\S.*"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
+                                "path": {
+                                    "type": "string"
+                                },
+                                "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                },
+                                "size": {
+                                    "allOf": [
+                                        {
+                                            "type": "number"
+                                        },
+                                        {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    ]
+                                },
+                                "visibility": {
+                                    "enum": [
+                                        "public",
+                                        "private"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "expected_schema_id",
+                                "expected_schema_version",
+                                "path",
+                                "sha256",
+                                "size",
+                                "visibility"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "current_state_input_ids",
+                        "declared_delta_ids",
+                        "kind",
+                        "prior_design_admission_receipt_ref",
+                        "prior_design_artifact_ref",
+                        "prior_design_stage_receipt_ref"
+                    ]
+                }
+            ]
+        },
+        "discovery_boundary": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "boundary_digest": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "discovery_rules": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "include_globs": {
+                                        "allOf": [
+                                            {
+                                                "prefixItems": [
+                                                    true
+                                                ]
+                                            },
+                                            {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "minItems": 1,
+                                                "uniqueItems": true
+                                            }
+                                        ]
+                                    },
+                                    "input_class": {
+                                        "enum": [
+                                            "define-artifact",
+                                            "current-design",
+                                            "current-implementation",
+                                            "interface-contract",
+                                            "state-workflow",
+                                            "data-store",
+                                            "queue-writer",
+                                            "deployment-topology",
+                                            "authority-policy",
+                                            "security-policy",
+                                            "privacy-policy",
+                                            "compatibility-policy",
+                                            "quality-constraint",
+                                            "observability-contract",
+                                            "architecture-pattern",
+                                            "research-evidence",
+                                            "ux-evidence",
+                                            "owner-decision",
+                                            "other"
+                                        ]
+                                    },
+                                    "root_id": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    },
+                                    "rule_id": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    }
+                                },
+                                "required": [
+                                    "include_globs",
+                                    "input_class",
+                                    "root_id",
+                                    "rule_id"
+                                ]
+                            },
+                            "minItems": 1
+                        }
+                    ]
+                },
+                "observation_epoch": {
+                    "type": "string",
+                    "pattern": ".*\\S.*"
+                },
+                "permitted_exclusions": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "evidence_ref": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "path": {
+                                        "type": "string"
+                                    },
+                                    "sha256": {
+                                        "type": "string",
+                                        "pattern": "^[a-f0-9]{64}$"
+                                    },
+                                    "size": {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "path",
+                                    "sha256",
+                                    "size"
+                                ]
+                            },
+                            "path": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "evidence_ref",
+                            "path"
+                        ]
+                    }
+                },
+                "required_input_classes": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "enum": [
+                                    "define-artifact",
+                                    "current-design",
+                                    "current-implementation",
+                                    "interface-contract",
+                                    "state-workflow",
+                                    "data-store",
+                                    "queue-writer",
+                                    "deployment-topology",
+                                    "authority-policy",
+                                    "security-policy",
+                                    "privacy-policy",
+                                    "compatibility-policy",
+                                    "quality-constraint",
+                                    "observability-contract",
+                                    "architecture-pattern",
+                                    "research-evidence",
+                                    "ux-evidence",
+                                    "owner-decision",
+                                    "other"
+                                ]
+                            },
+                            "minItems": 1,
+                            "uniqueItems": true
+                        }
+                    ]
+                },
+                "roots": {
+                    "allOf": [
+                        {
+                            "prefixItems": [
+                                true
+                            ]
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "path": {
+                                        "type": "string"
+                                    },
+                                    "root_id": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    },
+                                    "sha256": {
+                                        "type": "string",
+                                        "pattern": "^[a-f0-9]{64}$"
+                                    },
+                                    "size": {
+                                        "allOf": [
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "integer",
+                                                "minimum": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "path",
+                                    "root_id",
+                                    "sha256",
+                                    "size"
+                                ]
+                            },
+                            "minItems": 1
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "boundary_digest",
+                "discovery_rules",
+                "observation_epoch",
+                "permitted_exclusions",
+                "required_input_classes",
+                "roots"
+            ]
+        },
+        "exclusions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "evidence_ref": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "expected_schema_id": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/$defs/AbsURL"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "expected_schema_version": {
+                                "oneOf": [
+                                    {
+                                        "type": "string",
+                                        "pattern": ".*\\S.*"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "path": {
+                                "type": "string"
+                            },
+                            "sha256": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$"
+                            },
+                            "size": {
+                                "allOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            },
+                            "visibility": {
+                                "enum": [
+                                    "public",
+                                    "private"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "expected_schema_id",
+                            "expected_schema_version",
+                            "path",
+                            "sha256",
+                            "size",
+                            "visibility"
+                        ]
+                    },
+                    "exclusion_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "pattern": ".*\\S.*"
+                    }
+                },
+                "required": [
+                    "evidence_ref",
+                    "exclusion_id",
+                    "path",
+                    "reason"
+                ]
+            }
+        },
+        "input_catalog": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "allOf": [
+                            {
+                                "if": {
+                                    "type": "object",
+                                    "properties": {
+                                        "classification": {
+                                            "enum": [
+                                                "required",
+                                                "conditional"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "classification"
+                                    ]
+                                },
+                                "then": {
+                                    "type": "object",
+                                    "properties": {
+                                        "exclusion_evidence_ref": {
+                                            "type": "null"
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "applicability_owner": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    },
+                                    "applies_to": {
+                                        "allOf": [
+                                            {
+                                                "prefixItems": [
+                                                    true
+                                                ]
+                                            },
+                                            {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "pattern": ".*\\S.*"
+                                                },
+                                                "minItems": 1,
+                                                "uniqueItems": true
+                                            }
+                                        ]
+                                    },
+                                    "authority_class": {
+                                        "enum": [
+                                            "normative",
+                                            "owner-decision",
+                                            "observed-current-state",
+                                            "advisory",
+                                            "historical"
+                                        ]
+                                    },
+                                    "authority_owner": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    },
+                                    "classification": {
+                                        "enum": [
+                                            "required",
+                                            "conditional",
+                                            "excluded"
+                                        ]
+                                    },
+                                    "exclusion_evidence_ref": {
+                                        "oneOf": [
+                                            {
+                                                "type": "object",
+                                                "additionalProperties": false,
+                                                "properties": {
+                                                    "expected_schema_id": {
+                                                        "oneOf": [
+                                                            {
+                                                                "$ref": "#/$defs/AbsURL"
+                                                            },
+                                                            {
+                                                                "type": "null"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "expected_schema_version": {
+                                                        "oneOf": [
+                                                            {
+                                                                "type": "string",
+                                                                "pattern": ".*\\S.*"
+                                                            },
+                                                            {
+                                                                "type": "null"
+                                                            }
+                                                        ]
+                                                    },
+                                                    "path": {
+                                                        "type": "string"
+                                                    },
+                                                    "sha256": {
+                                                        "type": "string",
+                                                        "pattern": "^[a-f0-9]{64}$"
+                                                    },
+                                                    "size": {
+                                                        "allOf": [
+                                                            {
+                                                                "type": "number"
+                                                            },
+                                                            {
+                                                                "type": "integer",
+                                                                "minimum": 0
+                                                            }
+                                                        ]
+                                                    },
+                                                    "visibility": {
+                                                        "enum": [
+                                                            "public",
+                                                            "private"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "expected_schema_id",
+                                                    "expected_schema_version",
+                                                    "path",
+                                                    "sha256",
+                                                    "size",
+                                                    "visibility"
+                                                ]
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ]
+                                    },
+                                    "freshness": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "observed_epoch": {
+                                                "type": "string",
+                                                "pattern": ".*\\S.*"
+                                            },
+                                            "status": {
+                                                "enum": [
+                                                    "current",
+                                                    "historical"
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "observed_epoch",
+                                            "status"
+                                        ]
+                                    },
+                                    "input_id": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    },
+                                    "kind": {
+                                        "enum": [
+                                            "define-artifact",
+                                            "current-design",
+                                            "current-implementation",
+                                            "interface-contract",
+                                            "state-workflow",
+                                            "data-store",
+                                            "queue-writer",
+                                            "deployment-topology",
+                                            "authority-policy",
+                                            "security-policy",
+                                            "privacy-policy",
+                                            "compatibility-policy",
+                                            "quality-constraint",
+                                            "observability-contract",
+                                            "architecture-pattern",
+                                            "research-evidence",
+                                            "ux-evidence",
+                                            "owner-decision",
+                                            "other"
+                                        ]
+                                    },
+                                    "selector": {
+                                        "type": "string"
+                                    },
+                                    "source_ref": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "expected_schema_id": {
+                                                "oneOf": [
+                                                    {
+                                                        "$ref": "#/$defs/AbsURL"
+                                                    },
+                                                    {
+                                                        "type": "null"
+                                                    }
+                                                ]
+                                            },
+                                            "expected_schema_version": {
+                                                "oneOf": [
+                                                    {
+                                                        "type": "string",
+                                                        "pattern": ".*\\S.*"
+                                                    },
+                                                    {
+                                                        "type": "null"
+                                                    }
+                                                ]
+                                            },
+                                            "path": {
+                                                "type": "string"
+                                            },
+                                            "sha256": {
+                                                "type": "string",
+                                                "pattern": "^[a-f0-9]{64}$"
+                                            },
+                                            "size": {
+                                                "allOf": [
+                                                    {
+                                                        "type": "number"
+                                                    },
+                                                    {
+                                                        "type": "integer",
+                                                        "minimum": 0
+                                                    }
+                                                ]
+                                            },
+                                            "visibility": {
+                                                "enum": [
+                                                    "public",
+                                                    "private"
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "expected_schema_id",
+                                            "expected_schema_version",
+                                            "path",
+                                            "sha256",
+                                            "size",
+                                            "visibility"
+                                        ]
+                                    }
+                                },
+                                "if": {
+                                    "type": "object",
+                                    "properties": {
+                                        "classification": {
+                                            "const": "excluded"
+                                        }
+                                    },
+                                    "required": [
+                                        "classification"
+                                    ]
+                                },
+                                "then": {
+                                    "type": "object",
+                                    "properties": {
+                                        "exclusion_evidence_ref": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "expected_schema_id": {
+                                                    "oneOf": [
+                                                        {
+                                                            "$ref": "#/$defs/AbsURL"
+                                                        },
+                                                        {
+                                                            "type": "null"
+                                                        }
+                                                    ]
+                                                },
+                                                "expected_schema_version": {
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "string",
+                                                            "pattern": ".*\\S.*"
+                                                        },
+                                                        {
+                                                            "type": "null"
+                                                        }
+                                                    ]
+                                                },
+                                                "path": {
+                                                    "type": "string"
+                                                },
+                                                "sha256": {
+                                                    "type": "string",
+                                                    "pattern": "^[a-f0-9]{64}$"
+                                                },
+                                                "size": {
+                                                    "allOf": [
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "integer",
+                                                            "minimum": 0
+                                                        }
+                                                    ]
+                                                },
+                                                "visibility": {
+                                                    "enum": [
+                                                        "public",
+                                                        "private"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "expected_schema_id",
+                                                "expected_schema_version",
+                                                "path",
+                                                "sha256",
+                                                "size",
+                                                "visibility"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "applicability_owner",
+                                    "applies_to",
+                                    "authority_class",
+                                    "authority_owner",
+                                    "classification",
+                                    "exclusion_evidence_ref",
+                                    "freshness",
+                                    "input_id",
+                                    "kind",
+                                    "selector",
+                                    "source_ref"
+                                ]
+                            }
+                        ]
+                    },
+                    "minItems": 1
+                }
+            ]
+        },
+        "input_conflicts": {
+            "type": "array",
+            "items": {
+                "allOf": [
+                    {
+                        "if": {
+                            "type": "object",
+                            "properties": {
+                                "resolution_status": {
+                                    "const": "unresolved"
+                                }
+                            },
+                            "required": [
+                                "resolution_status"
+                            ]
+                        },
+                        "then": {
+                            "type": "object",
+                            "properties": {
+                                "decision_ref": {
+                                    "type": "null"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "conflict_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "decision_ref": {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "expected_schema_id": {
+                                                "oneOf": [
+                                                    {
+                                                        "$ref": "#/$defs/AbsURL"
+                                                    },
+                                                    {
+                                                        "type": "null"
+                                                    }
+                                                ]
+                                            },
+                                            "expected_schema_version": {
+                                                "oneOf": [
+                                                    {
+                                                        "type": "string",
+                                                        "pattern": ".*\\S.*"
+                                                    },
+                                                    {
+                                                        "type": "null"
+                                                    }
+                                                ]
+                                            },
+                                            "path": {
+                                                "type": "string"
+                                            },
+                                            "sha256": {
+                                                "type": "string",
+                                                "pattern": "^[a-f0-9]{64}$"
+                                            },
+                                            "size": {
+                                                "allOf": [
+                                                    {
+                                                        "type": "number"
+                                                    },
+                                                    {
+                                                        "type": "integer",
+                                                        "minimum": 0
+                                                    }
+                                                ]
+                                            },
+                                            "visibility": {
+                                                "enum": [
+                                                    "public",
+                                                    "private"
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "expected_schema_id",
+                                            "expected_schema_version",
+                                            "path",
+                                            "sha256",
+                                            "size",
+                                            "visibility"
+                                        ]
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "input_ids": {
+                                "allOf": [
+                                    {
+                                        "prefixItems": [
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                        },
+                                        "minItems": 1,
+                                        "uniqueItems": true
+                                    }
+                                ]
+                            },
+                            "resolution_status": {
+                                "enum": [
+                                    "resolved",
+                                    "unresolved"
+                                ]
+                            }
+                        },
+                        "if": {
+                            "type": "object",
+                            "properties": {
+                                "resolution_status": {
+                                    "const": "resolved"
+                                }
+                            },
+                            "required": [
+                                "resolution_status"
+                            ]
+                        },
+                        "then": {
+                            "type": "object",
+                            "properties": {
+                                "decision_ref": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "expected_schema_id": {
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "#/$defs/AbsURL"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        },
+                                        "expected_schema_version": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "string",
+                                                    "pattern": ".*\\S.*"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        },
+                                        "path": {
+                                            "type": "string"
+                                        },
+                                        "sha256": {
+                                            "type": "string",
+                                            "pattern": "^[a-f0-9]{64}$"
+                                        },
+                                        "size": {
+                                            "allOf": [
+                                                {
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            ]
+                                        },
+                                        "visibility": {
+                                            "enum": [
+                                                "public",
+                                                "private"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "expected_schema_id",
+                                        "expected_schema_version",
+                                        "path",
+                                        "sha256",
+                                        "size",
+                                        "visibility"
+                                    ]
+                                }
+                            }
+                        },
+                        "required": [
+                            "conflict_id",
+                            "decision_ref",
+                            "input_ids",
+                            "resolution_status"
+                        ]
+                    }
+                ]
+            }
+        },
+        "invariants": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "class": {
+                        "enum": [
+                            "constraint",
+                            "invariant"
+                        ]
+                    },
+                    "obligation_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                    },
+                    "owner": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                    },
+                    "source_input_ids": {
+                        "allOf": [
+                            {
+                                "prefixItems": [
+                                    true
+                                ]
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                },
+                                "minItems": 1,
+                                "uniqueItems": true
+                            }
+                        ]
+                    },
+                    "statement": {
+                        "type": "string",
+                        "pattern": ".*\\S.*"
+                    }
+                },
+                "required": [
+                    "class",
+                    "obligation_id",
+                    "owner",
+                    "source_input_ids",
+                    "statement"
+                ]
+            }
+        },
+        "prior_decisions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "decision_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                    },
+                    "decision_ref": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "expected_schema_id": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/$defs/AbsURL"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "expected_schema_version": {
+                                "oneOf": [
+                                    {
+                                        "type": "string",
+                                        "pattern": ".*\\S.*"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "path": {
+                                "type": "string"
+                            },
+                            "sha256": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$"
+                            },
+                            "size": {
+                                "allOf": [
+                                    {
+                                        "type": "number"
+                                    },
+                                    {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                ]
+                            },
+                            "visibility": {
+                                "enum": [
+                                    "public",
+                                    "private"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "expected_schema_id",
+                            "expected_schema_version",
+                            "path",
+                            "sha256",
+                            "size",
+                            "visibility"
+                        ]
+                    },
+                    "owner": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                    },
+                    "status": {
+                        "enum": [
+                            "preserved",
+                            "eligible-for-supersession"
+                        ]
+                    }
+                },
+                "required": [
+                    "decision_id",
+                    "decision_ref",
+                    "owner",
+                    "status"
+                ]
+            }
+        },
+        "schema_version": {
+            "const": "invoke.design-input-closure.v2"
+        },
+        "scope_manifest_contract_ref": {
+            "allOf": [
+                {
+                    "properties": {
+                        "expected_schema_id": {
+                            "const": "https://arcanum.dev/schemas/invoke/design-scope-manifest/1-0-0"
+                        },
+                        "expected_schema_version": {
+                            "const": "1.0.0"
+                        },
+                        "path": {
+                            "const": "arcanum/spells/invoke/schemas/design-scope-manifest.schema.json"
+                        },
+                        "visibility": {
+                            "const": "public"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "expected_schema_id": {
+                            "oneOf": [
+                                {
+                                    "$ref": "#/$defs/AbsURL"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        },
+                        "expected_schema_version": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": ".*\\S.*"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        },
+                        "path": {
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                        },
+                        "size": {
+                            "allOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ]
+                        },
+                        "visibility": {
+                            "enum": [
+                                "public",
+                                "private"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "expected_schema_id",
+                        "expected_schema_version",
+                        "path",
+                        "sha256",
+                        "size",
+                        "visibility"
+                    ]
+                }
+            ]
+        },
+        "scope_signals": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "acceptance_and_readiness_claims": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "claim_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "evidence_state": {
+                                "const": "authored-complete"
+                            },
+                            "selector": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            }
+                        },
+                        "required": [
+                            "claim_id",
+                            "evidence_state",
+                            "selector",
+                            "signal_id",
+                            "source_input_id"
+                        ]
+                    }
+                },
+                "compatibility_boundaries": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "boundary_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "new_contract": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "old_contract": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            }
+                        },
+                        "required": [
+                            "boundary_id",
+                            "new_contract",
+                            "old_contract",
+                            "signal_id",
+                            "source_input_id"
+                        ]
+                    }
+                },
+                "data_and_log_sinks": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "data_classes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": ".*\\S.*"
+                                },
+                                "uniqueItems": true
+                            },
+                            "retention_hint": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "sink_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            }
+                        },
+                        "required": [
+                            "data_classes",
+                            "retention_hint",
+                            "signal_id",
+                            "sink_id",
+                            "source_input_id"
+                        ]
+                    }
+                },
+                "deployment_targets": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "deployment_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "environment": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "release_mode": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            }
+                        },
+                        "required": [
+                            "deployment_id",
+                            "environment",
+                            "release_mode",
+                            "signal_id",
+                            "source_input_id"
+                        ]
+                    }
+                },
+                "effects": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "effect_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "external": {
+                                "type": "boolean"
+                            },
+                            "privileged": {
+                                "type": "boolean"
+                            },
+                            "reversible": {
+                                "type": "boolean"
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            }
+                        },
+                        "required": [
+                            "effect_id",
+                            "external",
+                            "privileged",
+                            "reversible",
+                            "signal_id",
+                            "source_input_id"
+                        ]
+                    }
+                },
+                "human_actors": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "actor_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "acts": {
+                                "type": "boolean"
+                            },
+                            "assistive_operation": {
+                                "type": "boolean"
+                            },
+                            "decides": {
+                                "type": "boolean"
+                            },
+                            "natural_person": {
+                                "type": "boolean"
+                            },
+                            "navigates": {
+                                "type": "boolean"
+                            },
+                            "reads": {
+                                "type": "boolean"
+                            },
+                            "recovers": {
+                                "type": "boolean"
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "surfaces": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": ".*\\S.*"
+                                },
+                                "uniqueItems": true
+                            }
+                        },
+                        "required": [
+                            "actor_id",
+                            "acts",
+                            "assistive_operation",
+                            "decides",
+                            "natural_person",
+                            "navigates",
+                            "reads",
+                            "recovers",
+                            "signal_id",
+                            "source_input_id",
+                            "surfaces"
+                        ]
+                    }
+                },
+                "interfaces": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "contract_ref": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "direction": {
+                                "enum": [
+                                    "inbound",
+                                    "outbound",
+                                    "bidirectional"
+                                ]
+                            },
+                            "interface_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "kind": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "peer": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            }
+                        },
+                        "required": [
+                            "contract_ref",
+                            "direction",
+                            "interface_id",
+                            "kind",
+                            "peer",
+                            "signal_id",
+                            "source_input_id"
+                        ]
+                    }
+                },
+                "normative_rules": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "enforcement_hint": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "object": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "rule_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "subject": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "verb": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            }
+                        },
+                        "required": [
+                            "enforcement_hint",
+                            "object",
+                            "rule_id",
+                            "signal_id",
+                            "source_input_id",
+                            "subject",
+                            "verb"
+                        ]
+                    }
+                },
+                "quality_claims": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "claim_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "required": {
+                                "type": "boolean"
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_kind": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "threshold_or_tradeoff": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            }
+                        },
+                        "required": [
+                            "claim_id",
+                            "required",
+                            "signal_id",
+                            "source_input_id",
+                            "source_kind",
+                            "threshold_or_tradeoff"
+                        ]
+                    }
+                },
+                "queues": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "consumers": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": ".*\\S.*"
+                                },
+                                "uniqueItems": true
+                            },
+                            "ordering": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "producers": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": ".*\\S.*"
+                                },
+                                "uniqueItems": true
+                            },
+                            "queue_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            }
+                        },
+                        "required": [
+                            "consumers",
+                            "ordering",
+                            "producers",
+                            "queue_id",
+                            "signal_id",
+                            "source_input_id"
+                        ]
+                    }
+                },
+                "rendered_surfaces": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "modality": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "semantic_change": {
+                                "enum": [
+                                    "none",
+                                    "new",
+                                    "changed"
+                                ]
+                            },
+                            "semantic_contract_ref": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "surface_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            }
+                        },
+                        "required": [
+                            "modality",
+                            "semantic_change",
+                            "semantic_contract_ref",
+                            "signal_id",
+                            "source_input_id",
+                            "surface_id"
+                        ]
+                    }
+                },
+                "stores": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "authority": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "data_classes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": ".*\\S.*"
+                                },
+                                "uniqueItems": true
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "store_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "writers": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": ".*\\S.*"
+                                },
+                                "uniqueItems": true
+                            }
+                        },
+                        "required": [
+                            "authority",
+                            "data_classes",
+                            "signal_id",
+                            "source_input_id",
+                            "store_id",
+                            "writers"
+                        ]
+                    }
+                },
+                "writers": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "concurrency": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "signal_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "targets": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": ".*\\S.*"
+                                },
+                                "uniqueItems": true
+                            },
+                            "writer_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            }
+                        },
+                        "required": [
+                            "concurrency",
+                            "signal_id",
+                            "source_input_id",
+                            "targets",
+                            "writer_id"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "acceptance_and_readiness_claims",
+                "compatibility_boundaries",
+                "data_and_log_sinks",
+                "deployment_targets",
+                "effects",
+                "human_actors",
+                "interfaces",
+                "normative_rules",
+                "quality_claims",
+                "queues",
+                "rendered_surfaces",
+                "stores",
+                "writers"
+            ]
+        },
+        "selection_inputs": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "authored_concerns": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "concern_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "disposition": {
+                                "enum": [
+                                    "required",
+                                    "recommended",
+                                    "not-applicable-with-rationale",
+                                    "block"
+                                ]
+                            },
+                            "evidence_selectors": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "uniqueItems": true
+                            },
+                            "ownership": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "accountable_owner": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    },
+                                    "artifact_owner": {
+                                        "type": "string",
+                                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                    },
+                                    "contributing_owners": {
+                                        "allOf": [
+                                            {
+                                                "prefixItems": [
+                                                    true
+                                                ]
+                                            },
+                                            {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                                },
+                                                "minItems": 1,
+                                                "uniqueItems": true
+                                            }
+                                        ]
+                                    },
+                                    "validator_owner": {
+                                        "const": "invoke-design-selection-validator"
+                                    }
+                                },
+                                "required": [
+                                    "accountable_owner",
+                                    "artifact_owner",
+                                    "contributing_owners",
+                                    "validator_owner"
+                                ]
+                            },
+                            "primary_class": {
+                                "enum": [
+                                    "authority",
+                                    "security",
+                                    "state-event",
+                                    "persistence",
+                                    "failure",
+                                    "reliability",
+                                    "integration",
+                                    "migration",
+                                    "rollout",
+                                    "privacy-data",
+                                    "performance",
+                                    "ux",
+                                    "validation"
+                                ]
+                            },
+                            "rationale": {
+                                "type": "string",
+                                "pattern": ".*\\S.*"
+                            },
+                            "required_predicate": {
+                                "type": "boolean"
+                            },
+                            "revisit_condition": {
+                                "oneOf": [
+                                    {
+                                        "type": "string",
+                                        "pattern": ".*\\S.*"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            },
+                            "selected": {
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "concern_id",
+                            "disposition",
+                            "evidence_selectors",
+                            "ownership",
+                            "primary_class",
+                            "rationale",
+                            "required_predicate",
+                            "revisit_condition",
+                            "selected"
+                        ]
+                    }
+                },
+                "planned_witness_requirements": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "claim_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "concern_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "evidence_state": {
+                                "const": "planned-contract"
+                            },
+                            "witness_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            }
+                        },
+                        "required": [
+                            "claim_id",
+                            "concern_id",
+                            "evidence_state",
+                            "witness_id"
+                        ]
+                    }
+                },
+                "predicate_inputs": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "concern_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "expected": {
+                                "type": "boolean"
+                            },
+                            "predicate_id": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                            },
+                            "source_input_ids": {
+                                "allOf": [
+                                    {
+                                        "prefixItems": [
+                                            true
+                                        ]
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                                        },
+                                        "minItems": 1,
+                                        "uniqueItems": true
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "concern_id",
+                            "expected",
+                            "predicate_id",
+                            "source_input_ids"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "authored_concerns",
+                "planned_witness_requirements",
+                "predicate_inputs"
+            ]
+        },
+        "target": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                },
+                "objective": {
+                    "type": "string",
+                    "pattern": ".*\\S.*"
+                },
+                "owner": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$"
+                },
+                "title": {
+                    "type": "string",
+                    "pattern": ".*\\S.*"
+                },
+                "visibility": {
+                    "enum": [
+                        "public",
+                        "private"
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "objective",
+                "owner",
+                "title",
+                "visibility"
+            ]
+        }
+    },
+    "required": [
+        "$schema",
+        "activation",
+        "authored_by",
+        "authority_effect",
+        "closure_digest",
+        "closure_id",
+        "conditional_input_resolutions",
+        "constraints",
+        "design_kind",
+        "discovery_boundary",
+        "exclusions",
+        "input_catalog",
+        "input_conflicts",
+        "invariants",
+        "prior_decisions",
+        "schema_version",
+        "scope_manifest_contract_ref",
+        "scope_signals",
+        "selection_inputs",
+        "target"
+    ]
+}

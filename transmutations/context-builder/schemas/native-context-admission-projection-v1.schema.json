@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/context-builder/native-context-admission-projection/1-0-0",
+  "title": "ContextBuilderNativeContextAdmissionProjectionV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["task_id", "swu_id", "strict_coverage", "admission_schema_version", "execution_contract"],
+  "properties": {
+    "task_id": {"type": "string", "minLength": 1},
+    "swu_id": {"type": "string", "minLength": 1},
+    "strict_coverage": {"const": true},
+    "admission_schema_version": {"enum": ["1.2.0", "1.3.0"]},
+    "execution_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["writeProfile", "materialWrites", "executionOutputs", "allowedWrites", "validationCommands", "lifecycleOwner", "authorityClass", "publicationClass"],
+      "properties": {
+        "writeProfile": {"enum": ["material-bound", "execution-output-only"]},
+        "materialWrites": {"$ref": "#/$defs/pathSet"},
+        "executionOutputs": {"$ref": "#/$defs/pathSet"},
+        "allowedWrites": {"$ref": "#/$defs/pathSet"},
+        "transientOutputs": {"$ref": "#/$defs/nonEmptyPathSet"},
+        "validationCommands": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "lifecycleOwner": {"type": "string", "minLength": 1},
+        "authorityClass": {"enum": ["public", "private"]},
+        "publicationClass": {"enum": ["public", "private", "internal"]}
+      }
+    }
+  },
+  "allOf": [{
+    "if": {"properties": {"admission_schema_version": {"const": "1.3.0"}}},
+    "then": {"properties": {"execution_contract": {"required": ["transientOutputs"]}}},
+    "else": {"properties": {"execution_contract": {"not": {"required": ["transientOutputs"]}}}}
+  }],
+  "$defs": {
+    "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$))[^\\u0000]+$"},
+    "pathSet": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/path"}},
+    "nonEmptyPathSet": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}}
+  }
+}

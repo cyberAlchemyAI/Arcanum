@@ -6,3 +6,6 @@ ARCANUM_ROOT="$(cd "$ARTIFACT_DIR/../.." && pwd)"
 EXPERIMENT_REPO_ROOT="${EXPERIMENT_REPO_ROOT:-$ARCANUM_ROOT}" \
   "$ARTIFACT_DIR/../experiment-harness/scripts/validate-harness.sh" "$ARTIFACT_DIR"
 node "$SCRIPT_DIR/test-append-dispatch.cjs"
+node "$SCRIPT_DIR/test-append-concurrency.cjs"
+node "$SCRIPT_DIR/test-runtime-guards.cjs"
+node "$SCRIPT_DIR/test-runtime-profile.cjs"

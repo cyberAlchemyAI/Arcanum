@@ -1,0 +1,45 @@
+{
+  "schema_version": "distill.schema_fixture_manifest.v2",
+  "manifest_id": "distill.source.schema_fixtures.v2",
+  "artifact": "source",
+  "schema_path": "arcana/distill/schemas/distill-source-v2.schema.json",
+  "schema_id": "https://arcanum.dev/schemas/distill/source/2-0-0",
+  "instance_schema_version": "distill.source.v2",
+  "positive_fixture": "valid-source.json",
+  "expected_case_count": 132,
+  "groups": [
+    {"id": "source-positive", "kind": "canonical_positive"},
+    {"id": "source-missing-required", "kind": "generated_missing_required", "expected_blocker": "E_REQUIRED_PROPERTY"},
+    {"id": "source-unknown-field", "kind": "generated_unknown_field", "expected_blocker": "E_UNKNOWN_PROPERTY"},
+    {"id": "source-wrong-type", "kind": "generated_wrong_type", "expected_blocker": "E_WRONG_TYPE"},
+    {"id": "source-invalid-enum", "kind": "generated_invalid_enum_or_const", "expected_blocker": "E_ENUM_OR_CONST"},
+    {"id": "source-common-ref-edges", "kind": "generated_common_ref_edges", "expected_blocker": "E_COMMON_REF_EDGE"},
+    {
+      "id": "source-policy-mutations", "kind": "generated_policy_mutations",
+      "mutations": [
+        {
+          "id": "source-unsafe-artifact-path",
+          "operation": "set",
+          "pointer": "/artifacts",
+          "value": [
+            {
+              "artifact_ref": {
+                "path": "/tmp/input",
+                "sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+                "size_bytes": 6
+              },
+              "semantic_role": "context"
+            }
+          ],
+          "expected_blocker": "E_PATH_ABSOLUTE"
+        },
+        {"id": "source-invalid-exact-ref", "operation": "set", "pointer": "/policy/profile_ref/sha256", "value": "bad", "expected_blocker": "E_PATTERN"},
+        {"id": "source-revision-without-reason", "operation": "set", "pointer": "/lineage/objective_output_revision", "value": {"prior_objective": "Old", "prior_output_artifact": "Old output"}, "expected_blocker": "E_REVISION_REASON_REQUIRED"},
+        {"id": "source-preauthored-verdict", "operation": "add", "pointer": "/verdict", "value": "pass", "expected_blocker": "E_SOURCE_PREAUTHORED_VERDICT"},
+        {"id": "source-invoke-shaped", "operation": "replace_document", "value": {"schema_version": "distill.source.v2", "request": "distill this"}, "expected_blocker": "E_REQUIRED_PROPERTY"},
+        {"id": "source-artifacts-require-member", "operation": "set_schema", "pointer": "/properties/artifacts/minItems", "value": 1, "expected_blocker": "E_SOURCE_EMPTY_COLLECTION_CLOSURE"},
+        {"id": "source-requested-techniques-require-member", "operation": "set_schema", "pointer": "/$defs/policy/properties/requested_technique_refs/minItems", "value": 1, "expected_blocker": "E_SOURCE_EMPTY_COLLECTION_CLOSURE"}
+      ]
+    }
+  ]
+}

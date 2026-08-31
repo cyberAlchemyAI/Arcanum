@@ -1,0 +1,166 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "audit_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "authority_effect": {
+            "const": "none"
+        },
+        "mutation_mode": {
+            "const": "proposal-only"
+        },
+        "mutation_ready": {
+            "const": false
+        },
+        "next_owner": {
+            "const": "invoke:refresh"
+        },
+        "schema_version": {
+            "const": "1.0.0"
+        },
+        "signals": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "claim": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "confidence": {
+                        "enum": [
+                            "high",
+                            "medium",
+                            "low"
+                        ]
+                    },
+                    "evidence": {
+                        "allOf": [
+                            {
+                                "prefixItems": [
+                                    true
+                                ]
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "minItems": 1
+                            }
+                        ]
+                    },
+                    "id": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "mutation_safety": {
+                        "enum": [
+                            "safe",
+                            "needs_review",
+                            "blocked"
+                        ]
+                    },
+                    "signal_type": {
+                        "enum": [
+                            "evidence_added",
+                            "blocker_opened",
+                            "artifact_drift",
+                            "no_op"
+                        ]
+                    },
+                    "target_artifacts": {
+                        "allOf": [
+                            {
+                                "prefixItems": [
+                                    true
+                                ]
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "minItems": 1
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "claim",
+                    "confidence",
+                    "evidence",
+                    "id",
+                    "mutation_safety",
+                    "signal_type",
+                    "target_artifacts"
+                ]
+            }
+        },
+        "source_report": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "path": {
+                    "const": "work-pack-readiness-report.json"
+                },
+                "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                },
+                "size_bytes": {
+                    "allOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "path",
+                "sha256",
+                "size_bytes"
+            ]
+        },
+        "target_inventory": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        }
+    },
+    "required": [
+        "audit_id",
+        "authority_effect",
+        "mutation_mode",
+        "mutation_ready",
+        "next_owner",
+        "schema_version",
+        "signals",
+        "source_report",
+        "target_inventory"
+    ]
+}

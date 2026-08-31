@@ -1,0 +1,340 @@
+{
+  "schema_version": "invoke.accepted-stream-producer-matrix.v1",
+  "units": [
+    {
+      "unit_id": "SWU-001",
+      "ordinal": 0,
+      "producer_id": "invoke.identity-contract.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/accepted_stream_contract.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/accepted_stream_contract.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/001"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-001/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-001/failure.json"
+      ],
+      "depends_on": []
+    },
+    {
+      "unit_id": "SWU-002",
+      "ordinal": 1,
+      "producer_id": "invoke.state-registry.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/accepted_stream_state.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/accepted_stream_state.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/002"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-002/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-002/failure.json"
+      ],
+      "depends_on": [
+        "SWU-001"
+      ]
+    },
+    {
+      "unit_id": "SWU-003",
+      "ordinal": 2,
+      "producer_id": "invoke.manifest-compiler.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/compile_accepted_stream_manifests.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/compile_accepted_stream_manifests.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/003"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-003/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-003/failure.json"
+      ],
+      "depends_on": [
+        "SWU-002"
+      ]
+    },
+    {
+      "unit_id": "SWU-004",
+      "ordinal": 3,
+      "producer_id": "invoke.producer-closure.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/validate_accepted_stream_producer_closure.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/validate_accepted_stream_producer_closure.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/004"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-004/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-004/failure.json"
+      ],
+      "depends_on": [
+        "SWU-003"
+      ]
+    },
+    {
+      "unit_id": "SWU-005",
+      "ordinal": 4,
+      "producer_id": "invoke.material-validation.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/material_package_validator.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/material_package_validator.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/005"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-005/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-005/failure.json"
+      ],
+      "depends_on": [
+        "SWU-004"
+      ]
+    },
+    {
+      "unit_id": "SWU-006",
+      "ordinal": 5,
+      "producer_id": "invoke.material-handoff.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/refresh_material_handoff.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/refresh_material_handoff.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/006"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-006/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-006/failure.json"
+      ],
+      "depends_on": [
+        "SWU-005"
+      ]
+    },
+    {
+      "unit_id": "SWU-007",
+      "ordinal": 6,
+      "producer_id": "invoke.readiness-projection.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/prepare_plan_implementation_readiness.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/prepare_plan_implementation_readiness.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/007"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-007/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-007/failure.json"
+      ],
+      "depends_on": [
+        "SWU-006"
+      ]
+    },
+    {
+      "unit_id": "SWU-008",
+      "ordinal": 7,
+      "producer_id": "invoke.execution-rehearsal.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/rehearse_execution_entry_consumers.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/rehearse_execution_entry_consumers.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/008"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-008/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-008/failure.json"
+      ],
+      "depends_on": [
+        "SWU-007"
+      ]
+    },
+    {
+      "unit_id": "SWU-009",
+      "ordinal": 8,
+      "producer_id": "invoke.preacceptance-closure.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/preacceptance_closure.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/preacceptance_closure.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/009"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-009/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-009/failure.json"
+      ],
+      "depends_on": [
+        "SWU-008"
+      ]
+    },
+    {
+      "unit_id": "SWU-010",
+      "ordinal": 9,
+      "producer_id": "invoke.owner-response.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/validate_owner_acceptance_response.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/validate_owner_acceptance_response.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/010"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-010/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-010/failure.json"
+      ],
+      "depends_on": [
+        "SWU-009"
+      ]
+    },
+    {
+      "unit_id": "SWU-011",
+      "ordinal": 10,
+      "producer_id": "invoke.preexecution-block.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/handle_pre_execution_block.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/handle_pre_execution_block.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/011"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-011/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-011/failure.json"
+      ],
+      "depends_on": [
+        "SWU-010"
+      ]
+    },
+    {
+      "unit_id": "SWU-012",
+      "ordinal": 11,
+      "producer_id": "invoke.capability-status.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/capability_status_resolver.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/capability_status_resolver.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/012"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-012/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-012/failure.json"
+      ],
+      "depends_on": [
+        "SWU-011"
+      ]
+    },
+    {
+      "unit_id": "SWU-013",
+      "ordinal": 12,
+      "producer_id": "invoke.design-scope.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/design_scope_extractor.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/design_scope_extractor.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/013"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-013/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-013/failure.json"
+      ],
+      "depends_on": [
+        "SWU-012"
+      ]
+    },
+    {
+      "unit_id": "SWU-014",
+      "ordinal": 13,
+      "producer_id": "invoke.design-selection.v1",
+      "producer_path": "arcanum/spells/invoke/scripts/design_selection_validator.py",
+      "schema_ref": "arcanum/spells/invoke/schemas/accepted-stream-unit-manifest-v1.schema.json",
+      "validator_argv": [
+        "python3",
+        "arcanum/spells/invoke/scripts/design_selection_validator.py",
+        "--help"
+      ],
+      "source_selectors": [
+        "accepted-stream/source/014"
+      ],
+      "output_paths": [
+        "accepted-stream/runtime/unit-014/output.json"
+      ],
+      "failure_paths": [
+        "accepted-stream/runtime/unit-014/failure.json"
+      ],
+      "depends_on": [
+        "SWU-013"
+      ]
+    }
+  ],
+  "matrix_digest": "492efc3a8ca11ef8df0cf01683308d470f6126c8e52228911361e3255c87a381"
+}

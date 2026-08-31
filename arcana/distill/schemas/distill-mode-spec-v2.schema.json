@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/distill/mode-spec/2-0-0",
+  "title": "Distill v2 ModeSpec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "mode_id",
+    "display_name",
+    "tracks",
+    "rounds_per_track",
+    "role_program",
+    "technique_policy",
+    "skipped_reason_required",
+    "pitch_off_policy",
+    "human_gates",
+    "cycle_policy",
+    "closeout_policy"
+  ],
+  "properties": {
+    "schema_version": {"const": "distill.mode_spec.v2"},
+    "mode_id": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+    },
+    "display_name": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/non_empty_string"
+    },
+    "tracks": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/bounded_count"
+    },
+    "rounds_per_track": {
+      "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/bounded_count"
+    },
+    "role_program": {"$ref": "#/$defs/role_program"},
+    "technique_policy": {"$ref": "#/$defs/technique_policy"},
+    "skipped_reason_required": {"const": true},
+    "pitch_off_policy": {"$ref": "#/$defs/pitch_off_policy"},
+    "human_gates": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/human_gate"}
+    },
+    "cycle_policy": {"$ref": "#/$defs/cycle_policy"},
+    "closeout_policy": {"$ref": "#/$defs/closeout_policy"}
+  },
+  "$defs": {
+    "role_program": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/role_step"}
+    },
+    "role_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["step", "actor", "action", "participation", "preserve_role_trace"],
+      "properties": {
+        "step": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/positive_integer"
+        },
+        "actor": {"enum": ["proposer", "balancer", "core_engine"]},
+        "action": {"enum": ["propose", "balance", "repair", "reconcile"]},
+        "participation": {"enum": ["required", "conditional"]},
+        "execution_paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["true_subagent", "role_simulation"]}
+        },
+        "preserve_role_trace": {"const": true}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"actor": {"enum": ["proposer", "balancer"]}},
+            "required": ["actor"]
+          },
+          "then": {"required": ["execution_paths"]},
+          "else": {
+            "not": {"required": ["execution_paths"]},
+            "properties": {
+              "action": {"const": "reconcile"},
+              "participation": {"const": "required"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"actor": {"const": "proposer"}},
+            "required": ["actor"]
+          },
+          "then": {"properties": {"action": {"enum": ["propose", "repair"]}}}
+        },
+        {
+          "if": {
+            "properties": {"actor": {"const": "balancer"}},
+            "required": ["actor"]
+          },
+          "then": {"properties": {"action": {"const": "balance"}}}
+        }
+      ]
+    },
+    "technique_policy": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/technique_policy_rule"}
+    },
+    "technique_policy_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["technique_id", "disposition"],
+      "properties": {
+        "technique_id": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "disposition": {"enum": ["required", "available", "not_applicable"]}
+      }
+    },
+    "pitch_off_policy": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status"],
+          "properties": {"status": {"const": "prohibited"}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "technique_id",
+            "comparison_dimensions",
+            "preserve_options_when_no_winner"
+          ],
+          "properties": {
+            "status": {"const": "required"},
+            "technique_id": {"const": "set_based_tournament"},
+            "comparison_dimensions": {"$ref": "#/$defs/pitch_off_dimensions"},
+            "preserve_options_when_no_winner": {"const": true}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "condition",
+            "technique_id",
+            "comparison_dimensions",
+            "preserve_options_when_no_winner"
+          ],
+          "properties": {
+            "status": {"const": "conditional"},
+            "condition": {"const": "multiple_viable_tracks"},
+            "technique_id": {"const": "set_based_tournament"},
+            "comparison_dimensions": {"$ref": "#/$defs/pitch_off_dimensions"},
+            "preserve_options_when_no_winner": {"const": true}
+          }
+        }
+      ]
+    },
+    "pitch_off_dimensions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "context_fit",
+          "closure",
+          "recomposition",
+          "evolution_fit",
+          "cognitive_load",
+          "validation_cost",
+          "risk_of_brittle_minimalism",
+          "risk_of_premature_generality"
+        ]
+      }
+    },
+    "human_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gate_id", "trigger", "blocking", "route"],
+      "properties": {
+        "gate_id": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+        },
+        "trigger": {
+          "enum": ["blocker_decision", "contested_optimization", "no_justified_winner", "periodic"]
+        },
+        "blocking": {"type": "boolean"},
+        "route": {"enum": ["decision_gate", "deferred"]},
+        "round_interval": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/positive_integer"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"trigger": {"const": "periodic"}},
+            "required": ["trigger"]
+          },
+          "then": {"required": ["round_interval"]},
+          "else": {"not": {"required": ["round_interval"]}}
+        }
+      ]
+    },
+    "cycle_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maximum_repeated_structure", "maximum_stagnant_rounds"],
+      "properties": {
+        "maximum_repeated_structure": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/positive_integer"
+        },
+        "maximum_stagnant_rounds": {
+          "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/positive_integer"
+        }
+      }
+    },
+    "closeout_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required_techniques", "navigation_required", "verdict_owner"],
+      "properties": {
+        "required_techniques": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://arcanum.dev/schemas/distill/common/2-0-0#/$defs/canonical_identifier"
+          }
+        },
+        "navigation_required": {"const": true},
+        "verdict_owner": {"const": "core_engine"}
+      }
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "blockers": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "minItems": 1
+                }
+            ]
+        },
+        "cleaned_action_ids": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "minLength": 1
+            },
+            "uniqueItems": true
+        },
+        "dependent_action_ids": {
+            "type": "array",
+            "maxItems": 0
+        },
+        "dispatch_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "event_validation_status": {
+            "const": "pass"
+        },
+        "failed_action_ids": {
+            "allOf": [
+                {
+                    "prefixItems": [
+                        true
+                    ]
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        },
+        "run_id": {
+            "type": "string",
+            "minLength": 1
+        },
+        "schema_version": {
+            "const": "arcanum.native-dispatch-runner.partial-wave-closeout.v0.1"
+        },
+        "state": {
+            "const": "blocked"
+        },
+        "status": {
+            "const": "block"
+        },
+        "unattempted_action_ids": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "minLength": 1
+            },
+            "uniqueItems": true
+        },
+        "wave_id": {
+            "type": "string",
+            "minLength": 1
+        }
+    },
+    "required": [
+        "blockers",
+        "cleaned_action_ids",
+        "dependent_action_ids",
+        "dispatch_id",
+        "event_validation_status",
+        "failed_action_ids",
+        "run_id",
+        "schema_version",
+        "state",
+        "status",
+        "unattempted_action_ids",
+        "wave_id"
+    ]
+}

@@ -14,7 +14,7 @@
 QUALITY_BAR_STATUS=pass
 QUALITY_BAR_STATUS=partial
 QUALITY_BAR_STATUS=fail
-ANTI_PATTERN_HITS_JSON=["save-summary output instead of artifact body","design proceeds without approved define outputs","deferred plan/full behavior emitted from design"]
+ANTI_PATTERN_HITS_JSON=["save-summary output instead of artifact body","candidate definition promoted by Define","generated glossary treated as authority","design proceeds without approved define outputs","deferred plan/full behavior emitted from design"]
 WORKFLOW_GAPS_JSON=[{"category":"quality-bar","severity":"medium","summary":"usable output has unresolved non-blocker gaps","evidence":"fixture"},{"category":"anti-pattern","severity":"severe","summary":"design treats missing contracts as approved","evidence":"fixture"}]
 ```
 

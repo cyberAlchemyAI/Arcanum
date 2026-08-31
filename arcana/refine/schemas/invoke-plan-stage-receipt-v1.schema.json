@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arcanum.dev/schemas/refine/invoke-plan-stage-receipt/1-0-0",
+  "title": "InvokePlanStageReceiptV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "stage_id",
+    "owner_capability",
+    "mode",
+    "terminal_status",
+    "result",
+    "execution_designation",
+    "work_pack_id",
+    "invoke_outputs",
+    "readiness_receipt_ref",
+    "authority_effect",
+    "receipt_digest"
+  ],
+  "properties": {
+    "schema_version": {"const": "refine.invoke-plan-stage-receipt/v1"},
+    "receipt_id": {"type": "string", "minLength": 1},
+    "stage_id": {"const": "s09-invoke-plan"},
+    "owner_capability": {"const": "invoke"},
+    "mode": {"const": "plan"},
+    "terminal_status": {"const": "pass"},
+    "result": {"const": "pass"},
+    "execution_designation": {"const": "execution-candidate"},
+    "work_pack_id": {"type": "string", "minLength": 1},
+    "invoke_outputs": {
+      "type": "array",
+      "minItems": 6,
+      "items": {"$ref": "#/$defs/invokeOutput"}
+    },
+    "readiness_receipt_ref": {"$ref": "#/$defs/exactArtifactRef"},
+    "authority_effect": {"const": "none"},
+    "receipt_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "$defs": {
+    "exactArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "size_bytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "invokeOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["output_kind", "artifact_ref"],
+      "properties": {
+        "output_kind": {"type": "string", "minLength": 1},
+        "artifact_ref": {"$ref": "#/$defs/exactArtifactRef"}
+      }
+    }
+  }
+}

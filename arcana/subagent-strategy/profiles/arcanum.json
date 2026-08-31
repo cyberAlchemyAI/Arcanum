@@ -1,0 +1,51 @@
+{
+  "schema_version": "arcanum.subagent-strategy-runtime-profile.v1",
+  "profile_id": "arcanum.subagent-strategy.public.v1",
+  "profile_version": "1.0.0",
+  "row_schemas": {
+    "current": "0.6.1",
+    "historical_validate_only": []
+  },
+  "confirmation": {
+    "mode": "exact_sheet",
+    "binding_digest": "source_sheet",
+    "equivalence_receipt_kind": null
+  },
+  "source_lifecycle": "temporary_consumed",
+  "ledger": ".arcanum/observability/subagents-strategy/subagents-dispatch.yaml",
+  "runtime_temp_root": ".arcanum/runtime/subagents-strategy",
+  "adapter_module": "arcana/subagent-strategy/scripts/append-dispatch.cjs",
+  "adapter_base": "arcanum_root",
+  "adapter_operations": {
+    "readiness": "--check",
+    "register": "--consume",
+    "close": "--consume"
+  },
+  "required_admission_receipt_kind": null,
+  "dispatch_types": {
+    "research": {
+      "status": "live",
+      "owner_capability": ".agents/skills/research/SKILL.md"
+    },
+    "review": {
+      "status": "live",
+      "owner_capability": ".agents/skills/review/SKILL.md"
+    },
+    "experiment": {
+      "status": "reserved",
+      "owner_capability": null
+    },
+    "code": {
+      "status": "reserved",
+      "owner_capability": null
+    },
+    "plan": {
+      "status": "reserved",
+      "owner_capability": null
+    },
+    "suggestion": {
+      "status": "reserved",
+      "owner_capability": null
+    }
+  }
+}

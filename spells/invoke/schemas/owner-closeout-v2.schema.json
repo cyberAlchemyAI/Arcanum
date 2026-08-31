@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "stream_id", "child_id", "precloseout_digest", "owner", "status"],
+  "properties": {
+    "schema_version": {"const": "invoke.owner-closeout/v2"},
+    "stream_id": {"type": "string", "minLength": 1},
+    "child_id": {"type": "string", "minLength": 1},
+    "precloseout_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "owner": {"const": "invoke:refresh"},
+    "status": {"enum": ["pass", "block"]}
+  }
+}
